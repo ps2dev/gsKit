@@ -45,6 +45,24 @@
 <stopOnError>false</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
 </target>
+<target name="Build linuz-texture" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/linuz-texture">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean linuz-texture" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/linuz-texture">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Test linuz-texture" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/linuz-texture">
+<buildCommand>gmake</buildCommand>
+<buildTarget>test</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
 <target name="Build Basic" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/basic">
 <buildCommand>gmake</buildCommand>
 <buildTarget>all</buildTarget>
@@ -72,6 +90,24 @@
 <target name="Clean dmaKit" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee/dma">
 <buildCommand>gmake</buildCommand>
 <buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build Textures" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/textures">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean Textures" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/textures">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Test Textures" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/textures">
+<buildCommand>gmake</buildCommand>
+<buildTarget>test</buildTarget>
 <stopOnError>false</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
 </target>
