@@ -8,9 +8,6 @@
 //
 // gsInit.c - GS initialization and configuration routines.
 //
-// Parts taken from ooPo's ee-syscalls.txt
-// http://www.oopo.net/consoledev/files/ee-syscalls.txt
-//
 // Parts taken from emoon's BreakPoint Demo Library
 //
 
@@ -37,41 +34,41 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	}
 
 	GS_SET_PMODE(0,		// Read Circuit 1
-		     1,		// Read Circuit 2
-		     0,		// Use ALP Register for Alpha Blending
-		     1,		// Alpha Value of Read Circuit 2 for Output Selection
-		     0,		// Blend Alpha with output of Read Circuit 2
-		     0x80);	// Alpha Value = 1.0
+				1,		// Read Circuit 2
+				0,		// Use ALP Register for Alpha Blending
+				1,		// Alpha Value of Read Circuit 2 for Output Selection
+				0,		// Blend Alpha with output of Read Circuit 2
+				0x80);	// Alpha Value = 1.0
 
-	GS_SET_DISPFB1(0,			// Frame Buffer Base Pointer (Address/2048)
-		       gsGlobal->Width / 64,	// Buffer Width (Address/64)
-		       gsGlobal->PSM,		// Pixel Storage Format
-		       0,			// Upper Left X in Buffer
-		       0);			// Upper Left Y in Buffer
+	GS_SET_DISPFB1(0,					// Frame Buffer Base Pointer (Address/2048)
+				gsGlobal->Width / 64,	// Buffer Width (Address/64)
+				gsGlobal->PSM,			// Pixel Storage Format
+				0,						// Upper Left X in Buffer
+				0);	
 
-	GS_SET_DISPFB2(0,                       // Frame Buffer Base Pointer (Address/2048)
-		       gsGlobal->Width / 64,    // Buffer Width (Address/64)
-		       gsGlobal->PSM,           // Pixel Storage Format
-		       0,                       // Upper Left X in Buffer
-		       0);                      // Upper Left Y in Buffer
+	GS_SET_DISPFB2(0,					// Frame Buffer Base Pointer (Address/2048)
+				gsGlobal->Width / 64,	// Buffer Width (Address/64)
+				gsGlobal->PSM,			// Pixel Storage Format
+				0,						// Upper Left X in Buffer
+				0);						// Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(656+gsGlobal->StartX,   // X position in the display area (in VCK unit
-			35+gsGlobal->StartY,    // Y position in the display area (in Raster u
-			gsGlobal->MagX,         // Horizontal Magnification
-			gsGlobal->MagY,         // Vertical Magnification
-			(gsGlobal->Width-1)*4,  // Display area width
-			(gsGlobal->Height-1));  // Display area height
+	GS_SET_DISPLAY1(656+gsGlobal->StartX,	// X position in the display area (in VCK unit
+					35+gsGlobal->StartY,	// Y position in the display area (in Raster u
+					gsGlobal->MagX,			// Horizontal Magnification
+					gsGlobal->MagY,			// Vertical Magnification
+					(gsGlobal->Width-1)*4,	// Display area width
+					(gsGlobal->Height-1));	// Display area height
 
 	GS_SET_DISPLAY2(656+gsGlobal->StartX,	// X position in the display area (in VCK units)
-			35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
-			gsGlobal->MagX,		// Horizontal Magnification
-			gsGlobal->MagY,		// Vertical Magnification
-			(gsGlobal->Width-1)*4,	// Display area width
-			(gsGlobal->Height-1));	// Display area height
+					35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
+					gsGlobal->MagX,			// Horizontal Magnification
+					gsGlobal->MagY,			// Vertical Magnification
+					(gsGlobal->Width-1)*4,	// Display area width
+					(gsGlobal->Height-1));	// Display area height
 
-	GS_SET_BGCOLOR(gsGlobal->BGColor->Red,		// Red
-		       gsGlobal->BGColor->Green,	// Green
-		       gsGlobal->BGColor->Blue);	// Blue
+	GS_SET_BGCOLOR(gsGlobal->BGColor->Red,	// Red
+				gsGlobal->BGColor->Green,	// Green
+				gsGlobal->BGColor->Blue);	// Blue
 
 	gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
 	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 1
@@ -99,9 +96,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_ZBUF_1;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
-				    gsGlobal->Test->DATE, gsGlobal->Test->DATM,
-				    gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
+								gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+								gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+								gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_1;
 
@@ -121,9 +118,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_ZBUF_2;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
-				    gsGlobal->Test->DATE, gsGlobal->Test->DATM,
-				    gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
+								gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+								gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+								gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_2;
 
@@ -149,9 +146,9 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	if(mode == GS_MODE_NTSC)
 	{
-	        gsGlobal->Mode = GS_MODE_NTSC;
-	        gsGlobal->Width = 640;
-	        gsGlobal->Height = 480;
+		gsGlobal->Mode = GS_MODE_NTSC;
+		gsGlobal->Width = 640;
+		gsGlobal->Height = 480;
 	}
 	else if(mode == GS_MODE_PAL)
 	{
@@ -177,28 +174,28 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	gsGlobal->PrimAlpha = GS_BLEND_BACK2FRONT;
 	gsGlobal->PrimContext = 0;
 
-        /* BGColor Register Values */
-        gsGlobal->BGColor->Red = 0x00;
-        gsGlobal->BGColor->Green = 0x00;
-        gsGlobal->BGColor->Blue = 0x0;
+	/* BGColor Register Values */
+	gsGlobal->BGColor->Red = 0x00;
+	gsGlobal->BGColor->Green = 0x00;
+	gsGlobal->BGColor->Blue = 0x0;
 
-        /* TEST Register Values */
-        gsGlobal->Test->ATE = 0;
-        gsGlobal->Test->ATST = 1;
-        gsGlobal->Test->AREF = 0x80;
-        gsGlobal->Test->AFAIL = 0;
-        gsGlobal->Test->DATE = 0;
-        gsGlobal->Test->DATM = 0;
-        gsGlobal->Test->ZTE = 1;
-        gsGlobal->Test->ZTST = 2;
+	/* TEST Register Values */
+	gsGlobal->Test->ATE = 0;
+	gsGlobal->Test->ATST = 1;
+	gsGlobal->Test->AREF = 0x80;
+	gsGlobal->Test->AFAIL = 0;
+	gsGlobal->Test->DATE = 0;
+	gsGlobal->Test->DATM = 0;
+	gsGlobal->Test->ZTE = 1;
+	gsGlobal->Test->ZTST = 2;
 
 	gsGlobal->Clamp->WMS = GS_CMODE_CLAMP;
 	gsGlobal->Clamp->WMT = GS_CMODE_CLAMP;
-        gsGlobal->Clamp->MINU = 0;
-        gsGlobal->Clamp->MAXU = 0;
-        gsGlobal->Clamp->MINV = 0;
-        gsGlobal->Clamp->MAXV = 0;
-
+	gsGlobal->Clamp->MINU = 0;
+	gsGlobal->Clamp->MAXU = 0;
+	gsGlobal->Clamp->MINV = 0;
+	gsGlobal->Clamp->MAXV = 0;
+	
 	return gsGlobal;
 }
 

@@ -14,6 +14,10 @@
 
 #include "gsKit.h"
 
+#ifdef HAVE_LIBJPG
+#include <libjpg.h>
+#endif
+
 u32  gsKit_texture_size(int width, int height, int psm)
 {
 	switch (psm) {
@@ -148,10 +152,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-	// Jpeg stuff needs to be reimplimented, or we need to
-	// figure out tinyjpeg licensing.
+#ifdef HAVE_LIBJPG
 	
-/*	jpgData *jpg;
+	jpgData *jpg;
 
 	jpg = jpgOpen(Path);
 	if (jpg == NULL) {
@@ -165,10 +168,15 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Height = jpg->height;
 	Texture->PSM = GS_PSM_CT24;
 	jpgClose(jpg);
-	free(data);
-*/
+	
+	return 0;
+	
+#else
+
 	printf("ERROR: gsKit_texture_jpeg unimplimented.\n");
 	return -1;
+	
+#endif
 }
 
 int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)

@@ -11,12 +11,21 @@
 
 include $(GSKIT)/ee/Rules.make
 
+ifdef LIBJPG
+	EE_INCS += -I$(LIBJPG)/include
+	EE_CFLAGS += -DHAVE_LIBJPG
+	EE_LIB_DIRS = -L$(LIBJPG)/lib
+	# link with following libraries (libs need to be defined multiple times in order for linking to work!!)
+	EE_LIBS += -lgcc -lgskit -ldmakit -ljpg -lc -lkernel -lc -lsyscall  -ldebug -lsyscall -lkernel
+else
+	# link with following libraries (libs need to be defined multiple times in order for linking to work!!)
+	EE_LIBS += -lgcc -lgskit -ldmakit -lc -lkernel -lc -lsyscall  -ldebug -lsyscall -lkernel
+endif
+
 # include dir
 EE_INCS += -I$(GSKIT)/ee/gs/include  -I$(GSKIT)/ee/dma/include -I$(GCCLIB)/include -I$(PS2GDB)/ee
 
 # linker flags
-EE_LIB_DIRS = -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
+EE_LIB_DIRS += -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
 
-# link with following libraries (libs need to be defined multiple times in order for linking to work!!)
-EE_LIBS += -lgcc -lgskit -ldmakit -lc -lkernel -lc -lsyscall  -ldebug -lsyscall -lkernel
