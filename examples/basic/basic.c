@@ -11,6 +11,7 @@
 
 #include "gsKit.h"
 #include "dmaKit.h"
+#include "malloc.h"
 
 int main(void)
 {

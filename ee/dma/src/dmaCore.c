@@ -12,6 +12,7 @@
 
 #include "dmaKit.h"
 #include "kernel.h"
+#include "dmaArrays.h"
 
 int dmaKit_wait(unsigned int channel, unsigned int timeout)
 {
