@@ -15,10 +15,10 @@ EE_OBJS = textures.o
 all: $(EE_BIN)
 
 test: all
-	ps2client -t 1 execee host:textures.elf
+	ps2client -h $(PS2_IP) -t 1 execee host:textures.elf
 
 reset: clean
-	ps2client reset
+	ps2client -h $(PS2_IP) reset
 
 clean:
 	rm -f $(EE_OBJS) $(EE_BIN)

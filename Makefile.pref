@@ -23,3 +23,4 @@ CPPLIB = $(PS2DEV)/ee/ee/lib
 LIBGSKIT = $(GSKIT)/lib/libgskit.a
 LIBDMAKIT = $(GSKIT)/lib/libdmakit.a
 
+PS2_IP = 192.168.0.10

@@ -22,7 +22,7 @@ u32  gsKit_texture_size(int width, int height, int psm)
 {
 	switch (psm) {
 		case GS_PSM_CT32:  return (width*height*4);
-		case GS_PSM_CT24:  return (width*height*3);
+		case GS_PSM_CT24:  return (width*height*4);
 		case GS_PSM_CT16:  return (width*height*2);
 		case GS_PSM_CT16S: return (width*height*2);
 		case GS_PSM_T8:    return (width*height  );
@@ -174,7 +174,8 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	TextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	printf("Texture Size = %i\n",TextureSize);
 
-	Texture->Mem = malloc(TextureSize);
+//	Texture->Mem = malloc(TextureSize);
+	Texture->Mem = calloc(TextureSize,1);
 	jpgReadImage(jpg, Texture->Mem);
 	jpgClose(jpg);
 	
@@ -388,7 +389,8 @@ void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 p
 	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 
-	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, fbw/64, psm);
+//	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, fbw/64, psm);
+	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, width/64, psm);
 	*p_data++ = GS_BITBLTBUF;
 
 	*p_data++ = GS_SETREG_TRXPOS(0, 0, 0, 0, 0);
@@ -423,6 +425,10 @@ void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 p
 	*p_data++ = 0;
 	
 	dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+
+	if(dmaKit_wait( DMA_CHANNEL_GIF, 0 ) == -1)
+		printf("WTF THIS IS FUXXXXXX0R\n");
+
 }
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
@@ -480,7 +486,8 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
@@ -552,7 +559,8 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
@@ -622,6 +630,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
         *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
@@ -683,7 +692,8 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
@@ -744,7 +754,8 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
@@ -805,7 +816,8 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
@@ -883,7 +895,8 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
