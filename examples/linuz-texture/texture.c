@@ -61,7 +61,7 @@ int main(void)
 	tex8.Vram = 0x3000*256;
 	tex8.Clut = image_clut32;
 	tex8.VramClut = 0x3800*256;
-	tex.Filter = GS_FILTER_LINEAR;
+	tex8.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
 	
 	do
