@@ -196,9 +196,11 @@ struct gsGlobals
 	u8 Mode;
 	u8 Interlace;
 	u8 Field;
+	u8 Setup;
 	u32 CurrentPointer;
 	u32 ScreenBuffer[2];
 	u32 ZBuffer;
+	u8 EvenOrOdd;
 	int ActiveBuffer;
 	int Width;
 	int Height;
@@ -207,6 +209,8 @@ struct gsGlobals
 	int OffsetY;
 	int StartX;
 	int StartY;
+	int MagX;
+	int MagY;
 	GSBGCOLOR *BGColor;
 	GSTEST *Test;
 	GSCLAMP *Clamp;
@@ -221,13 +225,32 @@ struct gsGlobals
 
 typedef struct gsGlobals GSGLOBAL;
 
+struct gsRegisters {
+ u64 SIGNAL:      1 __attribute__((packed)); /* ro */
+ u64 FINISH:      1 __attribute__((packed)); /* ro */
+ u64 HSINT:       1 __attribute__((packed)); /* ro */
+ u64 VSINT:       1 __attribute__((packed)); /* ro */
+ u64 reserved04:  3 __attribute__((packed)); /* ro */
+ u64 pad07:       1 __attribute__((packed));
+ u64 FLUSH:       1 __attribute__((packed)); /* rw */
+ u64 RESET:       1 __attribute__((packed)); /* N/A */
+ u64 pad10:       2 __attribute__((packed));
+ u64 NFIELD:      1 __attribute__((packed)); /* ro */
+ u64 FIELD:       1 __attribute__((packed)); /* ro */
+ u64 FIFO:        2 __attribute__((packed)); /* ro */
+ u64 REV:         8 __attribute__((packed)); /* ro */
+ u64 ID:          8 __attribute__((packed)); /* ro */
+ u64 pad32:      32 __attribute__((packed));
+};
+typedef struct gsRegisters GSREG __attribute__((packed));
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
-GSGLOBAL *gsKit_init_global(void);
+GSGLOBAL *gsKit_init_global(u8 mode);
 
 #ifdef __cplusplus
 }

@@ -17,7 +17,7 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
 	GSFONT gsFont;
 
@@ -43,14 +43,14 @@ int main(void)
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
 
-	gsFont.Path = "host:font2d";
+	gsFont.Path = "host:fonts/arial";
 	gsFont.Type = GSKIT_FTYPE_BMP_DAT;
 	gsKit_font_upload(gsGlobal, &gsFont, &gsFont.Texture);	
 
 	while(1){
 		gsKit_clear(gsGlobal, White);
 
-		gsKit_font_print(gsGlobal, &gsFont, 50, 50, 1, Black, "Hello World!");
+		gsKit_font_print(gsGlobal, &gsFont, 50, 50, 1, 0x80808FF, "Hello World!");
 
 		gsKit_sync_flip(gsGlobal);
 	}

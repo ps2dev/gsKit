@@ -30,16 +30,21 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	u64	*p_data;
 	u64	*p_store;
 
-	gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
+	if(!gsGlobal->Setup)
+	{
+		gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
+	
+		GS_RESET();
 
-	GS_RESET();
+		__asm__("sync.p;" 
+			"nop;");
 
-	__asm__("sync.p;" 
-		"nop;");
+		GsPutIMR(0x0000F700);
 
-	GsPutIMR(0x0000F700);
+		gsKit_init(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
-	gsKit_init(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
+		gsGlobal->Setup = 1;
+	}
 
 	GS_SET_PMODE(0,		// Read Circuit 1
 		     1,		// Read Circuit 2
@@ -62,15 +67,15 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	GS_SET_DISPLAY1(656+gsGlobal->StartX,   // X position in the display area (in VCK unit
 			35+gsGlobal->StartY,    // Y position in the display area (in Raster u
-			3,                      // Horizontal Magnification
-			0,                      // Vertical Magnification
-			(gsGlobal->Width-1)*4,      // Display area width
-			(gsGlobal->Height-1));      // Display area height
+			gsGlobal->MagX,         // Horizontal Magnification
+			gsGlobal->MagY,         // Vertical Magnification
+			(gsGlobal->Width-1)*4,  // Display area width
+			(gsGlobal->Height-1));  // Display area height
 
 	GS_SET_DISPLAY2(656+gsGlobal->StartX,	// X position in the display area (in VCK units)
 			35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
-			3,			// Horizontal Magnification
-			0,			// Vertical Magnification
+			gsGlobal->MagX,		// Horizontal Magnification
+			gsGlobal->MagY,		// Vertical Magnification
 			(gsGlobal->Width-1)*4,	// Display area width
 			(gsGlobal->Height-1));	// Display area height
 
@@ -138,7 +143,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	
 }
 
-GSGLOBAL *gsKit_init_global(void)
+GSGLOBAL *gsKit_init_global(u8 mode)
 {
 	
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
@@ -147,16 +152,32 @@ GSGLOBAL *gsKit_init_global(void)
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 
         /* Generic Values */
-        gsGlobal->Mode = GS_MODE_NTSC;
         gsGlobal->Interlace = GS_NONINTERLACED;
         gsGlobal->Field = GS_FRAME;
+        gsGlobal->Setup = 0;
         gsGlobal->Aspect = GS_ASPECT_4_3;
-        gsGlobal->Width = 640;
-        gsGlobal->Height = 480;
+
+	if(mode == GS_MODE_NTSC)
+	{
+	        gsGlobal->Mode = GS_MODE_NTSC;
+	        gsGlobal->Width = 640;
+	        gsGlobal->Height = 480;
+	}
+	else if(mode == GS_MODE_PAL)
+	{
+		gsGlobal->Mode = GS_MODE_PAL;
+		gsGlobal->Width = 720;
+		gsGlobal->Height = 576;
+	}
+
+	// TODO Add the rest of the mode values here!
+		
         gsGlobal->OffsetX = 2048;
         gsGlobal->OffsetY = 2048;
         gsGlobal->StartX = 0;
         gsGlobal->StartY = 0;
+        gsGlobal->MagX = 3;
+        gsGlobal->MagY = 0;
         gsGlobal->PSM = GS_PSM_CT16;
         gsGlobal->PSMZ = GS_PSMZ_16;
         gsGlobal->ActiveBuffer = 1;

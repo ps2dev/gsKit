@@ -16,7 +16,7 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
 	float x = 10;
 	float y = 10;

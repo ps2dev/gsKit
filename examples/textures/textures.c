@@ -15,7 +15,7 @@
 
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 	GSTEXTURE Tex1, Tex2;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 

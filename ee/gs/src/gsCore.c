@@ -39,7 +39,9 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 	gsGlobal->ActiveBuffer ^= 1;
 	gsGlobal->PrimContext ^= 1;
 
-	gsKit_setactive( gsGlobal );
+	gsGlobal->EvenOrOdd=((GSREG*)CSR)->FIELD;
+
+	gsKit_setactive(gsGlobal);
 }
 
 
