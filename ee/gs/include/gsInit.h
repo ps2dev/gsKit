@@ -101,6 +101,9 @@
 #define GS_BLEND_FRONT2BACK 0x12
 #define GS_BLEND_BACK2FRONT 0x01
 
+/// Return this is VRAM allocation fails.
+#define GSKIT_ALLOC_ERROR 0xFFFFFFFF
+
 // Begin Register List
 
 /// GS Primitive

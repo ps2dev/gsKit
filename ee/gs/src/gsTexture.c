@@ -117,8 +117,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	Texture->Mem = malloc(TextureSize);
 
-        if(Bitmap.InfoHeader.PSM == 24)
-        {
+	// Shouldn't we just always be doing this?
+        //if(Bitmap.InfoHeader.PSM == 24)
+        //{
 		image = malloc(FTexSize);
 		if (image == NULL) return -1;
 		fioRead(File, image, FTexSize);
@@ -131,14 +132,14 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			}
 		}
 		free(image);
-        } else {
-		fioRead(File, Texture->Mem, TextureSize);
-	}
+        //} else {
+	//	fioRead(File, Texture->Mem, TextureSize);
+	//}
 
         fioClose(File);
 
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);
-	if(Texture->Vram == -1)
+	if(Texture->Vram == GSKIT_ALLOC_ERROR)
 	{
 		printf("VRAM Allocation Failed. Will not upload texture.\n");
 		return -1;
@@ -174,6 +175,11 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	jpgClose(jpg);
 	
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);
+	if(Texture->Vram == GSKIT_ALLOC_ERROR)
+	{
+		printf("VRAM Allocation Failed. Will not upload texture.\n");
+		return -1;
+	}
 	gsKit_texture_upload(gsGlobal, Texture);
 	
 	free(Texture->Mem);	
@@ -200,6 +206,12 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	Texture->Mem = malloc(FileSize);
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
+	if(Texture->Vram == GSKIT_ALLOC_ERROR)
+	{
+		printf("VRAM Allocation Failed. Will not upload texture.\n");
+		return -1;
+	}
+	
         if(fioRead(File, Texture->Mem, FileSize) <= 0)
         {
                 printf("Could not load texture: %s\n", Path);
@@ -229,6 +241,12 @@ int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	size = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
 	gsFont->Texture->Mem = malloc(size);
 	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, size);
+	if(gsFont->Texture->Vram == GSKIT_ALLOC_ERROR)
+	{
+		printf("VRAM Allocation Failed. Will not upload texture.\n");
+		return -1;
+	}
+	
 	memcpy(gsFont->Texture->Mem, &data[288/4], size);
 
 	if (gsFont->Texture->PSM != 0) {
@@ -299,6 +317,12 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	size = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
 	gsFont->Texture->Mem = malloc(size);
 	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, size);
+	if(gsFont->Texture->Vram == GSKIT_ALLOC_ERROR)
+	{
+		printf("VRAM Allocation Failed. Will not upload texture.\n");
+		return -1;
+	}
+	
 	if(fioRead(File, gsFont->Texture->Mem, size) <= 0)
 	{
 		printf("Could not load font: %s\n", gsFont->Path);
@@ -324,20 +348,27 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	return 0;
 }
 
-void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm)
+void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 psm)
 {
 	u64* p_store;
 	u64* p_data;
-	u64* p_mem;
+	u32* p_mem;
 	int packets;
 	int remain;
 	int qwc;
 
 	qwc = gsKit_texture_size(width, height, psm) / 16;
+	if( gsKit_texture_size(width, height, psm) % 16 )
+	{
+#ifdef DEBUG
+		printf("Uneven division of quad word count from VRAM alloc. Rounding up QWC.\n");
+#endif
+		qwc++;
+	}
 
 	packets = qwc / DMA_MAX_SIZE;
 	remain  = qwc % DMA_MAX_SIZE;
-	p_mem   = (u64*)mem;
+	p_mem   = (u32*)mem;
 
 	p_store = p_data = dmaKit_spr_alloc( (10+packets+(remain>0))*16 );
 
@@ -368,7 +399,7 @@ void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 ps
 	while (packets-- > 0) {
 	        *p_data++ = DMA_TAG( DMA_MAX_SIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
 	        *p_data++ = 0;
-			p_mem+= DMA_MAX_SIZE;
+		p_mem+= (DMA_MAX_SIZE * 16);
 	}
 	if (remain > 0) {
 	        *p_data++ = DMA_TAG( remain, 1, DMA_REF, 0, (u32)p_mem, 0 );

@@ -19,6 +19,9 @@ int main(void)
 	GSTEXTURE Tex1, Tex2, Tex3;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+	
+	//gsGlobal->PSM = GS_PSM_CT32;
+	//gsGlobal->PSMZ = GS_PSMZ_32;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -35,12 +38,12 @@ int main(void)
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");
 	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");
-	printf("Texure 1 VRAM Pointer = 0x%X\n",Tex1.Vram);
-	printf("Texure 2 VRAM Pointer = 0x%X\n",Tex2.Vram);
+	printf("Texure 1 VRAM Range = 0x%X - 0x%X\n",Tex1.Vram, Tex1.Vram +gsKit_texture_size(Tex1.Width, Tex1.Height, Tex1.PSM) - 1);
+	printf("Texure 2 VRAM Range = 0x%X - 0x%X\n",Tex2.Vram, Tex2.Vram +gsKit_texture_size(Tex2.Width, Tex2.Height, Tex2.PSM) - 1);
 	
 	#ifdef HAVE_LIBJPG
 	gsKit_texture_jpeg(gsGlobal, &Tex3, "host:ps2dev.jpg");
-	printf("Texure 3 VRAM Pointer = 0x%X\n",Tex3.Vram);
+	printf("Texure 3 VRAM Range = 0x%X - 0x%X\n",Tex3.Vram, Tex3.Vram +gsKit_texture_size(Tex3.Width, Tex3.Height, Tex3.PSM) - 1);
 	#endif
 			
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
@@ -83,6 +86,7 @@ int main(void)
                                                             Tex2.Height, // V2
                                                             2.0,
                                                             TexCol);
+
 #ifdef HAVE_LIBJPG
                 gsKit_prim_sprite_texture(gsGlobal, &Tex3, 20.0,  // X1
                                                             386.0,  // Y2
@@ -96,6 +100,7 @@ int main(void)
                                                             TexCol);
 
 #endif
+		
 		gsKit_sync_flip(gsGlobal);
 	}
 	

@@ -22,7 +22,7 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 	{
 		gsGlobal->CurrentPointer -= size;
 		printf("ERROR: Not enough VRAM for this allocation!\n");
-		return 0;
+		return GSKIT_ALLOC_ERROR;
 	}
 	else
 		return gsGlobal->CurrentPointer - size;
