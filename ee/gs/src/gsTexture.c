@@ -164,7 +164,7 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		printf("error opening %s\n", Path);
 	}
 	
-	TextureSize = (jpg->width * jpg->color_components * jpg->height);
+	TextureSize = (jpg->width * (jpg->bpp/8) * jpg->height);
 
 	Texture->Mem = malloc(TextureSize);
 	jpgReadImage(jpg, Texture->Mem);
