@@ -2,10 +2,16 @@
 
 .PHONY: dummy
 
+all: build
+
 # Use SUBDIRS to descend into subdirectories.
 subdir_list  = $(patsubst %,all-%,$(SUBDIRS))
 subdir_clean = $(patsubst %,clean-%,$(SUBDIRS))
 subdirs: dummy $(subdir_list)
+
+build: $(subdir_list)
+
+clean: $(subdir_clean)
 
 ifdef SUBDIRS
 $(subdir_list): dummy
@@ -19,5 +25,3 @@ clean: $(subdir_clean)
 
 # A rule to do nothing.
 dummy:
-
-

@@ -13,3 +13,6 @@ SUBDIRS = ee examples lib
 
 include Rules.make
 
+reset:
+	ps2client reset
+
