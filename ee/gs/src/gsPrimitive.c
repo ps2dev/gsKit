@@ -43,7 +43,6 @@ int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, 
         {
                 *p_data++ = gsGlobal.PrimAlpha;
                 *p_data++ = GS_ALPHA_1+gsGlobal.PrimContext;
-		size++;
         }
 
         *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, 0, gsGlobal.PrimAlphaEnable,

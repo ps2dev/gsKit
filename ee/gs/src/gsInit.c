@@ -64,14 +64,14 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 			35,                     // Y position in the display area (in Raster u
 			3,                      // Horizontal Magnification
 			0,                      // Vertical Magnification
-			gsGlobal.Width*3,       // Display area width
+			gsGlobal.Width*4,       // Display area width
 			gsGlobal.Height);       // Display area height
 
 	GS_SET_DISPLAY2(656,			// X position in the display area (in VCK units)
 			35,			// Y position in the display area (in Raster units)
 			3,			// Horizontal Magnification
 			0,			// Vertical Magnification
-			gsGlobal.Width*3,	// Display area width
+			gsGlobal.Width*4,	// Display area width
 			gsGlobal.Height);	// Display area height
 
 	GS_SET_BGCOLOR(gsGlobal.BGColor.Red,	// Red
@@ -96,7 +96,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4 );
 	*p_data++ = GS_XYOFFSET_1;
 
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width, 0, gsGlobal.Height );
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );
@@ -117,7 +117,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4);
 	*p_data++ = GS_XYOFFSET_2;
 
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width, 0, gsGlobal.Height );
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );

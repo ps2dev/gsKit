@@ -39,7 +39,7 @@ int main(void)
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.PSM = 0;
 	gsGlobal.ActiveBuffer = 1;
-	gsGlobal.PrimAlphaEnable = 0;
+	gsGlobal.PrimAlphaEnable = 1;
 	gsGlobal.PrimContext = 0;
 
 	/* BGColor Register Values */
@@ -48,7 +48,7 @@ int main(void)
 	gsGlobal.BGColor.Blue = 0x00;
 
 	/* TEST Register Values */
-	gsGlobal.Test.ATE = 0;
+	gsGlobal.Test.ATE = 1;
 	gsGlobal.Test.ATST = 7;
 	gsGlobal.Test.AREF = 0xff;
 	gsGlobal.Test.AFAIL = 0;
