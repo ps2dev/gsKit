@@ -29,6 +29,9 @@
 #define GS_D_ATEST_OFF 0x00
 #define GS_D_ATEST_ON 0x01
 
+#define GSU_REG_DISPLAY1       (volatile u64 *)0x12000080
+#define GSU_REG_DISPLAY2       (volatile u64 *)0x120000A0
+
 #define GS_PRIM       0x00
 #define GS_RGBAQ      0x01
 #define GS_ST         0x02

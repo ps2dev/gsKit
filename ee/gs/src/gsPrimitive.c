@@ -18,7 +18,7 @@ int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, 
 	printf("Drawing Sprite Primitive\n");
 	u64* p_store;
 	u64* p_data;
-	int size = 6;
+	int size = 5;
 
 //        x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 //        x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -56,9 +56,6 @@ int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, 
 
 	*p_data++ = GS_SETREG_XYZ2( x1, y1, z );
 	*p_data++ = GS_XYZ2;
-
-	*p_data++ = color;
-	*p_data++ = GS_RGBAQ;
 
 	*p_data++ = GS_SETREG_XYZ2( x2, y2, z );
 	*p_data++ = GS_XYZ2;

@@ -180,6 +180,6 @@ struct gsGlobals
 typedef struct gsGlobals GSGLOBAL;
 
 int gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
-struct gsGlobals gsKit_init_screen(struct gsGlobals gsGlobal);
+GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field);
 
 #endif /* __GSINIT_H__ */

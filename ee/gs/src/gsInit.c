@@ -27,14 +27,19 @@ int gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field)
 	return 0;
 }
 
-GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
+GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 {
 	u64	*p_data;
 	u64	*p_store;
 
-	__asm__ ("sync.p");
+	GS_RESET();
+
+	__asm__("sync.p;" 
+		"nop;");
 
 	GsPutIMR(0x0000F700);
+
+	gsKit_init(interlace, mode, field);
 
 	GS_SET_PMODE(0,		// Read Circuit 1
 		     1,		// Read Circuit 2
@@ -43,11 +48,24 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 		     0,		// Blend Alpha with output of Read Circuit 2
 		     0xFF);	// Alpha Value = 1.0
 
-	GS_SET_DISPFB2(0,			// Frame Buffer Base Pointer (Address/2048)
+	GS_SET_DISPFB1(0,			// Frame Buffer Base Pointer (Address/2048)
 		       gsGlobal.Width / 64,	// Buffer Width (Address/64)
 		       gsGlobal.PSM,		// Pixel Storage Format
 		       0,			// Upper Left X in Buffer
 		       0);			// Upper Left Y in Buffer
+
+	GS_SET_DISPFB2(0,                       // Frame Buffer Base Pointer (Address/2048)
+		       gsGlobal.Width / 64,     // Buffer Width (Address/64)
+		       gsGlobal.PSM,            // Pixel Storage Format
+		       0,                       // Upper Left X in Buffer
+		       0);                      // Upper Left Y in Buffer
+
+	GS_SET_DISPLAY1(656,                    // X position in the display area (in VCK unit
+			35,                     // Y position in the display area (in Raster u
+			3,                      // Horizontal Magnification
+			0,                      // Vertical Magnification
+			gsGlobal.Width*3,       // Display area width
+			gsGlobal.Height);       // Display area height
 
 	GS_SET_DISPLAY2(656,			// X position in the display area (in VCK units)
 			35,			// Y position in the display area (in Raster units)
@@ -63,6 +81,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 	gsGlobal.ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 1
 	gsGlobal.ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 2
 	gsGlobal.ScreenBuffer[2] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Z Buffer
+
 	p_data = p_store  = dmaKit_spr_alloc( 13*16 );
 
 	*p_data++ = GIF_TAG( 12, 1, 0, 0, 0, 1 );
@@ -95,7 +114,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal.Width / 64, gsGlobal.PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4 );
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4);
 	*p_data++ = GS_XYOFFSET_2;
 
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width, 0, gsGlobal.Height );
