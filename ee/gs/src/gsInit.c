@@ -32,6 +32,10 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 	u64	*p_data;
 	u64	*p_store;
 
+	__asm__ ("sync.p");
+
+	GsPutIMR(0x0000F700);
+
 	GS_SET_PMODE(0,		// Read Circuit 1
 		     1,		// Read Circuit 2
 		     0,		// Use ALP Register for Alpha Blending
@@ -45,6 +49,13 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 		       0,			// Upper Left X in Buffer
 		       0);			// Upper Left Y in Buffer
 
+	GS_SET_DISPLAY2(656,			// X position in the display area (in VCK units)
+			35,			// Y position in the display area (in Raster units)
+			3,			// Horizontal Magnification
+			0,			// Vertical Magnification
+			gsGlobal.Width*3,	// Display area width
+			gsGlobal.Height);	// Display area height
+
 	GS_SET_BGCOLOR(gsGlobal.BGColor.Red,	// Red
 		       gsGlobal.BGColor.Green,	// Green
 		       gsGlobal.BGColor.Blue);	// Blue
@@ -52,48 +63,54 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal)
 	gsGlobal.ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 1
 	gsGlobal.ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 2
 	gsGlobal.ScreenBuffer[2] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Z Buffer
-	p_data = p_store  = dmaKit_spr_alloc( (8+5)*16 );
+	p_data = p_store  = dmaKit_spr_alloc( 13*16 );
 
-	*p_data++ = GIF_TAG( 7+5, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 12, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 
 	*p_data++ = 1;
-	*p_data++ = GS_PRMODECONT,	
+	*p_data++ = GS_PRMODECONT;
 	
 	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal.Width / 64, gsGlobal.PSM, 0 );
-	*p_data++ = GS_FRAME_1,
+	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4 );
-	*p_data++ = GS_XYOFFSET_1,
+	*p_data++ = GS_XYOFFSET_1;
 
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width-1, 0, gsGlobal.Height-1 );
-	*p_data++ = GS_SCISSOR_1,
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width, 0, gsGlobal.Height );
+	*p_data++ = GS_SCISSOR_1;
 
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );
-	*p_data++ = GS_ZBUF_1,
+	*p_data++ = GS_ZBUF_1;
 
-	*p_data++ = GS_SETREG_TEST( 1, 7, 0xFF, 0, 0, 0, 1, 1 );
-	*p_data++ = GS_TEST_1,
+	*p_data++ = GS_SETREG_TEST( gsGlobal.Test.ATE, gsGlobal.Test.ATST, 
+				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
+				    gsGlobal.Test.DATE, gsGlobal.Test.DATM,
+				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
+	*p_data++ = GS_TEST_1;
 
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
-	*p_data++ = GS_COLCLAMP,
+	*p_data++ = GS_COLCLAMP;
 
 	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal.Width / 64, gsGlobal.PSM, 0 );
-	*p_data++ = GS_FRAME_2,
+	*p_data++ = GS_FRAME_2;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4 );
-	*p_data++ = GS_XYOFFSET_2,
+	*p_data++ = GS_XYOFFSET_2;
 
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width-1, 0, gsGlobal.Height-1 );
-	*p_data++ = GS_SCISSOR_2,
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width, 0, gsGlobal.Height );
+	*p_data++ = GS_SCISSOR_2;
 
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );
-	*p_data++ = GS_ZBUF_2,
+	*p_data++ = GS_ZBUF_2;
 
-	*p_data++ = GS_SETREG_TEST( 1, 7, 0xFF, 0, 0, 0, 1, 1 );
-	*p_data++ = GS_TEST_2,
+	*p_data++ = GS_SETREG_TEST( gsGlobal.Test.ATE, gsGlobal.Test.ATST, 
+				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
+				    gsGlobal.Test.DATE, gsGlobal.Test.DATM,
+				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
+	*p_data++ = GS_TEST_2;
 
-	dmaKit_send_chain( DMA_CHANNEL_GIF, 0, p_store, sizeof(p_store) );
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 13 );
 
 	return gsGlobal;
 }

@@ -147,20 +147,33 @@ struct gsBGColor
 	u8 Blue;
 };
 
+struct gsTest
+{
+	u8 ATE;
+	u8 ATST;
+	u8 AREF;
+	u8 AFAIL;
+	u8 DATE;
+	u8 DATM;
+	u8 ZTE;
+	u8 ZTST;
+};
+
 struct gsGlobals
 {
 	u32 CurrentPointer;
 	u32 ScreenBuffer[3];
-	u32 ActiveBuffer;
-	u32 Width;
-	u32 Height;
+	int ActiveBuffer;
+	int Width;
+	int Height;
 	int Aspect;
-	u32 OffsetX;
-	u32 OffsetY;
+	int OffsetX;
+	int OffsetY;
 	struct gsBGColor BGColor;
+	struct gsTest Test;
 	int PSM;
-	int PrimAlphaEnable;
 	int PrimContext;
+	int PrimAlphaEnable;
 	u64 PrimAlpha;
 };
 

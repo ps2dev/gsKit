@@ -28,7 +28,6 @@
 
 #define GS_SETREG_PRMODECONT(ac) ((u64)(ac))
 
-int gsKit_prim_sprite(GSGLOBAL gsGlobal, float x1, float y1, float x2, float y2, int z, int color);
-int gsKit_prim_sprite_ztest(GSGLOBAL gsGlobal, float x1, float y1, float x2, float y2, int z, int color);
+int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
 
 #endif /* __GSPRIMITIVE_H__ */

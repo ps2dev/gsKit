@@ -46,6 +46,7 @@ static u32 DMA_QWC[10] =  { 0x00000000, 0x00000000, 0x1000A020, 0x1000B020, \
 			    0x1000B420, 0x1000C020, 0x1000C420, 0x1000C820, \
 			    0x1000D020, 0x1000D420 };
 
+static u8 DMA_TAG_ENABLE[10] = { 1, 1, 0, 1, 1, 1 ,1 ,1, 1, 1 }; 
 
 static char* DMA_NAME[10] = { "VIF0", "VIF1", "GIF", "fromIPU", "toIPU", \
 		              "SIF0", "SIF1", "SIF2", "fromSPR", "toSPR" };

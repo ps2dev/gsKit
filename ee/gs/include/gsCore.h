@@ -16,11 +16,18 @@
 
 #include "gsKit.h"
 
-#define GS_ASPECT_4_3 0x00
-#define GS_ASPECT_16_9 0x01
+#define GS_ASPECT_4_3 0x0
+#define GS_ASPECT_16_9 0x1
 
 #define GS_AXIS_X 0x00
 #define GS_AXIS_Y 0x01
+
+#define GS_ZTEST_OFF 0x00
+#define GS_ZTEST_ON 0x01
+#define GS_ATEST_OFF 0x00
+#define GS_ATEST_ON 0x01
+#define GS_D_ATEST_OFF 0x00
+#define GS_D_ATEST_ON 0x01
 
 #define GS_PRIM       0x00
 #define GS_RGBAQ      0x01
@@ -102,8 +109,8 @@
 #define GS_PRIM_FIX_NOFIXDDA  0
 #define GS_PRIM_FIX_FIXDDA    1
 
-#define GIF_AD          0x0e
-#define GIF_NOP         0x0f
+#define GIF_AD          0x0E
+#define GIF_NOP         0x0F
 
 #define GS_VRAM_BLOCKSIZE 8192
 #define GS_VRAM_BLOCKSIZEW 64
@@ -118,6 +125,16 @@
 #define GS_CSR_FIFO_HALFFULL  0
 #define GS_CSR_FIFO_EMPTY   1
 #define GS_CSR_FIFO_ALMOSTFULL  2
+
+#define GSU_REG_CSR            (volatile u64 *)0x12001000      // System Status
+
+#define GSU_SET_CSR(A,B,C,D,E,F,G,H,I,J,K,L) \
+	(u64)(A & 0x00000001) <<  0 | (u64)(B & 0x00000001) <<  1 | \
+	(u64)(C & 0x00000001) <<  2 | (u64)(D & 0x00000001) <<  3 | \
+	(u64)(E & 0x00000001) <<  4 | (u64)(F & 0x00000001) <<  8 | \
+	(u64)(G & 0x00000001) <<  9 | (u64)(H & 0x00000001) << 12 | \
+	(u64)(I & 0x00000001) << 13 | (u64)(J & 0x00000003) << 14 | \
+	(u64)(K & 0x000000FF) << 16 | (u64)(L & 0x000000FF) << 24
 
 #define GIF_TAG(NLOOP,EOP,PRE,PRIM,FLG,NREG) \
                 ((u64)(NLOOP)<< 0)              | \
@@ -149,6 +166,6 @@ u32 gsKit_vram_alloc(GSGLOBAL gsGlobal, int size);
 GSGLOBAL gsKit_sync_flip(GSGLOBAL gsGlobal);
 GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal);
 void gsKit_vsync(void);
-void gsKit_clear(GSGLOBAL gsGlobal, int Color);
-
+void gsKit_clear(GSGLOBAL gsGlobal, u64 Color);
+int gsKit_set_test(GSGLOBAL gsGlobal, u8 Preset);
 #endif /* __GSCORE_H__ */

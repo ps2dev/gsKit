@@ -49,7 +49,7 @@ int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned
 	*(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,	// Direction
 							  0,	// ChainMode
 							  0,	// Address Stack Pointer
-							  1,	// Transfer DMA Tag
+							  DMA_TAG_ENABLE[channel], // Transfer DMA Tag
 							  0,	// No Interrupts   
 							  1,	// Start DMA
 							  0 );	// Priority Control Enable??
@@ -73,10 +73,11 @@ int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsi
 	*(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,    // Direction
 							  0,    // ChainMode
 							  0,    // Address Stack Pointer
-							  0,    // Transfer DMA Tag
+							  DMA_TAG_ENABLE[channel], // Transfer DMA Tag
 							  0,    // No Interrupts
 							  1,    // Start DMA
 							  0 );  // Priority Control Enable??
+	printf("Sent to DMA Channel w/ SPR\n");
 
 	return 0;
 }
@@ -98,12 +99,12 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
         *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,	// Direction
 							  1,	// ChainMode
 							  0,	// Address Stack Pointer
-							  0,	// Transfer DMA Tag
+							  DMA_TAG_ENABLE[channel], // Transfer DMA Tag
 							  0,	// No Interrupts
 							  1,	// Start DMA
 							  0 );	// Priority Control Enable??
 
-	printf("Send to DMA Channel in Chain Mode\n");
+	printf("Sent to DMA Channel in Chain Mode\n");
         return 0;
 }
 
@@ -116,7 +117,7 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
                 printf("Timed Out. Aborting Send.\n");
                 return -1;                                
         }
-        SyncDCache(data, data+size*16);
+        //SyncDCache(data, data+size*16);
 
 	if(DMA_QWC[channel] != 0)
 	        *(volatile u32 *)DMA_QWC[channel] = 0;
@@ -125,12 +126,12 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
 	*(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1, 	// Direction
 							  1, 	// ChainMode
 							  0, 	// Address Stack Pointer
-							  0, 	// Transfer DMA Tag
+							  DMA_TAG_ENABLE[channel], // Transfer DMA Tag
 							  0,	// No Interrupts
 							  1, 	// Start DMA
 							  0 );	// Priority Control Enable??
 
-	printf("Send to DMA Channel in Chain Mode w/Scratchpad\n");
+	printf("Sent to DMA Channel in Chain Mode w/Scratchpad\n");
 	return 0;
 }
 

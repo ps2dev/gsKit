@@ -11,33 +11,31 @@
 
 #include "gsKit.h"
 
-float gsKit_scale(GSGLOBAL gsGlobal, int axis, float vertex)
+float gsKit_scale(GSGLOBAL gsGlobal, int axis, int vertex)
 {
-	float tempvertex;	
+	int tempvertex;	
 
 	if(axis == GS_AXIS_X)
 	{
-		if(gsGlobal.Aspect != GS_ASPECT_4_3)
+		if(gsGlobal.Aspect == GS_ASPECT_4_3)
 		{
-			tempvertex = vertex * (4095.9375 / gsGlobal.Width);
+			tempvertex = vertex << 4;
 		}
 
-		if(gsGlobal.Aspect != GS_ASPECT_16_9)
+		if(gsGlobal.Aspect == GS_ASPECT_16_9)
 		{
-			tempvertex = vertex * (4095.9375 / gsGlobal.Width);
 		}
 	}
 
 	else if(axis == GS_AXIS_Y)
 	{
-		if(gsGlobal.Aspect != GS_ASPECT_4_3)
+		if(gsGlobal.Aspect == GS_ASPECT_4_3)
 		{
-			tempvertex = vertex * (4095.9375 / gsGlobal.Height);
+			tempvertex = vertex << 4;
 		}
 
-		if(gsGlobal.Aspect != GS_ASPECT_16_9)
+		if(gsGlobal.Aspect == GS_ASPECT_16_9)
 		{
-			tempvertex = vertex * (4095.9375 / gsGlobal.Height);
 		}
 	}
 
