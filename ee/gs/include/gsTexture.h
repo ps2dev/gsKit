@@ -31,13 +31,6 @@
 #define GS_TEXA       0x3b
 #define GS_TEXFLUSH   0x3f
 
-#define GS_SETREG_CLAMP_1 GS_SET_CLAMP
-#define GS_SETREG_CLAMP_2 GS_SET_CLAMP
-#define GS_SETREG_CLAMP(wms, wmt, minu, maxu, minv, maxv) \
-  ((u64)(wms)         | ((u64)(wmt) << 2) | \
-  ((u64)(minu) << 4)  | ((u64)(maxu) << 14) | \
-  ((u64)(minv) << 24) | ((u64)(maxv) << 34))
-
 #define GS_SETREG_COLCLAMP(clamp) ((u64)(clamp))
 
 #define GS_SETREG_MIPTBP1_1 GS_SETREG_MIPTBP1
@@ -102,22 +95,11 @@
   ((u64)(spsm) << 24) | ((u64)(dbp) << 32) | \
   ((u64)(dbw) << 48)  | ((u64)(dpsm) << 56))
 
-struct gsTexture
-{
-        u32     Width;
-        u32     Height;
-        u32     PSM;
-        void    *Mem;
-        void    *Clut;
-        u32     Vram;
-        u32     VramClut;
-};
-typedef struct gsTexture GSTEXTURE;
-
-void gsKit_texture_png(GSTEXTURE *Texture, char *Path);
-void gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
-void gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
-void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_png(GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);

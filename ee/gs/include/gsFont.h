@@ -14,4 +14,11 @@
 
 #include "gsKit.h"
 
+#define GSKIT_FTYPE_FNT 0x00
+#define GSKIT_FTYPE_TTF 0x01
+
+s8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
+void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z, 
+		      unsigned long color, char *String);
+
 #endif /* __GSFONT_H__ */

@@ -133,4 +133,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_TEST_2;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 13 );
+	gsKit_set_test(gsGlobal, GS_ZTEST_INIT);
+	gsKit_set_clamp(gsGlobal, GS_CMODE_INIT);
+	
 }

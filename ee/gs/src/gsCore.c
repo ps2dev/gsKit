@@ -88,29 +88,17 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 	u64 *p_store;
 
 	if(Preset == GS_ZTEST_OFF)
-	{
 		gsGlobal->Test.ZTST = 1;
-	}
 	else if (Preset == GS_ZTEST_ON)
-	{
 		gsGlobal->Test.ZTST = 2;
-	}
 	else if (Preset == GS_ATEST_OFF)
-	{
 		gsGlobal->Test.ATE = 0;
-	}
 	else if (Preset == GS_ATEST_ON)
-	{
 		gsGlobal->Test.ATE = 1;
-	}
 	else if (Preset == GS_D_ATEST_OFF)
-	{
 		gsGlobal->Test.DATE = 0;
-	}
 	else if (Preset == GS_D_ATEST_ON)
-	{
 		gsGlobal->Test.DATE = 1;
-	}
 
 	p_data = p_store = dmaKit_spr_alloc(2*16);
 
@@ -123,6 +111,45 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 				    gsGlobal->Test.ZTE, gsGlobal->Test.ZTST );
 
 	*p_data++ = GS_TEST_1+gsGlobal->PrimContext;
+
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 2);
+}
+
+void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
+{
+	u64 *p_data;
+	u64 *p_store;
+	
+	if(Preset == GS_CMODE_REPEAT)
+	{
+		gsGlobal->Clamp.WMS = GS_CMODE_REPEAT;
+		gsGlobal->Clamp.WMT = GS_CMODE_REPEAT;
+	}
+	else if(Preset == GS_CMODE_CLAMP)
+	{
+                gsGlobal->Clamp.WMS = GS_CMODE_CLAMP;
+                gsGlobal->Clamp.WMT = GS_CMODE_CLAMP;
+	}
+	else if(Preset == GS_CMODE_REGION_CLAMP)
+	{
+                gsGlobal->Clamp.WMS = GS_CMODE_REGION_CLAMP;
+                gsGlobal->Clamp.WMT = GS_CMODE_REGION_CLAMP;
+	}
+	else if(Preset == GS_CMODE_REGION_REPEAT)
+	{
+                gsGlobal->Clamp.WMS = GS_CMODE_REGION_REPEAT;
+                gsGlobal->Clamp.WMT = GS_CMODE_REGION_REPEAT;
+	}
+
+	p_data = p_store = dmaKit_spr_alloc(2*16);	
+
+        *p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp.WMS, gsGlobal->Clamp.WMT, gsGlobal->Clamp.MINU, 
+				    gsGlobal->Clamp.MAXU, gsGlobal->Clamp.MINV, gsGlobal->Clamp.MAXV);
+
+	*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 2);
 }

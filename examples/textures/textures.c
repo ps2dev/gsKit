@@ -72,24 +72,57 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
+	gsGlobal.Clamp.WMS = GS_CMODE_CLAMP;
+	gsGlobal.Clamp.WMT = GS_CMODE_CLAMP;
+/*
+	// These are only relevant if you are using REGION_CLAMP or REGION_REPEAT
+	gsGlobal.Clamp.MINU =
+	gsGlobal.Clamp.MAXU =
+	gsGlobal.Clamp.MINV =
+	gsGlobal.Clamp.MAXV =
+*/
 	gsKit_init_screen(&gsGlobal);
+	gsKit_clear(&gsGlobal, White);
+	
+	Tex1.Width = 256;
+	Tex1.Height = 256;
+	Tex1.PSM = GS_PSM_CT24;
+
+	gsKit_texture_raw(&gsGlobal, &Tex1, "host:bitmap.raw");
+
+//	gsKit_set_clamp(&gsGlobal, GS_CMODE_REPEAT);
 
 	while(1){
-		gsKit_clear(&gsGlobal, Black);
+		gsKit_clear(&gsGlobal, White);
 
-		gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 50,  // X1
+
+                gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 50,  // X1
+                                                            50,  // Y2
+        
+                                                            0,  // U1
+                                                            0,  // V1
+
+                                                            306, // X2
+                                                            306, // Y2
+
+                                                            256, // U2
+                                                            256, // V2
+                                                            1,
+                                                            0x80808080);
+
+		gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 310,  // X1
 							    50,  // Y2
 
-							    50,  // U1
-							    50,  // V1
+							    0,  // U1
+							    0,  // V1
 
-							    250, // X2
-							    250, // Y2
+							    630, // X2
+							    400, // Y2
 
-							    250, // U2
-							    250, // V2
+							    256, // U2
+							    256, // V2
 							    1, 
-							    White);
+							    0x80808080);
 
 		gsKit_sync_flip(&gsGlobal);
 	}

@@ -26,18 +26,18 @@ u32  gsKit_texture_size(int width, int height, int psm)
 	return 0;
 }
 
-void gsKit_texture_png(GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_png(GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_png unimplimented.\n");
+	return -1;
 }
 
-void gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
+s8  gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
 {
-}
-#if 0
-int  gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
-{
-	jpgData *jpg;
+	// Jpeg stuff needs to be reimplimented, or we need to
+	// figure out tinyjpeg licensing.
+	
+/*	jpgData *jpg;
 
 	jpg = jpgOpen(Path);
 	if (jpg == NULL) {
@@ -52,22 +52,49 @@ int  gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
 	Texture->PSM = GS_PSM_CT24;
 	jpgClose(jpg);
 	free(data);
+*/
+	printf("ERROR: gsKit_texture_jpeg unimplimented.\n");
+	return -1;
 }
-#endif
 
-void gsKit_texture_tga(GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_tga(GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_tga unimplimented.\n");
+	return -1;
 }
 
-void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-	switch( Texture->PSM )
+	int File = fioOpen(Path, O_RDONLY);
+	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
+	Texture->Mem = malloc(FileSize);
+	Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
+        if(fioRead(File, Texture->Mem, FileSize) <= 0)
+        {
+                printf("Could not load font: %s\n", Path);
+                return -1;
+        }
+	fioClose(File);
+	gsKit_texture_upload(gsGlobal, Texture);
+	free(Texture->Mem);
+	return 0;
+}
+
+s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+{
+	int File = fioOpen(gsFont->Path, O_RDONLY);
+	int FileSize = fioLseek(File, 0, SEEK_END);
+	gsFont->Texture.Mem = malloc(FileSize);
+	fioLseek(File, 0, SEEK_SET);
+	if(fioRead(File, gsFont->Texture.Mem, FileSize) <= 0)
 	{
-		case GS_PSM_CT32 : Texture->Vram = gsKit_vram_alloc(gsGlobal, Texture->Width*Texture->Height * 4); break;
-		case GS_PSM_T8 : Texture->Vram = gsKit_vram_alloc(gsGlobal, Texture->Width*Texture->Height); break;
-		case GS_PSM_T4 : Texture->Vram = gsKit_vram_alloc(gsGlobal, Texture->Width*Texture->Height / 4); break;
+		printf("Could not load font: %s\n", gsFont->Path);
+		return -1;
 	}
+	fioClose(File);
+	gsKit_texture_upload(&gsGlobal, &gsFont->Texture);
+	free(gsFont->Texture.Mem);
+	return 0;
 }
 
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm)

@@ -22,12 +22,20 @@
 #define GS_AXIS_X 0x00
 #define GS_AXIS_Y 0x01
 
+
+#define GS_CMODE_REPEAT 0x00
+#define GS_CMODE_CLAMP 0x01
+#define GS_CMODE_REGION_CLAMP 0x02
+#define GS_CMODE_REGION_REPEAT 0x03
+#define GS_CMODE_INIT 0xFF
+
 #define GS_ZTEST_OFF 0x00
 #define GS_ZTEST_ON 0x01
 #define GS_ATEST_OFF 0x00
 #define GS_ATEST_ON 0x01
 #define GS_D_ATEST_OFF 0x00
 #define GS_D_ATEST_ON 0x01
+#define GS_ZTEST_INIT 0xFF
 
 #define GSU_REG_DISPLAY1       (volatile u64 *)0x12000080
 #define GSU_REG_DISPLAY2       (volatile u64 *)0x120000A0
@@ -165,11 +173,33 @@
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
 
+struct gsTexture
+{
+        u32     Width;
+        u32     Height;
+        u32     PSM;
+        void    *Mem;
+        void    *Clut;
+        u32     Vram;
+        u32     VramClut;
+};
+typedef struct gsTexture GSTEXTURE;
+
+struct gsFont
+{
+        char *Path;
+        u8 Type;
+        GSTEXTURE Texture;
+        int CharWidth;
+};
+typedef struct gsFont GSFONT;
+
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, int size);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 void gsKit_vsync(void);
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 Color);
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
+void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
 #endif /* __GSCORE_H__ */

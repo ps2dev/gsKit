@@ -9,13 +9,13 @@
 # Makefile.global - Makefile global variable include.
 #
 
-include $(PS2SDKSRC)/ee/Rules.make
+include $(GSKIT)/ee/Rules.make
 
 # include dir
 EE_INCS += -I$(GSKIT)/ee/gs/include  -I$(GSKIT)/ee/dma/include -I$(GCCLIB)/include
 
 # linker flags
-EE_LIB_DIRS = -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDKSRC)/ee/kernel/lib -L$(PS2SDKSRC)/ee/libc/lib
+EE_LIB_DIRS = -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
 
 # link with following libraries (libs need to be defined multiple times in order for linking to work!!)

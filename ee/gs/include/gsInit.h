@@ -152,6 +152,13 @@
   ((u64)(scax0)        | ((u64)(scax1) << 16) | \
   ((u64)(scay0) << 32) | ((u64)(scay1) << 48))
 
+#define GS_SETREG_CLAMP_1 GS_SET_CLAMP
+#define GS_SETREG_CLAMP_2 GS_SET_CLAMP
+#define GS_SETREG_CLAMP(wms, wmt, minu, maxu, minv, maxv) \
+  ((u64)(wms)         | ((u64)(wmt) << 2) | \
+  ((u64)(minu) << 4)  | ((u64)(maxu) << 14) | \
+  ((u64)(minv) << 24) | ((u64)(maxv) << 34))
+
 struct gsBGColor
 {
 	u8 Red;
@@ -173,6 +180,17 @@ struct gsTest
 };
 typedef struct gsTest GSTEST;
 
+struct gsClamp
+{
+	u8 WMS;
+	u8 WMT;
+	int MINU;
+	int MAXU;
+	int MINV;
+	int MAXV;
+};
+typedef struct gsClamp GSCLAMP;
+
 struct gsGlobals
 {
 	u8 Mode;
@@ -191,6 +209,7 @@ struct gsGlobals
 	int StartY;
 	GSBGCOLOR BGColor;
 	GSTEST Test;
+	GSCLAMP Clamp;
 	int PSM;
 	int PSMZ;
 	int PrimContext;
