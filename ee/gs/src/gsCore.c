@@ -79,10 +79,10 @@ void gsKit_vsync(void)
 
 void gsKit_clear(GSGLOBAL gsGlobal, u64 color)
 {
-	u8 PrevZState = gsGlobal.Test.ZTE;
+	u8 PrevZState = gsGlobal.Test.ZTST;
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
 	gsKit_prim_sprite(gsGlobal, 0, 0, gsGlobal.Width, gsGlobal.Height, 0, color);
-	gsGlobal.Test.ZTE = PrevZState;
+	gsGlobal.Test.ZTST = PrevZState;
 	gsKit_set_test(gsGlobal, 0);
 }
 
@@ -93,11 +93,11 @@ int gsKit_set_test(GSGLOBAL gsGlobal, u8 Preset)
 
 	if(Preset == GS_ZTEST_OFF)
 	{
-		gsGlobal.Test.ZTE = 0;
+		gsGlobal.Test.ZTST = 1;
 	}
 	else if (Preset == GS_ZTEST_ON)
 	{
-		gsGlobal.Test.ZTE = 1;
+		gsGlobal.Test.ZTST = 2;
 	}
 	else if (Preset == GS_ATEST_OFF)
 	{
@@ -125,11 +125,7 @@ int gsKit_set_test(GSGLOBAL gsGlobal, u8 Preset)
 				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
 				    gsGlobal.Test.DATE, gsGlobal.Test.DATM, 
 				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
-
-	if( gsGlobal.PrimContext == 0 )
-		*p_data++ = GS_TEST_1;
-	else if(gsGlobal.PrimContext == 1 )
-		*p_data++ = GS_TEST_2;
+	*p_data++ = GS_TEST_1+gsGlobal.PrimContext;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 2);
 

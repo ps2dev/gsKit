@@ -46,7 +46,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 		     0,		// Use ALP Register for Alpha Blending
 		     1,		// Alpha Value of Read Circuit 2 for Output Selection
 		     0,		// Blend Alpha with output of Read Circuit 2
-		     0xFF);	// Alpha Value = 1.0
+		     0x80);	// Alpha Value = 1.0
 
 	GS_SET_DISPFB1(0,			// Frame Buffer Base Pointer (Address/2048)
 		       gsGlobal.Width / 64,	// Buffer Width (Address/64)
