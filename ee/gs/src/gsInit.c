@@ -64,15 +64,15 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 			35+gsGlobal->StartY,    // Y position in the display area (in Raster u
 			3,                      // Horizontal Magnification
 			0,                      // Vertical Magnification
-			gsGlobal->Width*4,      // Display area width
-			gsGlobal->Height);      // Display area height
+			(gsGlobal->Width-1)*4,      // Display area width
+			(gsGlobal->Height-1));      // Display area height
 
 	GS_SET_DISPLAY2(656+gsGlobal->StartX,	// X position in the display area (in VCK units)
 			35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
 			3,			// Horizontal Magnification
 			0,			// Vertical Magnification
-			gsGlobal->Width*4,	// Display area width
-			gsGlobal->Height);	// Display area height
+			(gsGlobal->Width-1)*4,	// Display area width
+			(gsGlobal->Height-1));	// Display area height
 
 	GS_SET_BGCOLOR(gsGlobal->BGColor.Red,		// Red
 		       gsGlobal->BGColor.Green,	// Green
@@ -91,7 +91,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
 	
-	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal->Width / 64, 0, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, gsGlobal->OffsetY << 4 );

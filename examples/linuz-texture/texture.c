@@ -14,11 +14,14 @@
 #include "malloc.h"
 
 extern char testorig[];
+extern unsigned int   image_clut32[];
+extern unsigned char  image_pixel[];
 
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 	GSTEXTURE tex;
+	GSTEXTURE tex8;
 	GSGLOBAL gsGlobal;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
@@ -66,29 +69,41 @@ int main(void)
 
 	/* TEST Register Values */
 	gsGlobal.Test.ATE = 0;
-	gsGlobal.Test.ATST = 1;
+	gsGlobal.Test.ATST = 0;
 	gsGlobal.Test.AREF = 0x80;
 	gsGlobal.Test.AFAIL = 0;
 	gsGlobal.Test.DATE = 0;
 	gsGlobal.Test.DATM = 0;
-	gsGlobal.Test.ZTE = 1;
+	gsGlobal.Test.ZTE = 0;
 	gsGlobal.Test.ZTST = 2;
 
 	gsKit_init_screen(&gsGlobal);
 
-	tex.Width = 240;
-	tex.Height = 149;
-	tex.PSM = 1;
+	tex.Width = 256;
+	tex.Height = 256;
+	tex.PSM = GS_PSM_CT24;
 	tex.Mem = testorig;
-	tex.Vram = 0;
+	tex.Vram = 0x2000*256;
+	gsKit_texture_upload(&gsGlobal, &tex);
 
-	while(1){
+	tex8.Width = 256;
+	tex8.Height = 256;
+	tex8.PSM = GS_PSM_T8;
+	tex8.Mem = image_pixel;
+	tex8.Vram = 0x3000*256;
+	tex8.Clut = image_clut32;
+	tex8.VramClut = 0x3800*256;
+	gsKit_texture_upload(&gsGlobal, &tex8);
+
+	for (;;) {
 		gsKit_clear(&gsGlobal, White);
 
-		gsKit_texture_upload(&gsGlobal, &tex);
+		gsKit_prim_sprite_texture(&gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
+		gsKit_prim_sprite_texture(&gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);
 
 		gsKit_vsync();
 	}
 	
 	return 0;
 }
+

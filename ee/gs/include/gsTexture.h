@@ -108,7 +108,7 @@ struct gsTexture
         u32     Height;
         u32     PSM;
         void    *Mem;
-        u32     *Clut;
+        void    *Clut;
         u32     Vram;
         u32     VramClut;
 };
@@ -119,6 +119,7 @@ void gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
 void gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
 void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 
+void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
 void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,  

@@ -10,7 +10,7 @@
 #
 
 EE_BIN  = texture.elf
-EE_OBJS = texture.o testorig.o
+EE_OBJS = texture.o testorig.o sample.o
 
 all: $(EE_BIN)
 
