@@ -6,10 +6,18 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# Makefile - gsKit root makefile.
+# ee/gs/srcMakefile - gsKit gs makefile.
 #
 
-SUBDIRS = ee examples lib
+EE_OBJS = 	dmaCore.o \
+		dmaInit.o
 
-include Rules.make
+all: $(EE_OBJS)
+	$(EE_AR) rcs $(LIBDMAKIT) $(EE_OBJS)
+
+clean:
+	rm -f $(EE_OBJS)
+
+include ../../../Makefile.pref
+include ../../../Makefile.global
 

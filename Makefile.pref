@@ -24,6 +24,7 @@ GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.2
 CPPLIB = $(PS2DEV)/ee/ee/lib
 
 LIBGSKIT = $(GSKIT)/lib/libgskit.a
+LIBDMAKIT = $(GSKIT)/lib/libdmakit.a
 
 # Playstation 2 IP Address (For testing with ps2client)
 PS2IP = 192.168.0.10

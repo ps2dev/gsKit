@@ -6,18 +6,16 @@
 // Licenced under Academic Free License version 2.0
 // Review gsKit README & LICENSE files for further details.
 //
-// gsKit.h - Master header for gsKit. Include _ONLY_THIS_HEADER_
-//           for gsKit. (Do NOT include gsFont.h, gsCore.h, etc)
+// dmaKit.h - Master header for dmaKit. Include _ONLY_THIS_HEADER_
+//           for gsKit. (Do NOT include dmacore.h, etc)
 //
 
-#ifndef __GSKIT_H__
-#define __GSKIT_H__
+#ifndef __DMAKIT_H__
+#define __DMAKIT_H__
 
-#include "gsCore.h"
-#include "gsFont.h"
-#include "gsInit.h"
-#include "gsMisc.h"
-#include "gsPrimitive.h"
-#include "gsTexture.h"
+#include <tamtypes.h>
 
-#endif /* __GSKIT_H__ */
+#include "dmaCore.h"
+#include "dmaInit.h"
+
+#endif /* __DMAKIT_H__ */

@@ -19,6 +19,11 @@ gsMisc - Miscellaneous routines that do not fit anywhere else.
 gsPrimitive - Primitive creation, manipulation, and handling routines.
 gsTexture - Texture loading, manipulation, and handling routines.
 
+dmaKit Components:
+
+dmaCore - Core DMA routines.
+dmaInit - DMA Initilization routines.
+
  _____________________________________________________________
 | Component   | Comment                                 |  %  |
 |-------------------------------------------------------------|
@@ -31,6 +36,10 @@ gsTexture - Texture loading, manipulation, and handling routines.
 | gsPrimitive | Needs to be stubbed out.                | 0%  |
 |-------------------------------------------------------------|
 | gsTexture   | Needs to be stubbed out.                | 0%  |
+|-------------------------------------------------------------|
+| dmaCore     | Work begun on implimentation            | 5%  |
+|-------------------------------------------------------------|
+| dmaInit     | Needs to be stubbed out.                | 0%  |
 |-------------------------------------------------------------|
 
 Contributors: Please do not modify this file without letting the others know what's going on. Please document your changes in the ChangeLog instead.

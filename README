@@ -31,6 +31,11 @@
  - GS debugging and diagnostic functionality.
  - C accessibility of all documented GS instructions.
 
+ gsKit also includes a library named dmaKit. dmaKit provides C 
+ routines for DMAC usage by gsKit. The aim of this library is also
+ for eventual inclusion in PS2SDK. For now, it will remain part of the
+ gsKit project while it matures.
+
  This library is designed for intergration into the PS2SDK when it 
  becomes mature. As such, it is also designed to link and compile
  against the PS2SDK. Support for PS2LIB and other support libraries is
@@ -42,11 +47,16 @@
  A source or binary release of gsKit will include the following
  directories:
 
- gsKit/include		- gsKit include files.
  gsKit/lib		- gsKit compiled libraries.
  gsKit/doc		- gsKit documentation.
- gsKit/src		- gsKit source files.
  gsKit/examples		- Example projects demonstrating use of gsKit.
+ gsKit/ee		- ee root directory.
+ gsKit/ee/gs		- gsKit source root.
+ gsKit/ee/gs/include	- gsKit include files.
+ gsKit/ee/gs/src	- gsKit source files.
+ gsKit/ee/dma		- dmaKit source root.
+ gsKit/ee/dma/include	- dmaKit include files.
+ gsKit/ee/dms/src	- dmaKit source files.
 
  Feedback & Questions
  -----------------------------------------------------------------------

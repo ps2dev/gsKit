@@ -1,6 +1,10 @@
 gsKit ChangeLog:
 
 -> 06/15/04 - Chris Gilbert (Neovanglist) 
+   * Changed directory layout. (See README)
+   * Added dmaKit.
+
+-> 06/15/04 - Chris Gilbert (Neovanglist) 
    * Project framework and build system completed.
    * Created CVS module and commited to PS2Dev CVS.
    * README, STATUS, AUTHORS, ID, and LICENSE files added.

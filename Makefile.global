@@ -12,7 +12,7 @@
 include $(PS2SDKSRC)/ee/Rules.make
 
 # include dir
-EE_INCS += -I$(GSKIT)/include -I$(GCCLIB)/include
+EE_INCS += -I$(GSKIT)/ee/gs/include  -I$(GSKIT)/ee/dma/include -I$(GCCLIB)/include
 
 # linker flags
 EE_LIB_DIRS = -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDKSRC)/ee/kernel/lib -L$(PS2SDKSRC)/ee/libc/lib
