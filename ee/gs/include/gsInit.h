@@ -514,13 +514,14 @@ typedef struct gsGlobal GSGLOBAL;
 /// given texture object, regardless of original format or type.
 struct gsTexture
 {
-        u32     Width;	///< Width of the Texture
-        u32     Height;	///< Height of the Texture
-        u32     PSM;	///< Pixel Storage Method (Color Format)
-        void    *Mem;	///< EE Memory Pointer
-        void    *Clut;	///< EE CLUT Memory Pointer
-        u32     Vram;	///< GS VRAM Memory Pointer
+        u32     Width;    ///< Width of the Texture
+        u32     Height;   ///< Height of the Texture
+        u32     PSM;      ///< Pixel Storage Method (Color Format)
+        void    *Mem;     ///< EE Memory Pointer
+        void    *Clut;    ///< EE CLUT Memory Pointer
+        u32     Vram;     ///< GS VRAM Memory Pointer
         u32     VramClut; ///< GS VRAM CLUT Memory Pointer
+        u32     Filter;   ///< NEAREST or LINEAR
 };
 typedef struct gsTexture GSTEXTURE;
 

@@ -51,6 +51,7 @@ int main(void)
 	tex.PSM = GS_PSM_CT24;
 	tex.Mem = testorig;
 	tex.Vram = 0x2000*256;
+	tex.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex);
 
 	tex8.Width = 256;
@@ -60,8 +61,8 @@ int main(void)
 	tex8.Vram = 0x3000*256;
 	tex8.Clut = image_clut32;
 	tex8.VramClut = 0x3800*256;
+	tex.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
-
 	
 	do
 	{

@@ -53,6 +53,11 @@
 /// Turns on Alpha Testing (Destination)
 #define GS_D_ATEST_ON 0x01
 
+/// Use simple filtering (nearest neighbor)
+#define GS_FILTER_NEAREST 0x00
+/// Use bilinear filter on texture
+#define GS_FILTER_LINEAR  0x01
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -35,6 +35,7 @@ int main(void)
 	Tex1.Width = 256;
 	Tex1.Height = 256;
 	Tex1.PSM = GS_PSM_CT24;
+	Tex1.Filter = GS_FILTER_NEAREST;
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");
 	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");

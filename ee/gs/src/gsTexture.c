@@ -86,6 +86,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	Texture->Width = Bitmap.InfoHeader.Width;
 	Texture->Height = Bitmap.InfoHeader.Height;
+	Texture->Filter = GS_FILTER_NEAREST;
 
 	if(Bitmap.InfoHeader.PSM == 4)
 	{
@@ -168,6 +169,7 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Width =  jpg->width;
 	Texture->Height = jpg->height;
 	Texture->PSM = GS_PSM_CT24;
+	Texture->Filter = GS_FILTER_NEAREST;
 	
 	TextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	printf("Texture Size = %i\n",TextureSize);
@@ -235,6 +237,7 @@ int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	gsFont->Texture->Width  = data[1];
 	gsFont->Texture->Height = data[2];
 	gsFont->Texture->PSM    = data[3];
+	gsFont->Texture->Filter = GS_FILTER_NEAREST;
 	gsFont->HChars          = data[4];
 	gsFont->VChars          = data[5];
 	gsFont->CharWidth       = data[6];
@@ -315,6 +318,8 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
                 return -1;
         }
 	fioLseek(File, 288, SEEK_SET);
+
+	gsFont->Texture->Filter = GS_FILTER_NEAREST;
 
 	size = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
 	gsFont->Texture->Mem = malloc(size);
@@ -453,7 +458,7 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 8;
+        int size = 9;
 
 	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -479,6 +484,9 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -517,7 +525,7 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 10;
+        int size = 11;
 
 	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -548,6 +556,9 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -590,7 +601,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 4 + (segments * 2);
+        int size = 5 + (segments * 2);
         int count;
         int vertexdata[segments*4];
  
@@ -615,6 +626,9 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -648,7 +662,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 {
         u64* p_store;
         u64* p_data;
-        int size = 4 + (segments * 2);
+        int size = 5 + (segments * 2);
         int count;
         int vertexdata[segments*5];
  
@@ -673,6 +687,9 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -706,7 +723,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 4 + (verticies * 2);
+        int size = 5 + (verticies * 2);
         int count;
         int vertexdata[verticies*4];
  
@@ -731,6 +748,9 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -764,7 +784,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 4 + (verticies * 2);
+        int size = 5 + (verticies * 2);
         int count;
         int vertexdata[verticies*5];
  
@@ -789,6 +809,9 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -825,7 +848,7 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 12;
+        int size = 13;
 
         int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
         int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -864,6 +887,9 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
