@@ -225,3 +225,16 @@ GSFONT *gsKit_init_font(u8 type, char *path)
 		
 	return gsFont;
 }
+
+GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size)
+{
+	
+	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
+	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
+	gsFont->RawData = data;
+	gsFont->RawSize = size;
+	gsFont->Type = type;
+		
+	return gsFont;
+}
+

@@ -14,12 +14,15 @@
 #include "dmaKit.h"
 #include "malloc.h"
 
+#include "arial.c"
+
+
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
-	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "NULL");
+	GSFONT *gsFont;// = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "NULL");
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -41,16 +44,30 @@ int main(void)
 	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
 	gsKit_init_screen(gsGlobal);
-	gsKit_clear(gsGlobal, White);
-		
-	gsFont->Path_BMP = "host:fonts/tahoma.bmp";
-	gsFont->Path_DAT = "host:fonts/tahoma.dat";
-	
+	gsKit_clear(gsGlobal, Black);
+
+/*	gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "host0:arial.fnt");
+	if (gsFont == NULL) {
+		gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "cdrom0:\\ARIAL.FNT;1");
+		if (gsFont == NULL) {
+			printf("Error loading arial.fnt\n");
+			return 1;
+		}
+	}*/
+	gsFont = gsKit_init_font_raw(GSKIT_FTYPE_FNT, arial_fnt, size_arial_fnt);
+//	gsFont->Path_BMP = "host:fonts/tahoma.bmp";
+//	gsFont->Path_DAT = "host:fonts/tahoma.dat";
+
 	gsKit_font_upload(gsGlobal, gsFont);
 
 	while(1){
-		gsKit_clear(gsGlobal, White);
+		gsKit_clear(gsGlobal, Black);
+
 		gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, White, "Hello World!");
+
+		gsKit_font_print(gsGlobal, gsFont, 50, 80, 1, Red, "red");
+		gsKit_font_print(gsGlobal, gsFont, 50, 110, 1, Green, "green");
+		gsKit_font_print(gsGlobal, gsFont, 50, 140, 1, Blue, "blue");
 
 		gsKit_font_print(gsGlobal, gsFont, 100, 200, 1, White, "Testing 1\n"\
 								       "Testing 2\n"\

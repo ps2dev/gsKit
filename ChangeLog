@@ -1,5 +1,10 @@
 gsKit ChangeLog:
 
+-> 03/12/04 - linuzappz
+   * Fixed FNT format support.
+   * FNT files can be loaded in raw format.
+   * font demo uses arial.fnt by default, compiled within the elf.
+
 -> 06/29/04 - Chris Gilbert (Neovanglist) 
    * dmaKit officially finished.
    * gsKit has working ZTest.

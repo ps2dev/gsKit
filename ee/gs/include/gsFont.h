@@ -17,6 +17,7 @@
 #define GSKIT_FTYPE_FNT 0x00
 #define GSKIT_FTYPE_TTF 0x01
 #define GSKIT_FTYPE_BMP_DAT 0x02
+#define GSKIT_FTYPE_FNT 0x00
 
 #define ALPHA_SRC 0
 #define ALPHA_DST 1
@@ -32,7 +33,7 @@
 extern "C" {
 #endif
 
-u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
+int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z, 
 		      unsigned long color, char *String);
 

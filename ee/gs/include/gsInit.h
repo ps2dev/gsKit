@@ -242,6 +242,8 @@ struct gsFont
         char *Path_BMP;
         char *Path_DAT;
         u8 Type;
+	u8 *RawData;
+	int RawSize;
         GSTEXTURE *Texture;
         u32 CharWidth;
         u32 CharHeight;
@@ -278,6 +280,7 @@ void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 GSGLOBAL *gsKit_init_global(u8 mode);
 GSFONT *gsKit_init_font(u8 type, char *path);
+GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size);
 
 #ifdef __cplusplus
 }

@@ -9,11 +9,40 @@
 // gsFont.c - Font loading, manipulation, handling, and printing.
 //
 
+#include <stdio.h>
+#include <string.h>
+
 #include "gsKit.h"
 
-u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
-	gsFont->Additional=0;
+	int i;
+
+	if( gsFont->Type == GSKIT_FTYPE_FNT )
+	{
+		if( gsKit_texture_fnt_raw(gsGlobal, gsFont) == -1 )
+		{
+			printf("Error uploading font!\n");
+			return -1; 
+		}
+		gsFont->Additional=malloc( 0x100 );
+		for (i=0; i<0x100; i++) {
+			gsFont->Additional[i] = gsFont->CharWidth;
+		}
+
+		return 0;		
+	}
+
+	return -1; //type unknown
+}
+
+int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+{
+	int i;
+
+	if( gsFont->RawData ) {
+		return gsKit_font_upload_raw(gsGlobal, gsFont);
+	}
 
 	if( gsFont->Type == GSKIT_FTYPE_FNT )
 	{
@@ -22,6 +51,12 @@ u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 			printf("Error uploading font!\n");
 			return -1; 
 		}
+		gsFont->Additional=malloc( 0x100 );
+		for (i=0; i<0x100; i++) {
+			gsFont->Additional[i] = gsFont->CharWidth;
+		}
+
+		return 0;
 	}
 	else if( gsFont->Type == GSKIT_FTYPE_BMP_DAT )
 	{
@@ -45,8 +80,10 @@ u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 		gsFont->CharWidth = gsFont->Texture->Width / 16;
 		gsFont->CharHeight = gsFont->Texture->Height / 16;
 
+		return 0;
 	}
-	else return -1; //type unknown
+
+	return -1; //type unknown
 }
 
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
@@ -60,7 +97,8 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 	cx=X;
 	cy=Y;
 	l=strlen( String );
-	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT )
+	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
+		gsFont->Type == GSKIT_FTYPE_FNT)
 	{
 		for( i=0;i<l;i++ )
 		{
@@ -75,7 +113,7 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 				int px,py,charsiz;
 				px=c%16;
 				py=(c-px)/16;
-				charsiz=gsFont->Additional[c];
+				charsiz=gsFont->Additional[(u8)c];
 
 				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, cx, cy, 
 					px*gsFont->CharWidth, py*gsFont->CharHeight, 
@@ -88,7 +126,10 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 		}
 
 	}
-	else return; //font type unknown
+	else
+	{
+		//font type unknown
+	}
 	
 	gsGlobal->PrimAlpha=oldalpha;
 }

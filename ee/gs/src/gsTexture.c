@@ -9,6 +9,9 @@
 // gsTexture.c - Texture loading, handling, and manipulation.
 //
 
+#include <stdio.h>
+#include <string.h>
+
 #include "gsKit.h"
 
 u32  gsKit_texture_size(int width, int height, int psm)
@@ -26,13 +29,13 @@ u32  gsKit_texture_size(int width, int height, int psm)
 	return 0;
 }
 
-u8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_png unimplimented.\n");
 	return -1;
 }
 
-u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	GSBITMAP Bitmap;
 	int x, y;
@@ -143,7 +146,7 @@ u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
         return 0;
 }
 
-u8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	// Jpeg stuff needs to be reimplimented, or we need to
 	// figure out tinyjpeg licensing.
@@ -168,13 +171,13 @@ u8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return -1;
 }
 
-u8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_tga unimplimented.\n");
 	return -1;
 }
 
-u8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	int File = fioOpen(Path, O_RDONLY);
 	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
@@ -191,9 +194,53 @@ u8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return 0;
 }
 
-u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
-	int File = fioOpen(gsFont->Path, O_RDONLY);
+	u32 *data = (u32*)gsFont->RawData;
+	u32 *mem;
+	int size;
+	int i;
+
+	gsFont->Texture->Width  = data[1];
+	gsFont->Texture->Height = data[2];
+	gsFont->Texture->PSM    = data[3];
+	gsFont->HChars          = data[4];
+	gsFont->VChars          = data[5];
+	gsFont->CharWidth       = data[6];
+	gsFont->CharHeight      = data[7];
+
+	size = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
+	gsFont->Texture->Mem = malloc(size);
+	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, size);
+	memcpy(gsFont->Texture->Mem, &data[288/4], size);
+
+	if (gsFont->Texture->PSM != 0) {
+		printf("Unsupported fnt PSM %d\n", gsFont->Texture->PSM);
+	}
+	mem = (u32*)gsFont->Texture->Mem;
+	for (i=0; i<size/4; i++) {
+		if (mem[i] == 0xFF00FFFF) {
+			mem[i] = 0;
+		} else {
+			u32 c = (mem[i] & 0x00FF0000) >> 16;
+			mem[i] = 0x80000000 | (c) | (c<<8) | (c<<16);
+		}
+	}
+
+	gsKit_texture_upload(gsGlobal, gsFont->Texture);
+	free(gsFont->Texture->Mem);
+	return 0;
+}
+
+
+int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+{
+	u32 *mem;
+	int File;
+	int size;
+	int i;
+
+	File = fioOpen(gsFont->Path, O_RDONLY);
 	fioLseek(File, 4, SEEK_SET);
         if(fioRead(File, &gsFont->Texture->Width, 4) <= 0)
         {
@@ -232,15 +279,29 @@ u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
         }
 	fioLseek(File, 288, SEEK_SET);
 
-	int FileSize = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
-	gsFont->Texture->Mem = malloc(FileSize);
-	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
-	if(fioRead(File, gsFont->Texture->Mem, FileSize) <= 0)
+	size = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
+	gsFont->Texture->Mem = malloc(size);
+	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, size);
+	if(fioRead(File, gsFont->Texture->Mem, size) <= 0)
 	{
 		printf("Could not load font: %s\n", gsFont->Path);
 		return -1;
 	}
 	fioClose(File);
+
+	if (gsFont->Texture->PSM != 0) {
+		printf("Unsupported fnt PSM %d\n", gsFont->Texture->PSM);
+	}
+	mem = (u32*)gsFont->Texture->Mem;
+	for (i=0; i<size/4; i++) {
+		if (mem[i] == 0xFF00FFFF) {
+			mem[i] = 0;
+		} else {
+			u32 c = (mem[i] & 0x00FF0000) >> 16;
+			mem[i] = 0x80000000 | (c) | (c<<8) | (c<<16);
+		}
+	}
+
 	gsKit_texture_upload(gsGlobal, gsFont->Texture);
 	free(gsFont->Texture->Mem);
 	return 0;
