@@ -104,6 +104,12 @@
 /// Return this is VRAM allocation fails.
 #define GSKIT_ALLOC_ERROR 0xFFFFFFFF
 
+/// Define a setting to be OFF
+#define GS_SETTING_OFF 0x00
+
+/// Define a setting to be ON
+#define GS_SETTING_ON 0x01
+
 // Begin Register List
 
 /// GS Primitive
@@ -242,6 +248,24 @@
 
 /// GS CSR (GS System Status) Register
 #define GS_CSR (volatile u64 *)0x12001000
+
+/// CSR FINISH Register Access Routine
+#define GS_CSR_FINISH *GS_CSR >> 1
+
+/// CSR FINISH Register Writing Routine
+#define GS_SETREG_CSR_FINISH(A) *GS_CSR = ((u64)(A) << 1)
+
+/// GS BUSDIR (GS Bus Direction) Register
+#define GS_BUSDIR ((volatile u64 *)(0x12001040))
+
+/// GS BUSDIR Register Writing Routine
+#define GS_SETREG_BUSDIR(A) *GS_BUSDIR = ((u64)(A))
+
+/// GS IMR (GS Interrupt Mask) Register
+#define GS_IMR ((volatile u64 *)(0x12001010))
+
+/// GS SIGNALID (GS SIGNALID/LABELID) Register
+#define GS_SIGNALID ((volatile u64 *)(0x12001080))
 
 /// GS CSR (GS System Status) Register Access Macro
 #define GS_SETREG_CSR(A,B,C,D,E,F,G,H,I,J,K,L) \
@@ -457,6 +481,8 @@ struct gsGlobal
 	s16 Field;	///< Field / Frame
 	u8 Setup;	///< Setup (Is set to 1 after screen init, see gsKit_init() for more info.)
 	u32 CurrentPointer;	///< Current VRAM Pointer
+	u8 DoubleBuffering;	/// Enable/Disable Double Buffering
+	u8 ZBuffering;		/// Enable/Disable Z Buffering
 	u32 ScreenBuffer[2];	///< Screenbuffer Pointer Array
 	u32 ZBuffer;		///< ZBuffer Pointer
 	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)

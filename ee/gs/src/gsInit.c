@@ -19,9 +19,16 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	u64	*p_store;
 	u8 Mode = 0;
 	int	fbHeight = 0;
+	int	size;
+	
+	if(gsGlobal->ZBuffering == GS_SETTING_ON)
+		size = 15;
+	else
+		size = 13;
 
 	if(!gsGlobal->Setup)
 	{
+		gsGlobal->CurrentPointer = 0;
 		if(gsGlobal->Mode == GS_MODE_NTSC_I)
 		{
 			Mode = GS_MODE_NTSC;
@@ -58,6 +65,12 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		gsGlobal->Setup = 1;
 	}
 
+	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
+	{
+		gsGlobal->Test->ZTE = 0;
+		gsGlobal->Test->ZTST = 0;
+	}
+	
 	GS_SET_PMODE(0,		// Read Circuit 1
 				1,		// Read Circuit 2
 				0,		// Use ALP Register for Alpha Blending
@@ -96,20 +109,22 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 				gsGlobal->BGColor->Blue);	// Blue
 
 	gsGlobal->CurrentPointer = 0;
-	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) ); // Context 1
-	if(Mode == GS_MODE_VGA_1024_60 || Mode == GS_MODE_VGA_1024_70 || 
-	   Mode == GS_MODE_VGA_1024_75 || Mode == GS_MODE_VGA_1024_85 ||
-	   Mode == GS_MODE_VGA_1280_60 || Mode == GS_MODE_VGA_1280_75)
+	// Context 1
+	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) ); 
+	if(gsGlobal->DoubleBuffering == GS_SETTING_OFF)
 	{
 		gsGlobal->ScreenBuffer[1] = gsGlobal->ScreenBuffer[0];
 	}
 	else
-		gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) ); // Context 2
-	gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSMZ) ); // Z Buffer
+		// Context 2
+		gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) );
+	
+	if(gsGlobal->ZBuffering == GS_SETTING_ON)
+		gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSMZ) ); // Z Buffer
 
-	p_data = p_store  = dmaKit_spr_alloc( 15*16 );
+	p_data = p_store  = dmaKit_spr_alloc( size * 16 );
 
-	*p_data++ = GIF_TAG( 14, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 
 	*p_data++ = 1;
@@ -130,8 +145,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
-	*p_data++ = GS_ZBUF_1;
+	if(gsGlobal->ZBuffering == GS_SETTING_ON)
+	{
+		*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
+		*p_data++ = GS_ZBUF_1;
+	}
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
 				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
@@ -163,8 +181,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
-	*p_data++ = GS_ZBUF_2;
+	if(gsGlobal->ZBuffering == GS_SETTING_ON)
+	{
+		*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
+		*p_data++ = GS_ZBUF_2;
+	}
 	
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
 				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
@@ -179,7 +200,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	*p_data++ = GS_CLAMP_2;
 	
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 15 );
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 	
 }
 
@@ -199,6 +220,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;	
 		gsGlobal->Height = 480;
@@ -211,6 +234,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
 		gsGlobal->Field = GS_FIELD;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 480;
@@ -223,6 +248,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 576;
@@ -235,6 +262,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
 		gsGlobal->Field = GS_FIELD;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;		
 		gsGlobal->Height = 576;
@@ -248,6 +277,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 480;
@@ -269,6 +300,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 800;
 		gsGlobal->Height = 600;
@@ -291,6 +324,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+		gsGlobal->ZBuffering = GS_SETTING_OFF;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1024;
 		gsGlobal->Height = 768;
@@ -321,6 +356,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+		gsGlobal->ZBuffering = GS_SETTING_OFF;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1280;
 		gsGlobal->Height = 1024;
@@ -333,6 +370,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_ON;
+		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 720;
 		gsGlobal->Height = 480;
@@ -345,6 +384,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_NONINTERLACED;
 		gsGlobal->Field = GS_FRAME;
+		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+		gsGlobal->ZBuffering = GS_SETTING_OFF;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1280;
 		gsGlobal->Height = 720;
@@ -357,6 +398,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
 		gsGlobal->Field = GS_FIELD;
+		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+		gsGlobal->ZBuffering = GS_SETTING_OFF;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1920;
 		gsGlobal->Height = 1080;

@@ -24,6 +24,7 @@ endif
 
 # include dir
 EE_INCS += -I$(GSKIT)/ee/gs/include  -I$(GSKIT)/ee/dma/include -I$(GCCLIB)/include -I$(PS2GDB)/ee
+EE_CFLAGS += -fno-builtin-printf
 
 # linker flags
 EE_LIB_DIRS += -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib

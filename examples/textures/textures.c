@@ -16,12 +16,12 @@
 int main(void)
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
-	GSTEXTURE Tex1, Tex2, Tex3;
+	GSTEXTURE Tex1, Tex2, Tex3, Tex4;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 	
 	//gsGlobal->PSM = GS_PSM_CT32;
-	//gsGlobal->PSMZ = GS_PSMZ_32;
+	gsGlobal->PSMZ = GS_PSMZ_16;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -43,7 +43,9 @@ int main(void)
 	
 	#ifdef HAVE_LIBJPG
 	gsKit_texture_jpeg(gsGlobal, &Tex3, "host:ps2dev.jpg");
+	gsKit_texture_jpeg(gsGlobal, &Tex4, "host:bsdgirl.jpg");
 	printf("Texure 3 VRAM Range = 0x%X - 0x%X\n",Tex3.Vram, Tex3.Vram +gsKit_texture_size(Tex3.Width, Tex3.Height, Tex3.PSM) - 1);
+	printf("Texure 4 VRAM Range = 0x%X - 0x%X\n",Tex4.Vram, Tex4.Vram +gsKit_texture_size(Tex4.Width, Tex4.Height, Tex4.PSM) - 1);
 	#endif
 			
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
@@ -86,14 +88,27 @@ int main(void)
                                                             Tex2.Height, // V2
                                                             2.0,
                                                             TexCol);
-
+/*							    
+                gsKit_prim_sprite_texture(gsGlobal, &Tex4, 20.0,  // X1
+                                                            50.0,  // Y2
+                                                            0.0,  // U1
+                                                            0.0,  // V1
+                                                            Tex4.Width + 20.0, // X2
+                                                            Tex4.Height +  50.0, // Y2
+                                                            Tex4.Width, // U2
+                                                            Tex4.Height, // V2
+                                                            2.0,
+                                                            TexCol);							    
+*/
 #ifdef HAVE_LIBJPG
                 gsKit_prim_sprite_texture(gsGlobal, &Tex3, 20.0,  // X1
-                                                            386.0,  // Y2
+                                                            //386.0,  // Y2
+							    450.0,  // Y2
                                                             0.0,  // U1
                                                             0.0,  // V1
                                                             Tex3.Width + 20, // X2
-                                                            Tex3.Height +  386.0, // Y2
+                                                            //Tex3.Height +  386.0, // Y2
+							    Tex3.Height +  450.0, // Y2
                                                             Tex3.Width, // U2
                                                             Tex3.Height, // V2
                                                             3.0,

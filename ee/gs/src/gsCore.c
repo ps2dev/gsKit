@@ -15,6 +15,9 @@
 
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 {	
+	#ifdef DEBUG
+		printf("CP: %08X, size: %08X\n", gsGlobal->CurrentPointer, size);
+	#endif
 	size = (-GS_VRAM_BLOCKSIZE)&(size+GS_VRAM_BLOCKSIZE-1);
 	gsGlobal->CurrentPointer += size;
 
@@ -98,6 +101,9 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 {
+	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
+		return 0;
+
 	u64 *p_data;
 	u64 *p_store;
 

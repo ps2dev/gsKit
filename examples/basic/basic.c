@@ -16,8 +16,12 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_85);
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
+	// You can use these to turn off Z/Double Buffering. They are on by default.
+	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	// gsGlobal->ZBuffering = GS_SETTING_OFF;
+	
 	float x = 10;
 	float y = 10;
 	float width = 150;
