@@ -20,8 +20,6 @@ int main(void)
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 
-	gsKit_init(GS_NONINTERLACED, GS_MODE_NTSC, GS_FRAME);
-
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 Red = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x00,0x00);
 	u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
@@ -57,7 +55,7 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
-	gsGlobal = gsKit_init_screen(gsGlobal);
+	gsGlobal = gsKit_init_screen(gsGlobal, GS_NONINTERLACED, GS_MODE_NTSC, GS_FRAME);
 
 	gsKit_clear(gsGlobal, White);
 	printf("DEBUG: SCREEN CLEARED\n");
