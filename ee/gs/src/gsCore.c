@@ -50,7 +50,7 @@ GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal)
 	
 	// Context 1
 
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width-1, 0, gsGlobal.Height - 1 );
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal.ScreenBuffer[gsGlobal.ActiveBuffer & 1] / 8192,
@@ -59,7 +59,7 @@ GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal)
 
 	// Context 2
 	
-	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width-1, 0, gsGlobal.Height - 1 );
+	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1 );
 	*p_data++ = GS_SCISSOR_2;
 
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal.ScreenBuffer[gsGlobal.ActiveBuffer & 1] / 8192,
