@@ -79,9 +79,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		       gsGlobal->BGColor.Blue);	// Blue
 
 	gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
-	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsGlobal->Height*gsGlobal->Width*4 ); // Context 1
-	gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsGlobal->Height*gsGlobal->Width*4 ); // Context 2
-	gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsGlobal->Height*gsGlobal->Width*4 ); // Z Buffer
+	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 1
+	gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 2
+	gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSMZ) ); // Z Buffer
 
 	p_data = p_store  = dmaKit_spr_alloc( 13*16 );
 
@@ -91,7 +91,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
 	
-	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, gsGlobal->OffsetY << 4 );
@@ -113,7 +113,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
 	*p_data++ = GS_COLCLAMP;
 
-	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, gsGlobal->OffsetY << 4);

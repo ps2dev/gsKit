@@ -35,7 +35,10 @@ s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	GSBITMAP Bitmap;
-
+	int x, y;
+	int cy;
+	u8  *image;
+	u8  *p;
 	int File = fioOpen(Path, O_RDONLY);
 	fioLseek(File, 0, SEEK_SET);
         if(fioRead(File, &Bitmap.FileHeader.Type, 2) <= 0)
@@ -76,6 +79,7 @@ s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Width = Bitmap.InfoHeader.Width;
 	Texture->Height = Bitmap.InfoHeader.Height;
 
+	printf("bitmap PSM = %d\n", Bitmap.InfoHeader.PSM);
 	if(Bitmap.InfoHeader.PSM == 4)
 	{
 		Texture->PSM = GS_PSM_T4;
@@ -100,7 +104,25 @@ s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	u32 TextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 
 	Texture->Mem = malloc(TextureSize);
-	fioRead(File, Texture->Mem, TextureSize);
+
+        if(Bitmap.InfoHeader.PSM == 24)
+        {
+		image = malloc(Texture->Width*Texture->Height*3);
+		if (image == NULL) return -1;
+		fioRead(File, image, Texture->Width*Texture->Height*3);
+		p = Texture->Mem;
+		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
+			for (x=0; x<Texture->Width; x++) {
+				p[(y*Texture->Width+x)*3+2] = image[(cy*Texture->Width+x)*3+0];
+				p[(y*Texture->Width+x)*3+1] = image[(cy*Texture->Width+x)*3+1];
+				p[(y*Texture->Width+x)*3+0] = image[(cy*Texture->Width+x)*3+2];
+			}
+		}
+		free(image);
+        } else {
+		fioRead(File, Texture->Mem, TextureSize);
+	}
+
         fioClose(File);
 
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);

@@ -48,7 +48,7 @@ int main(void)
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.StartX = 0;
 	gsGlobal.StartY = -5;
-	gsGlobal.PSM = GS_PSM_CT24;
+	gsGlobal.PSM = GS_PSM_CT16;
 	gsGlobal.PSMZ = GS_PSMZ_16;
 	gsGlobal.ActiveBuffer = 1;
 	gsGlobal.PrimFogEnable = 0;
@@ -93,7 +93,6 @@ int main(void)
 
 	while(1){
 		gsKit_clear(&gsGlobal, White);
-
 
                 gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 20,  // X1
                                                             50,  // Y2    
