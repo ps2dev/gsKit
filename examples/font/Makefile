@@ -6,13 +6,23 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# lib/Makefile - gsKit lib/ Makefile.
+# examples/font/Makefile - Makefile for "font" example.
 #
 
-all: dummy
+EE_BIN  = font.elf
+EE_OBJS = font.o
+
+all: $(EE_BIN)
+
+test: all
+	ps2client execee host:font.elf
+
+reset: clean
+	ps2client reset
 
 clean:
-	rm -f libgskit.a
-	rm -f libdmakit.a
+	rm -f $(EE_OBJS) $(EE_BIN)
 
-include ../Rules.make
+
+include ../../Makefile.pref
+include ../../Makefile.global

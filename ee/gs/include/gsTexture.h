@@ -95,9 +95,43 @@
   ((u64)(spsm) << 24) | ((u64)(dbp) << 32) | \
   ((u64)(dbw) << 48)  | ((u64)(dpsm) << 56))
 
-s8 gsKit_texture_png(GSTEXTURE *Texture, char *Path);
-s8 gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
-s8 gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
+struct gsBitMapFileHeader
+{
+	u16	Type;
+	u32	Offset;
+};
+typedef struct gsBitMapFileHeader GSBMFHDR;
+
+struct gsBitMapInfoHeader
+{
+        u32	Size;
+        u32	Width;
+        u32	Height;
+        u16	PSM;
+};
+typedef struct gsBitMapInfoHeader GSBMIHDR;
+
+struct gsBitMapClut
+{
+	u8	Red;
+	u8	Green;
+	u8	Blue;
+};
+typedef struct gsBitMapClut GSBMCLUT;
+
+struct gsBitmap
+{
+	GSBMFHDR FileHeader;
+	GSBMIHDR InfoHeader;
+	char *Texture;
+	GSBMCLUT Clut[];
+};
+typedef struct gsBitmap GSBITMAP;
+
+s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+s8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 

@@ -13,12 +13,20 @@
 
 #include "gsKit.h"
 
-u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, int size)
+s32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 {	
 	size = (-GS_VRAM_BLOCKSIZE)&(size+GS_VRAM_BLOCKSIZE-1);
 	gsGlobal->CurrentPointer += size;
+
+	printf("Current Vram Point %i\n",gsGlobal->CurrentPointer - size);
 	
-	return gsGlobal->CurrentPointer - size;
+	if(gsGlobal->CurrentPointer >= 4194304)
+	{
+		printf("ERROR: Not enough VRAM for this allocation!\n");
+		return -1;
+	}
+	else
+		return gsGlobal->CurrentPointer - size;
 }
 
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)

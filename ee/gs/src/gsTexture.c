@@ -26,13 +26,97 @@ u32  gsKit_texture_size(int width, int height, int psm)
 	return 0;
 }
 
-s8 gsKit_texture_png(GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_png unimplimented.\n");
 	return -1;
 }
 
-s8  gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+{
+	GSBITMAP Bitmap;
+
+	int File = fioOpen(Path, O_RDONLY);
+	fioLseek(File, 0, SEEK_SET);
+        if(fioRead(File, &Bitmap.FileHeader.Type, 2) <= 0)
+        {
+                printf("Could not load bitmap: %s\n", Path);
+                return -1;
+        }
+	if( Bitmap.FileHeader.Type != 19778 )
+	{
+		printf("This Bitmap File May Be Invaid. Invalid Type.\n");
+		return -1;
+	}
+	fioLseek(File, 10, SEEK_SET);
+        if(fioRead(File, &Bitmap.FileHeader.Offset, 4) <= 0)
+        {
+                printf("Could not load bitmap: %s\n", Path);
+                return -1;
+        }
+
+	fioLseek(File, 18, SEEK_SET);
+        if(fioRead(File, &Bitmap.InfoHeader.Width, 4) <= 0)
+        {
+                printf("Could not load bitmap: %s\n", Path);
+                return -1;
+        }
+        if(fioRead(File, &Bitmap.InfoHeader.Height, 4) <= 0)
+        {
+                printf("Could not load bitmap: %s\n", Path);
+                return -1;
+        }
+	fioLseek(File, 28, SEEK_SET);
+        if(fioRead(File, &Bitmap.InfoHeader.PSM, 2) <= 0)
+        {
+                printf("Could not load bitmap: %s\n", Path);
+                return -1;
+        }
+
+	Texture->Width = Bitmap.InfoHeader.Width;
+	Texture->Height = Bitmap.InfoHeader.Height;
+
+	if(Bitmap.InfoHeader.PSM == 4)
+	{
+		Texture->PSM = GS_PSM_T4;
+		// TODO: Do CLUT Stuff.
+	}
+        else if(Bitmap.InfoHeader.PSM == 8)
+        {
+                Texture->PSM = GS_PSM_T8;
+                // TODO: Do CLUT Stuff.
+        }
+        else if(Bitmap.InfoHeader.PSM == 16)
+        {
+                Texture->PSM = GS_PSM_CT16;
+        }
+        else if(Bitmap.InfoHeader.PSM == 24)
+        {
+                Texture->PSM = GS_PSM_CT24;
+        }
+
+	fioLseek(File, Bitmap.FileHeader.Offset, SEEK_SET);
+        
+	u32 TextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
+
+	Texture->Mem = malloc(TextureSize);
+	fioRead(File, Texture->Mem, TextureSize);
+        fioClose(File);
+
+	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);
+	if(Texture->Vram == -1)
+	{
+		printf("VRAM Allocation Failed. Will not upload texture.\n");
+		return -1;
+	}
+
+        gsKit_texture_upload(gsGlobal, Texture);
+	free(Texture->Mem);
+
+        return 0;
+}
+
+s8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	// Jpeg stuff needs to be reimplimented, or we need to
 	// figure out tinyjpeg licensing.
@@ -57,7 +141,7 @@ s8  gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path)
 	return -1;
 }
 
-s8 gsKit_texture_tga(GSTEXTURE *Texture, char *Path)
+s8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_tga unimplimented.\n");
 	return -1;
@@ -71,7 +155,7 @@ s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
         if(fioRead(File, Texture->Mem, FileSize) <= 0)
         {
-                printf("Could not load font: %s\n", Path);
+                printf("Could not load texture: %s\n", Path);
                 return -1;
         }
 	fioClose(File);
@@ -83,9 +167,47 @@ s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	int File = fioOpen(gsFont->Path, O_RDONLY);
-	int FileSize = fioLseek(File, 0, SEEK_END);
+	fioLseek(File, 4, SEEK_SET);
+        if(fioRead(File, &gsFont->Texture.Width, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+	if(fioRead(File, &gsFont->Texture.Height, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+	if(fioRead(File, &gsFont->Texture.PSM, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+        if(fioRead(File, &gsFont->HChars, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+        if(fioRead(File, &gsFont->VChars, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+        if(fioRead(File, &gsFont->CharWidth, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+        if(fioRead(File, &gsFont->CharHeight, 4) <= 0)
+        {
+                printf("Could not load font: %s\n", gsFont->Path);
+                return -1;
+        }
+	fioLseek(File, 288, SEEK_SET);
+
+	int FileSize = gsKit_texture_size(gsFont->Texture.Width, gsFont->Texture.Height, gsFont->Texture.PSM);
 	gsFont->Texture.Mem = malloc(FileSize);
-	fioLseek(File, 0, SEEK_SET);
+	gsFont->Texture.Vram = gsKit_vram_alloc(gsGlobal, FileSize);
 	if(fioRead(File, gsFont->Texture.Mem, FileSize) <= 0)
 	{
 		printf("Could not load font: %s\n", gsFont->Path);

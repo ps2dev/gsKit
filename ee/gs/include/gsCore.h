@@ -190,11 +190,15 @@ struct gsFont
         char *Path;
         u8 Type;
         GSTEXTURE Texture;
-        int CharWidth;
+        u32 CharWidth;
+        u32 CharHeight;
+	u32 HChars;
+	u32 VChars;
 };
 typedef struct gsFont GSFONT;
 
-u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, int size);
+s32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
+s32 gsKit_vram_free(GSGLOBAL *gsGlobal, u32 Pointer, u32 size);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 void gsKit_vsync(void);

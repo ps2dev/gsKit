@@ -6,7 +6,7 @@
 // Licenced under Academic Free License version 2.0
 // Review gsKit README & LICENSE files for further details.
 //
-// textures.c - Example demonstrating gsKit texture operation.
+// font.c - Example demonstrating basic font operation.
 //
 
 #include "gsKit.h"
@@ -15,16 +15,17 @@
 
 int main(void)
 {
-	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-
+	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
 	GSGLOBAL gsGlobal;
-	GSTEXTURE Tex1, Tex2;
-
+	GSFONT gsFont, gsFont2;
+	
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
+
+	Texture = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
@@ -48,7 +49,7 @@ int main(void)
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.StartX = 0;
 	gsGlobal.StartY = -5;
-	gsGlobal.PSM = GS_PSM_CT24;
+	gsGlobal.PSM = GS_PSM_CT16;
 	gsGlobal.PSMZ = GS_PSMZ_16;
 	gsGlobal.ActiveBuffer = 1;
 	gsGlobal.PrimFogEnable = 0;
@@ -60,7 +61,7 @@ int main(void)
 	/* BGColor Register Values */
 	gsGlobal.BGColor.Red = 0x00;
 	gsGlobal.BGColor.Green = 0x00;
-	gsGlobal.BGColor.Blue = 0x00;
+	gsGlobal.BGColor.Blue = 0x0;
 
 	/* TEST Register Values */
 	gsGlobal.Test.ATE = 0;
@@ -72,52 +73,33 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
-	gsGlobal.Clamp.WMS = GS_CMODE_CLAMP;
-	gsGlobal.Clamp.WMT = GS_CMODE_CLAMP;
-/*
-	// These are only relevant if you are using REGION_CLAMP or REGION_REPEAT
-	gsGlobal.Clamp.MINU =
-	gsGlobal.Clamp.MAXU =
-	gsGlobal.Clamp.MINV =
-	gsGlobal.Clamp.MAXV =
-*/
+	gsFont.Path = "host:lucida.fnt";
+	gsFont.Type = GSKIT_FTYPE_FNT;
+
+	gsFont2.Path = "host:arial.fnt";
+	gsFont2.Type = GSKIT_FTYPE_FNT;
+
 	gsKit_init_screen(&gsGlobal);
 	gsKit_clear(&gsGlobal, White);
-	
-	Tex1.Width = 256;
-	Tex1.Height = 256;
-	Tex1.PSM = GS_PSM_CT24;
 
-	gsKit_texture_raw(&gsGlobal, &Tex1, "host:bitmap.raw");
-	gsKit_texture_bmp(&gsGlobal, &Tex2, "host:bsdgirl.bmp");
+        gsKit_font_upload(&gsGlobal, &gsFont);
+        gsKit_font_upload(&gsGlobal, &gsFont2);
 
 	while(1){
 		gsKit_clear(&gsGlobal, White);
 
+//		gsKit_font_print(&gsGlobal, &gsFont, 25, 150, 2, White, "Hello World!");
 
-                gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 20,  // X1
-                                                            50,  // Y2    
-                                                            0,  // U1
-                                                            0,  // V1
-                                                            276, // X2
-                                                            306, // Y2
-                                                            256, // U2
-                                                            256, // V2
-                                                            1,
-                                                            0x80808080);
+		gsKit_prim_sprite_texture(&gsGlobal, &gsFont.Texture, 50, 50, 0, 0, 
+								      gsFont.Texture.Width + 50, gsFont.Texture.Height + 50, 
+								      gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
 
-                gsKit_prim_sprite_texture(&gsGlobal, &Tex2, 310,  // X1
-                                                            0,  // Y2
-                                                            0,  // U1
-                                                            0,  // V1
-                                                            630, // X2
-                                                            480, // Y2
-                                                            320, // U2
-                                                            480, // V2
-                                                            1,
-                                                            0x80808080);
+		gsKit_prim_sprite_texture(&gsGlobal, &gsFont2.Texture, 320, 50, 0, 0, 
+				          gsFont.Texture.Width + 320, gsFont.Texture.Height + 50, 
+					  gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
 
 		gsKit_sync_flip(&gsGlobal);
+
 	}
 	
 	return 0;
