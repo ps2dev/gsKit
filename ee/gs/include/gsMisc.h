@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-float gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex);
+int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex);
 
 #ifdef __cplusplus
 }

@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-void gsKit_prim_point(GSGLOBAL *gsGlobal, float x1, float y1, float z, u64 color);
+void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color);
 
 void gsKit_prim_line(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, float z, u64 color);
 

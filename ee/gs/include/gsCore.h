@@ -21,7 +21,9 @@
 
 #define GS_AXIS_X 0x00
 #define GS_AXIS_Y 0x01
-
+#define GS_AXIS_Z 0x02
+#define GS_MAP_U 0x03
+#define GS_MAP_V 0x04
 
 #define GS_CMODE_REPEAT 0x00
 #define GS_CMODE_CLAMP 0x01

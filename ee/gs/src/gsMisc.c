@@ -11,22 +11,30 @@
 
 #include "gsKit.h"
 
-float gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
+int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 {
-	if(axis == GS_AXIS_X)
-	{
-			vertex = vertex << 4;
-	}
+	int result;
 
-	else if(axis == GS_AXIS_Y)
+	if(axis == GS_AXIS_X || axis == GS_MAP_U)
 	{
-		vertex = vertex << 4;
+			result = (int)(vertex * 16.0f);
+			result += gsGlobal->OffsetX << 4;
+	}
+	else if(axis == GS_AXIS_Y || axis == GS_MAP_V)
+	{
 		if(gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL)
 		{
 			if( gsGlobal->Interlace == GS_NONINTERLACED )
 				vertex = vertex / 2;
 		}
+		result = (int)(vertex * 16.0f);
+		result += gsGlobal->OffsetY << 4;
 	}
+	else if(axis == GS_AXIS_Z)
+        {
+                        result = (int)(vertex * 16.0f);
+        }
 
-	return vertex;
+
+	return result;
 }

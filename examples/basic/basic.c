@@ -21,8 +21,8 @@ int main(void)
 
 	float x = 10;
 	float y = 10;
-	int width = 150;
-	int height = 150;
+	float width = 150;
+	float height = 150;
 
 	float *LineStrip;
 	float *LineStripPtr;
@@ -100,12 +100,12 @@ int main(void)
 	gsGlobal.Field = GS_FRAME;
 	gsGlobal.Aspect = GS_ASPECT_4_3;
 	gsGlobal.Width = 640;
-	gsGlobal.Height = 448;
+	gsGlobal.Height = 480;
 	gsGlobal.OffsetX = 2048;
 	gsGlobal.OffsetY = 2048;
 //	gsGlobal.StartX = -100;
 	gsGlobal.StartX = 0;
-	gsGlobal.StartY = -5;
+	gsGlobal.StartY = -10;
 	gsGlobal.PSM = GS_PSM_CT16;
 	gsGlobal.PSMZ = GS_PSMZ_16;
 	gsGlobal.ActiveBuffer = 1;

@@ -43,7 +43,7 @@ int main(void)
 	gsGlobal.Field = GS_FRAME;
 	gsGlobal.Aspect = GS_ASPECT_4_3;
 	gsGlobal.Width = 640;
-	gsGlobal.Height = 448;
+	gsGlobal.Height = 480;
 	gsGlobal.OffsetX = 2048;
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.StartX = 0;
@@ -84,8 +84,8 @@ int main(void)
 	gsKit_init_screen(&gsGlobal);
 	gsKit_clear(&gsGlobal, White);
 	
-	Tex1.Width = 256;
-	Tex1.Height = 256;
+	Tex1.Width = 256.0;
+	Tex1.Height = 256.0;
 	Tex1.PSM = GS_PSM_CT24;
 
 	gsKit_texture_raw(&gsGlobal, &Tex1, "host:bitmap.raw");
@@ -94,26 +94,26 @@ int main(void)
 	while(1){
 		gsKit_clear(&gsGlobal, White);
 
-                gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 20,  // X1
-                                                            50,  // Y2    
-                                                            0,  // U1
-                                                            0,  // V1
-                                                            Tex1.Width + 20, // X2
-                                                            Tex1.Height + 50, // Y2
+                gsKit_prim_sprite_texture(&gsGlobal, &Tex1, 20.0,  // X1
+                                                            50.0,  // Y2    
+                                                            0.0,  // U1
+                                                            0.0,  // V1
+                                                            Tex1.Width + 20.0, // X2
+                                                            Tex1.Height + 50.0, // Y2
                                                             Tex1.Width, // U2
-                                                            Tex1.Height, // V2
-                                                            1,
+                                                            Tex1.Height*2, // V2
+                                                            1.0,
                                                             0x80808080);
 
-                gsKit_prim_sprite_texture(&gsGlobal, &Tex2, 310,  // X1
-                                                            50,  // Y2
-                                                            0,  // U1
-                                                            0,  // V1
-                                                            Tex2.Width + 310, // X2
-                                                            Tex2.Height +  50, // Y2
+                gsKit_prim_sprite_texture(&gsGlobal, &Tex2, 310.0,  // X1
+                                                            50.0,  // Y2
+                                                            0.0,  // U1
+                                                            0.0,  // V1
+                                                            Tex2.Width + 310.0, // X2
+                                                            Tex2.Height +  50.0, // Y2
                                                             Tex2.Width, // U2
-                                                            Tex2.Height, // V2
-                                                            1,
+                                                            Tex2.Height*2, // V2
+                                                            1.0,
                                                             0x80808080);
 
 		gsKit_sync_flip(&gsGlobal);

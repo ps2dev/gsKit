@@ -13,21 +13,15 @@
 
 #include "gsKit.h"
 
-void gsKit_prim_point(GSGLOBAL *gsGlobal, float x1, float y1, float z, u64 color)
+void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color)
 {
         u64* p_store;
         u64* p_data;
         int size = 4;
 	
-	int ix1 = (int)(x1 * 16.0f);
-	int iy1 = (int)(y1 * 16.0f);
-	int iz = (int)(z * 16.0f);
-
-        ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-        iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-
-        ix1 += gsGlobal->OffsetX << 4;
-        iy1 += gsGlobal->OffsetY << 4;
+        int ix = gsKit_scale(gsGlobal, GS_AXIS_X, x);
+        int iy = gsKit_scale(gsGlobal, GS_AXIS_Y, y);
+        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -52,7 +46,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x1, float y1, float z, u64 color
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
+        *p_data++ = GS_SETREG_XYZ2( ix, iy, iz );
         *p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
@@ -64,22 +58,11 @@ void gsKit_prim_line(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2,
         u64* p_data;
         int size = 5;
 
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iz = (int)(z * 16.0f);
-
-        ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-        ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-        iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-        iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-
-        ix1 += gsGlobal->OffsetX << 4;
-        ix2 += gsGlobal->OffsetX << 4;
-
-        iy1 += gsGlobal->OffsetY << 4;
-        iy2 += gsGlobal->OffsetY << 4;
+        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -104,7 +87,7 @@ void gsKit_prim_line(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2,
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, z );
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
         *p_data++ = GS_XYZ2;
 
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
@@ -124,12 +107,10 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, f
 
 	for(count = 0; count < (segments * 2); count+=2)
 	{
-	        vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, (int)(*LineStrip++ * 16.0f));
-	        vertexdata[count] += gsGlobal->OffsetX << 4;
-	        vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, (int)(*LineStrip++ * 16.0f));
-                vertexdata[count+1] += gsGlobal->OffsetY << 4;
+	        vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *LineStrip++);
+	        vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *LineStrip++);
 	}
-        int iz = (int)(z * 16.0f);
+        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -170,22 +151,11 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 	u64* p_data;
 	int size = 5;
 
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iz = (int)(z * 16.0f);
-
-        ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-        ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-        iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-        iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-
-	ix1 += gsGlobal->OffsetX << 4;
-	ix2 += gsGlobal->OffsetX << 4;
-
-	iy1 += gsGlobal->OffsetY << 4;
-	iy2 += gsGlobal->OffsetY << 4;
+        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -228,29 +198,15 @@ void gsKit_prim_triangle(GSGLOBAL *gsGlobal, float x1, float y1,
 	u64* p_data;
 	int size = 6;
 
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int ix3 = (int)(x3 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iy3 = (int)(y3 * 16.0f);
-        int iz = (int)(z * 16.0f);
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
 
-	ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-	ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-	ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, ix3);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
 
-	iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-	iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-	iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy3);
-
-	ix1 += gsGlobal->OffsetX << 4;
-	ix2 += gsGlobal->OffsetX << 4;
-	ix3 += gsGlobal->OffsetX << 4;
-
-	iy1 += gsGlobal->OffsetY << 4;
-	iy2 += gsGlobal->OffsetY << 4;
-	iy3 += gsGlobal->OffsetY << 4;
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -296,15 +252,13 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
         int count;
         int vertexdata[segments*2];
         
-        int iz = (int)(z * 16.0f);
-
         for(count = 0; count < (segments * 2); count+=2)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, (int)(*TriStrip++ * 16.0f));
-                vertexdata[count] += gsGlobal->OffsetX << 4;
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, (int)(*TriStrip++ * 16.0f));
-                vertexdata[count+1] += gsGlobal->OffsetY << 4;
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
         }
+
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -346,15 +300,13 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, f
         int count;
         int vertexdata[verticies*2];
 
-        int iz = (int)(z * 16.0f);
-
         for(count = 0; count < (verticies * 2); count+=2)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, (int)(*TriFan++ * 16.0f));
-                vertexdata[count] += gsGlobal->OffsetX << 4;
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, (int)(*TriFan++ * 16.0f));
-                vertexdata[count+1] += gsGlobal->OffsetY << 4;
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
         }
+
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -398,29 +350,15 @@ void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, float x1, float y1,
 	u64* p_data;
 	int size = 8;
 
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int ix3 = (int)(x3 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iy3 = (int)(y3 * 16.0f);
-        int iz = (int)(z * 16.0f);
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
 
-	ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-	ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-	ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, ix3);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
 
-	iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-	iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-	iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy3);
-
-	ix1 += gsGlobal->OffsetX << 4;
-	ix2 += gsGlobal->OffsetX << 4;
-	ix3 += gsGlobal->OffsetX << 4;
-
-	iy1 += gsGlobal->OffsetY << 4;
-	iy2 += gsGlobal->OffsetY << 4;
-	iy3 += gsGlobal->OffsetY << 4;
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 		size++;
@@ -472,36 +410,18 @@ void gsKit_prim_quad(GSGLOBAL *gsGlobal, float x1, float y1,
 	u64* p_data;
 	int size = 7;
         
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int ix3 = (int)(x3 * 16.0f);
-        int ix4 = (int)(x4 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iy3 = (int)(y3 * 16.0f);
-        int iy4 = (int)(y4 * 16.0f);
-        int iz = (int)(z * 16.0f);
-
-	ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-	ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-	ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, ix3);
-	ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, ix4);
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
+	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
                 
-	iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-	iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-	iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy3);
-	iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy4);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
+	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
+
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
         
-	ix1 += gsGlobal->OffsetX << 4;
-	ix2 += gsGlobal->OffsetX << 4;
-	ix3 += gsGlobal->OffsetX << 4;
-	ix4 += gsGlobal->OffsetX << 4;
-
-	iy1 += gsGlobal->OffsetY << 4;
-	iy2 += gsGlobal->OffsetY << 4;
-	iy3 += gsGlobal->OffsetY << 4;
-	iy4 += gsGlobal->OffsetY << 4;
-
         if( gsGlobal->PrimAlphaEnable == 1 )
         size++;
 
@@ -552,35 +472,17 @@ void gsKit_prim_quad_gouraud(GSGLOBAL *gsGlobal, float x1, float y1,
 	u64* p_data;
 	int size = 10;
 
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int ix3 = (int)(x3 * 16.0f);
-        int ix4 = (int)(x4 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iy3 = (int)(y3 * 16.0f);
-        int iy4 = (int)(y4 * 16.0f);
-        int iz = (int)(z * 16.0f);
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
+	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
 
-	ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, ix1);
-	ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, ix2);
-	ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, ix3);
-	ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, ix4);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
+	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
 
-	iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy1);
-	iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy2);
-	iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy3);
-	iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, iy4);
-
-	ix1 += gsGlobal->OffsetX << 4;
-	ix2 += gsGlobal->OffsetX << 4;
-	ix3 += gsGlobal->OffsetX << 4;
-	ix4 += gsGlobal->OffsetX << 4;
-        
-	iy1 += gsGlobal->OffsetY << 4;
-	iy2 += gsGlobal->OffsetY << 4;
-	iy3 += gsGlobal->OffsetY << 4;
-	iy4 += gsGlobal->OffsetY << 4;
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	size++;
@@ -634,16 +536,11 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         u64* p_store;
         u64* p_data;
 
-        int x1 = gsKit_scale(gsGlobal, GS_AXIS_X, 0);
-        int x2 = gsKit_scale(gsGlobal, GS_AXIS_X, gsGlobal->Width);
-        int y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, 0);
-        int y2 = gsKit_scale(gsGlobal, GS_AXIS_Y, gsGlobal->Height);
-
-        x1 += gsGlobal->OffsetX << 4;
-        x2 += gsGlobal->OffsetX << 4;
-
-        y1 += gsGlobal->OffsetY << 4;
-        y2 += gsGlobal->OffsetY << 4;
+        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, 0);
+        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, gsGlobal->Width);
+        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, 0);
+        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, gsGlobal->Height);
+	int iz = 0;	
 
         p_store = p_data = dmaKit_spr_alloc( 6*16 );
 
@@ -661,10 +558,10 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         *p_data++ = 0;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( x1, y1, 0 );
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
         *p_data++ = GS_XYZ2;
 
-        *p_data++ = GS_SETREG_XYZ2( x2, y2, 0 );
+        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
         *p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 6 );

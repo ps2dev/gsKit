@@ -47,7 +47,7 @@ int main(void)
 	gsGlobal.Field = GS_FRAME;
 	gsGlobal.Aspect = GS_ASPECT_4_3;
 	gsGlobal.Width = 640;
-	gsGlobal.Height = 448;
+	gsGlobal.Height = 480;
 	gsGlobal.OffsetX = 2048;
 	gsGlobal.OffsetY = 2048;
 //	gsGlobal.StartX = -100;

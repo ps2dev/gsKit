@@ -336,29 +336,18 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         u64* p_data;
         int size = 8;
 
-        x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-        x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-        y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-        y2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+
+        int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
+        int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
+        int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
+        int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
+
+        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
  
-        x1 += gsGlobal->OffsetX << 4;
-        x2 += gsGlobal->OffsetX << 4;
-
-        y1 += gsGlobal->OffsetY << 4;
-        y2 += gsGlobal->OffsetY << 4;
-        
-
-        int ix1 = (int)(x1 * 16.0f);
-        int ix2 = (int)(x2 * 16.0f);
-        int iy1 = (int)(y1 * 16.0f);
-        int iy2 = (int)(y2 * 16.0f);
-        int iz = (int)(z * 16.0f);
-
-        int iu1 = (int)(u1 * 16.0f);
-        int iu2 = (int)(u2 * 16.0f);
-        int iv1 = (int)(v1 * 16.0f);
-        int iv2 = (int)(v2 * 16.0f);
-
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
 
@@ -384,16 +373,19 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         
         *p_data++ = GS_PRIM;
         
+	printf("u2 =%f | v2 = %f\n",u2, v2);
+	printf("iu2 =%i | iv2 = %i\n",iu2, iv2);
+
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
         
-        *p_data++ = GS_SETREG_UV( iu1<<4, iv1<<4 );
+        *p_data++ = GS_SETREG_UV( iu1, iv1 );
         *p_data++ = GS_UV;
 
         *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
         *p_data++ = GS_XYZ2;
 
-        *p_data++ = GS_SETREG_UV( iu2<<4, iv2<<4 );
+        *p_data++ = GS_SETREG_UV( iu2, iv2 );
         *p_data++ = GS_UV;
 
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
