@@ -20,11 +20,17 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 
 	if(gsGlobal->CurrentPointer >= 4194304)
 	{
+		gsGlobal->CurrentPointer -= size;
 		printf("ERROR: Not enough VRAM for this allocation!\n");
 		return -1;
 	}
 	else
 		return gsGlobal->CurrentPointer - size;
+}
+
+void gsKit_vram_free(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
+{
+	
 }
 
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)

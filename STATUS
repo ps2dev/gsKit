@@ -33,7 +33,7 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsTexture   | Kind of working, needs further dev.     | 75%  |
+| gsTexture   | Works well, still one small bug.        | 90%  |
 |--------------------------------------------------------------|
 | gsFont      | BMP Font Support Implimented, But Ugly. | 25%  |
 |--------------------------------------------------------------|
@@ -48,5 +48,5 @@ Contributors: Please do not modify this file without letting the others
 
 BUGS:
 	* Scaling for DTV/VGA/DVD modes untested.
-	* Glitch in BMP reader causing artifacts in the textures example.
+	* Bug in loading multiple textures.
 	

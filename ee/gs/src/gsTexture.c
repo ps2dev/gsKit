@@ -30,7 +30,7 @@ u32  gsKit_texture_size(int width, int height, int psm)
 		default: printf("gsKit: unsupported PSM %d\n", psm);
 	}
 
-	return 0;
+	return -1;
 }
 
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
@@ -326,29 +326,31 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm)
 {
-        u64* p_store;
-        u64* p_data;
+	u64* p_store;
+	u64* p_data;
 	u64* p_mem;
 	int packets;
 	int remain;
 	int qwc;
 
-	qwc  = gsKit_texture_size(width, height, psm) / 16;
+	qwc = gsKit_texture_size(width, height, psm) / 16;
 
 	packets = qwc / DMA_MAX_SIZE;
 	remain  = qwc % DMA_MAX_SIZE;
 	p_mem   = (u64*)mem;
 
-        p_store = p_data = dmaKit_spr_alloc( (10+packets+(remain>0))*16 );
+	p_store = p_data = dmaKit_spr_alloc( (10+packets+(remain>0))*16 );
+
+	FlushCache(0);
 
 	// DMA DATA
-        *p_data++ = DMA_TAG( 6, 0, DMA_CNT, 0, 0, 0 );
-        *p_data++ = 0;
+	*p_data++ = DMA_TAG( 6, 0, DMA_CNT, 0, 0, 0 );
+	*p_data++ = 0;
 
-        *p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_AD;
 
-	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp, fbw/64, psm);
+	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, fbw/64, psm);
 	*p_data++ = GS_BITBLTBUF;
 
 	*p_data++ = GS_SETREG_TRXPOS(0, 0, 0, 0, 0);
@@ -360,40 +362,40 @@ void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 ps
 	*p_data++ = GS_SETREG_TRXDIR(0);
 	*p_data++ = GS_TRXDIR;
 
-        *p_data++ = GIF_TAG( qwc, 1, 0, 0, 2, 1 );
-        *p_data++ = 0;
+	*p_data++ = GIF_TAG( qwc, 1, 0, 0, 2, 1 );
+	*p_data++ = 0;
 
 	while (packets-- > 0) {
 	        *p_data++ = DMA_TAG( DMA_MAX_SIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
 	        *p_data++ = 0;
-		p_mem+= DMA_MAX_SIZE;
+			p_mem+= DMA_MAX_SIZE;
 	}
 	if (remain > 0) {
 	        *p_data++ = DMA_TAG( remain, 1, DMA_REF, 0, (u32)p_mem, 0 );
 	        *p_data++ = 0;
 	}
 
-        *p_data++ = DMA_TAG( 2, 0, DMA_END, 0, 0, 0 );
-        *p_data++ = 0;
-
-        *p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
-
+	*p_data++ = DMA_TAG( 2, 0, DMA_END, 0, 0, 0 );
 	*p_data++ = 0;
-	*p_data++ = GS_TEXFLUSH;
 
-        dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+	*p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_AD;
+
+	*p_data++ = GS_TEXFLUSH;
+	*p_data++ = 0;
+	
+	dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
 }
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 {
 	if (Texture->PSM == GS_PSM_T8) {
-		gsKit_texture_send(Texture->Clut, gsGlobal->Width, 16, 16, Texture->VramClut/256, 0);
+		gsKit_texture_send(Texture->Clut, gsGlobal->Width, 16, 16, Texture->VramClut, 0);
 	}
 	if (Texture->PSM == GS_PSM_T4) {
-		gsKit_texture_send(Texture->Clut, gsGlobal->Width,  8,  2, Texture->VramClut/256, 0);
+		gsKit_texture_send(Texture->Clut, gsGlobal->Width,  8,  2, Texture->VramClut, 0);
 	}
-	gsKit_texture_send(Texture->Mem, gsGlobal->Width, Texture->Width, Texture->Height, Texture->Vram/256, Texture->PSM);
+	gsKit_texture_send(Texture->Mem, gsGlobal->Width, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM);
 }
 
 static int log( int Value )
@@ -440,7 +442,7 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, ((gsGlobal->Width/64)&63), Texture->PSM,
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
                                    log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;

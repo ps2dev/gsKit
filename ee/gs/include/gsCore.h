@@ -180,7 +180,7 @@ extern "C" {
 #endif
 
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
-u32 gsKit_vram_free(GSGLOBAL *gsGlobal, u32 Pointer, u32 size);
+void gsKit_vram_free(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 void gsKit_vsync(void);

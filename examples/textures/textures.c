@@ -16,7 +16,7 @@
 int main(void)
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
-	GSTEXTURE Tex1, Tex2;
+	GSTEXTURE Tex1, Tex2, Tex3;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
@@ -34,13 +34,15 @@ int main(void)
 	Tex1.PSM = GS_PSM_CT24;
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");
+	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");
+	printf("Texure 1 VRAM Pointer = 0x%X\n",Tex1.Vram);
+	printf("Texure 2 VRAM Pointer = 0x%X\n",Tex2.Vram);
 	
 	#ifdef HAVE_LIBJPG
-	gsKit_texture_jpeg(gsGlobal, &Tex2, "host:bsdgirl.jpg");
-	#else
-	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");
+	gsKit_texture_jpeg(gsGlobal, &Tex3, "host:ps2dev.jpg");
+	printf("Texure 3 VRAM Pointer = 0x%X\n",Tex3.Vram);
 	#endif
-	
+			
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
 	while(1){
@@ -67,7 +69,18 @@ int main(void)
                                                             Tex2.Height, // V2
                                                             2.0,
                                                             TexCol);
-
+#ifdef HAVE_LIBJPG
+                gsKit_prim_sprite_texture(gsGlobal, &Tex3, 20.0,  // X1
+                                                            286.0,  // Y2
+                                                            0.0,  // U1
+                                                            0.0,  // V1
+                                                            Tex3.Width + 20, // X2
+                                                            Tex3.Height +  286.0, // Y2
+                                                            Tex3.Width, // U2
+                                                            Tex3.Height, // V2
+                                                            3.0,
+                                                            TexCol);
+#endif
 		gsKit_sync_flip(gsGlobal);
 	}
 	
