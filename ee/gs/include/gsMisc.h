@@ -14,6 +14,6 @@
 
 #include "gsKit.h"
 
-float gsKit_scale(GSGLOBAL gsGlobal, int axis, int vertex);
+int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, int vertex);
 
 #endif /* __GSMISC_H__ */

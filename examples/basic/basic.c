@@ -31,6 +31,8 @@ int main(void)
 
 	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x50,0x00);
 
+	printf("blah got here\n");
+
 	/* Generic Values */
 	gsGlobal.Width = 640;
 	gsGlobal.Height = 448;
@@ -39,7 +41,7 @@ int main(void)
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.PSM = 0;
 	gsGlobal.ActiveBuffer = 1;
-	gsGlobal.PrimAlphaEnable = 0;
+	gsGlobal.PrimAlphaEnable = 1;
 	gsGlobal.PrimAlpha = 0;
 	gsGlobal.PrimContext = 0;
 
@@ -58,33 +60,40 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
-	gsGlobal = gsKit_init_screen(gsGlobal, GS_INTERLACED, GS_MODE_NTSC, GS_FIELD);
+	printf("blah got here2 \n");
+	gsKit_init_screen(&gsGlobal, GS_INTERLACED, GS_MODE_NTSC, GS_FIELD);
+	printf("blah got here3 \n");
 
-	gsKit_clear(gsGlobal, White);
+	gsKit_zblank(&gsGlobal);
+	gsKit_sync_flip(&gsGlobal);
+	gsKit_zblank(&gsGlobal);
 
-	while(1){
+	gsKit_clear(&gsGlobal, White);
+
+//	while(1){
 		printf("DEBUG: SCREEN CLEARED\n");
 
-		gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
+		gsKit_set_test(&gsGlobal, GS_ZTEST_OFF);
 	
-		gsKit_prim_sprite(gsGlobal, 100, 100, 200, 200, 1, Blue);
+		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 1, Blue);
 		printf("DEBUG: PRIM 1 DRAWN\n");
-		gsKit_prim_sprite(gsGlobal, 150, 150, 450, 400, 3, Green);
+		gsKit_prim_sprite(&gsGlobal, 150, 150, 450, 400, 3, Green);
 		printf("DEBUG: PRIM 2 DRAWN\n");
 
-		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+		gsKit_set_test(&gsGlobal, GS_ZTEST_ON);
 
-		gsKit_prim_sprite(gsGlobal, 400, 100, 500, 200, 2, Red);
+		gsKit_prim_sprite(&gsGlobal, 400, 100, 500, 200, 4, Red);
 		printf("DEBUG: PRIM 3 DRAWN\n");
 
-		gsKit_prim_sprite(gsGlobal, 100, 300, 500, 400, 5, BlueTrans);
+		gsKit_prim_sprite(&gsGlobal, 100, 300, 500, 400, 5, BlueTrans);
 		printf("DEBUG: PRIM 4 DRAWN\n");
 
-		gsGlobal = gsKit_sync_flip(gsGlobal);
+		gsKit_sync_flip(&gsGlobal);
 
 		printf("DEBUG: SYNC FLIP 2\n");
 		printf("FINISH\n");
-	}
-
+//	}
+	while(1);
+	
 	return 0;
 }

@@ -146,6 +146,7 @@ struct gsBGColor
 	u8 Green;
 	u8 Blue;
 };
+typedef struct gsBGColor GSBGCOLOR;
 
 struct gsTest
 {
@@ -158,6 +159,7 @@ struct gsTest
 	u8 ZTE;
 	u8 ZTST;
 };
+typedef struct gsTest GSTEST;
 
 struct gsGlobals
 {
@@ -170,8 +172,8 @@ struct gsGlobals
 	int Aspect;
 	int OffsetX;
 	int OffsetY;
-	struct gsBGColor BGColor;
-	struct gsTest Test;
+	GSBGCOLOR BGColor;
+	GSTEST Test;
 	int PSM;
 	int PrimContext;
 	int PrimAlphaEnable;
@@ -180,7 +182,7 @@ struct gsGlobals
 
 typedef struct gsGlobals GSGLOBAL;
 
-int gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
-GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field);
+void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
+void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field);
 
 #endif /* __GSINIT_H__ */
