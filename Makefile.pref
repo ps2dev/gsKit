@@ -17,9 +17,6 @@ include $(PS2SDKSRC)/Defs.make
 
 PS2DEV = /usr/local/ps2dev
 
-PS2SDKSRC = /usr/Projects/PS2Dev/ps2sdk-cvs
-GSKIT = /usr/Projects/PS2Dev/gsKit
-
 GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.2
 CPPLIB = $(PS2DEV)/ee/ee/lib
 

@@ -21,15 +21,16 @@ void *dmaKit_spr_begin(void)
 
 int dmaKit_spr_end(void *data, void *StorePtr)
 {
+	int q_size;
 	printf("Ending Scratchpad Chain\n");
-	int q_size = (u32)data - (u32)StorePtr;
+	q_size = (u32)data - (u32)StorePtr;
 	return q_size >> 4;
 }
 
 void *dmaKit_spr_alloc(int size)
 {
-	printf("Allocating Scratchpad Memory\n");
 	void *p_spr = DMA_SPR;
+	printf("Allocating Scratchpad Memory\n");
 	if( DMA_SPR + size >= ( ((void*)0x70000000)+16*1024 ) )
 		DMA_SPR = (void*)SPR_START;   
 

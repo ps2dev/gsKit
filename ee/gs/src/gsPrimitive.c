@@ -15,10 +15,10 @@
 
 int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color)
 {
-	printf("Drawing Sprite Primitive\n");
 	u64* p_store;
 	u64* p_data;
 	int size = 5;
+	printf("Drawing Sprite Primitive\n");
 
 //        x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 //        x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
