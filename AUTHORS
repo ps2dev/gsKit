@@ -13,6 +13,8 @@ Alias       | Real Name         | e-mail
 ------------|-------------------|---------------------
 Neovanglist | Chris Gilbert     | Neovanglist@LainOS.org
 linuzappz   | Not Disclosed     | linuzappz@pcsx2.net
+Hago @ gmx  | Not Disclosed     | Not Disclosed
+Pixel       | Not Disclosed     | Not Disclosed
 
 People that I'd like to thank, and why:
 
@@ -27,5 +29,11 @@ t0mb0la - For several bugfixes, suggestions, and support.
 Drakonite - Bug fixes, misc. help, and support.
 
 linuzappz - First working implimentation for texture support, other code contributions.
+
+Pixel - Tons of help with fontm and other various workings!
+
+adresd - Help with fontm, and code samples.
+
+Hajo - BMP/DAT font support, and some PAL/NonInterlaced Fixes.
 
 And everyone else from the PS2 Dev community! Thanks!
