@@ -37,6 +37,7 @@ u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	GSBITMAP Bitmap;
 	int x, y;
 	int cy;
+	u32 FTexSize;
 	u8  *image;
 	u8  *p;
 	int File = fioOpen(Path, O_RDONLY);
@@ -100,6 +101,9 @@ u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
                 Texture->PSM = GS_PSM_CT24;
         }
 
+	FTexSize = fioLseek(File, 0, SEEK_END);
+	FTexSize -= Bitmap.FileHeader.Offset;
+
 	fioLseek(File, Bitmap.FileHeader.Offset, SEEK_SET);
         
 	u32 TextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
@@ -108,9 +112,9 @@ u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
         if(Bitmap.InfoHeader.PSM == 24)
         {
-		image = malloc(Texture->Width*Texture->Height*3);
+		image = malloc(FTexSize);
 		if (image == NULL) return -1;
-		fioRead(File, image, Texture->Width*Texture->Height*3);
+		fioRead(File, image, FTexSize);
 		p = Texture->Mem;
 		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
 			for (x=0; x<Texture->Width; x++) {

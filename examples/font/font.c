@@ -43,21 +43,16 @@ int main(void)
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
 		
-	gsFont->Path_BMP = malloc(22);
-	gsFont->Path_DAT = malloc(22);
 	gsFont->Path_BMP = "host:fonts/tahoma.bmp";
 	gsFont->Path_DAT = "host:fonts/tahoma.dat";
 	
 	gsKit_font_upload(gsGlobal, gsFont);
 
-	free(gsFont->Path_BMP);
-	free(gsFont->Path_DAT);
-
 	while(1){
 		gsKit_clear(gsGlobal, White);
 		gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, White, "Hello World!");
 
-		gsKit_font_print(gsGlobal, gsFont, 100, 300, 1, White, "Testing 1\n"\
+		gsKit_font_print(gsGlobal, gsFont, 100, 200, 1, White, "Testing 1\n"\
 								       "Testing 2\n"\
 								       "Testing 3\n"\
 								       "Testing 4\n"\

@@ -52,6 +52,7 @@ u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
                       unsigned long color, char *String)
 {
+	u8 oldalpha = gsGlobal->PrimAlpha;
 	gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
 
 	int cx,cy,i,l;
@@ -88,5 +89,6 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 
 	}
 	else return; //font type unknown
-	gsGlobal->PrimAlpha=1;
+	
+	gsGlobal->PrimAlpha=oldalpha;
 }
