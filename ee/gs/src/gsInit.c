@@ -67,8 +67,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
 	{
-		gsGlobal->Test->ZTE = 0;
-		gsGlobal->Test->ZTST = 0;
+		gsGlobal->Test->ZTE = 1;
+		gsGlobal->Test->ZTST = 1;
 	}
 	
 	GS_SET_PMODE(0,		// Read Circuit 1
@@ -150,6 +150,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 		*p_data++ = GS_ZBUF_1;
 	}
+	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
+	{
+		*p_data++ = GS_SETREG_ZBUF_1( NULL, gsGlobal->PSMZ, 1 );
+		*p_data++ = GS_ZBUF_1;
+	}
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
 				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
@@ -184,6 +189,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	if(gsGlobal->ZBuffering == GS_SETTING_ON)
 	{
 		*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
+		*p_data++ = GS_ZBUF_2;
+	}
+	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
+	{
+		*p_data++ = GS_SETREG_ZBUF_1( NULL, gsGlobal->PSMZ, 1 );
 		*p_data++ = GS_ZBUF_2;
 	}
 	
