@@ -49,7 +49,7 @@ int main(void)
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.StartX = 0;
 	gsGlobal.StartY = -5;
-	gsGlobal.PSM = GS_PSM_CT16;
+	gsGlobal.PSM = GS_PSM_CT32;
 	gsGlobal.PSMZ = GS_PSMZ_16;
 	gsGlobal.ActiveBuffer = 1;
 	gsGlobal.PrimFogEnable = 0;
@@ -82,17 +82,17 @@ int main(void)
 	gsKit_init_screen(&gsGlobal);
 	gsKit_clear(&gsGlobal, White);
 
-        gsKit_font_upload(&gsGlobal, &gsFont);
-        gsKit_font_upload(&gsGlobal, &gsFont2);
+        gsKit_font_upload(&gsGlobal, &gsFont, &gsFont.Texture);
+        gsKit_font_upload(&gsGlobal, &gsFont2, &gsFont2.Texture);
 
 	while(1){
 		gsKit_clear(&gsGlobal, White);
 
-//		gsKit_font_print(&gsGlobal, &gsFont, 25, 150, 2, White, "Hello World!");
+		gsKit_font_print(&gsGlobal, &gsFont, 400, 100, 2, Black, "?");
 
 		gsKit_prim_sprite_texture(&gsGlobal, &gsFont.Texture, 50, 50, 0, 0, 
-								      gsFont.Texture.Width + 50, gsFont.Texture.Height + 50, 
-								      gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
+				          gsFont.Texture.Width + 50, gsFont.Texture.Height + 50, 
+				          gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
 
 		gsKit_prim_sprite_texture(&gsGlobal, &gsFont2.Texture, 320, 50, 0, 0, 
 				          gsFont.Texture.Width + 320, gsFont.Texture.Height + 50, 

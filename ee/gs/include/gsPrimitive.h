@@ -32,37 +32,37 @@
 extern "C" {
 #endif
 
-void gsKit_prim_point(GSGLOBAL *gsGlobal, int x1, int y1, int z, u64 color);
+void gsKit_prim_point(GSGLOBAL *gsGlobal, float x1, float y1, float z, u64 color);
 
-void gsKit_prim_line(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
+void gsKit_prim_line(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, float z, u64 color);
 
-void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, int *LineStrip, int segments, int z, u64 color);
+void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, float z, u64 color);
 
-void gsKit_prim_sprite(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
+void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, float z, u64 color);
 
-void gsKit_prim_triangle(GSGLOBAL *gsGlobal, int x1, int y1,
-                                             int x2, int y2,
-                                             int x3, int y3,
-                                             int z, u64 color);
+void gsKit_prim_triangle(GSGLOBAL *gsGlobal, float x1, float y1,
+                                             float x2, float y2,
+                                             float x3, float y3,
+                                             float z, u64 color);
 
-void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, int *TriStrip, int segments, int z, u64 color);
+void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, float z, u64 color);
 
-void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, int *TriFan, int verticies, int z, u64 color);
+void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, float z, u64 color);
 
-void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
-						     int x2, int y2,
-						     int x3, int y3, int z, 
+void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, float x1, float y1,
+						     float x2, float y2,
+						     float x3, float y3, float z, 
 						     u64 color1, u64 color2, u64 color3);
 
-void gsKit_prim_quad(GSGLOBAL *gsGlobal, int x1, int y1,
-					 int x2, int y2,
-					 int x3, int y3,
-					 int x4, int y4, int z, u64 color);
+void gsKit_prim_quad(GSGLOBAL *gsGlobal, float x1, float y1,
+					 float x2, float y2,
+					 float x3, float y3,
+					 float x4, float y4, float z, u64 color);
 
-void gsKit_prim_quad_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
-						 int x2, int y2,
-						 int x3, int y3,
-						 int x4, int y4, int z,
+void gsKit_prim_quad_gouraud(GSGLOBAL *gsGlobal, float x1, float y1,
+						 float x2, float y2,
+						 float x3, float y3,
+						 float x4, float y4, float z,
 						 u64 color1, u64 color2,
 						 u64 color3, u64 color4);
 

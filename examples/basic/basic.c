@@ -19,19 +19,19 @@ int main(void)
 	GSGLOBAL gsGlobal;
 
 
-	int x = 10;
-	int y = 10;
+	float x = 10;
+	float y = 10;
 	int width = 150;
 	int height = 150;
 
-	int *LineStrip;
-	int *LineStripPtr;
-	int *TriStrip;
-	int *TriStripPtr;
-	int *TriFanPtr;
-	int *TriFan;
+	float *LineStrip;
+	float *LineStripPtr;
+	float *TriStrip;
+	float *TriStripPtr;
+	float *TriFanPtr;
+	float *TriFan;
 
-	LineStripPtr = LineStrip = malloc(12 * sizeof(int));
+	LineStripPtr = LineStrip = malloc(12 * sizeof(float));
 	*LineStrip++ = 75;	// Segment 1 X
 	*LineStrip++ = 250;	// Segment 1 Y
 	*LineStrip++ = 125;	// Segment 2 X
@@ -45,7 +45,7 @@ int main(void)
 	*LineStrip++ = 75;	// Segment 6 Y
 	*LineStrip++ = 250;	// Segment 6 Y
 
-        TriStripPtr = TriStrip = malloc(12 * sizeof(int));
+        TriStripPtr = TriStrip = malloc(12 * sizeof(float));
         *TriStrip++ = 550;
         *TriStrip++ = 100;
         *TriStrip++ = 525;
@@ -59,7 +59,7 @@ int main(void)
         *TriStrip++ = 575;
         *TriStrip++ = 175;
 
-        TriFanPtr = TriFan = malloc(16 * sizeof(int));
+        TriFanPtr = TriFan = malloc(16 * sizeof(float));
 	*TriFan++ = 300;
 	*TriFan++ = 100;
 	*TriFan++ = 225;
@@ -137,40 +137,40 @@ int main(void)
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_OFF);
 	
-		gsKit_prim_line_strip(&gsGlobal, LineStripPtr, 6, 1, Black);
+		gsKit_prim_line_strip(&gsGlobal, LineStripPtr, 6, 1.0, Black);
 
-		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1, Red);
+		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1.0, Red);
 
-		gsKit_prim_line(&gsGlobal, 525, 125, 575, 125, 1, Black);
-		gsKit_prim_line(&gsGlobal, 550, 150, 600, 100, 1, Black);
+		gsKit_prim_line(&gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
+		gsKit_prim_line(&gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
 
-		gsKit_prim_point(&gsGlobal, 575, 75, 1, Black);
-		gsKit_prim_point(&gsGlobal, 600, 100, 1, Black);
-		gsKit_prim_point(&gsGlobal, 625, 125, 1, Black);
+		gsKit_prim_point(&gsGlobal, 575.0, 75.0, 1.0, Black);
+		gsKit_prim_point(&gsGlobal, 600.0, 100.0, 1.0, Black);
+		gsKit_prim_point(&gsGlobal, 625.0, 125.0, 1.0, Black);
 
-		gsKit_prim_quad(&gsGlobal, 150, 150, 
-					   150, 400,
-					   450, 150,
-					   450, 400, 2, Green);
+		gsKit_prim_quad(&gsGlobal, 150.0, 150.0, 
+					   150.0, 400.0,
+					   450.0, 150.0,
+					   450.0, 400.0, 2.0, Green);
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_ON);
 
-		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 5, Black);
+		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 5.0, Black);
 
-		gsKit_prim_quad_gouraud(&gsGlobal, 500, 250, 
-						   500, 350, 
-						   600, 250,
-						   600, 350, 2,
+		gsKit_prim_quad_gouraud(&gsGlobal, 500.0, 250.0, 
+						   500.0, 350.0, 
+						   600.0, 250.0,
+						   600.0, 350.0, 2.0,
 						   Red, Green, Blue, Black);
 
-		gsKit_prim_triangle_gouraud(&gsGlobal, 280, 200, 
-						       280, 350, 
-						       180, 350, 5, 
+		gsKit_prim_triangle_gouraud(&gsGlobal, 280.0, 200.0, 
+						       280.0, 350.0, 
+						       180.0, 350.0, 5.0, 
 						       Blue, Red, White);
 
-		gsKit_prim_triangle(&gsGlobal, 300, 200, 300, 350, 400, 350, 3, Red);
+		gsKit_prim_triangle(&gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
 
-		gsKit_prim_sprite(&gsGlobal, 400, 100, 500, 200, 5, Red);
+		gsKit_prim_sprite(&gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
 
 		if( y <= 10  && (x + width) < (gsGlobal.Width - 10))
 			x+=10;
@@ -181,9 +181,9 @@ int main(void)
 		else if( y > 10 && x <= 10 )
 			y-=10;
 
-		gsKit_prim_sprite(&gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
+		gsKit_prim_sprite(&gsGlobal, x, y, x + width, y + height, 4.0, BlueTrans);
 
-		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 5, RedTrans);
+		gsKit_prim_sprite(&gsGlobal, 100.0, 100.0, 200.0, 200.0, 5.0, RedTrans);
 
 		gsKit_sync_flip(&gsGlobal);
 

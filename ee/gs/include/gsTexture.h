@@ -137,14 +137,14 @@ s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
+s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture);
 
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
-void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,  
-								       int x2, int y2, int u2, int v2,  
-								       int z, u64 color);
+void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float u1, float v1,  
+								       float x2, float y2, float u2, float v2,  
+								       float z, u64 color);
 #ifdef __cplusplus
 }
 #endif

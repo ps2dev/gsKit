@@ -11,7 +11,7 @@
 
 #include "gsKit.h"
 
-int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, int vertex)
+float gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 {
 	if(axis == GS_AXIS_X)
 	{

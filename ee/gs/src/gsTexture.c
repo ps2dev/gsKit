@@ -185,21 +185,21 @@ s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return 0;
 }
 
-s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
 {
 	int File = fioOpen(gsFont->Path, O_RDONLY);
 	fioLseek(File, 4, SEEK_SET);
-        if(fioRead(File, &gsFont->Texture.Width, 4) <= 0)
+        if(fioRead(File, &Texture->Width, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
         }
-	if(fioRead(File, &gsFont->Texture.Height, 4) <= 0)
+	if(fioRead(File, &Texture->Height, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
         }
-	if(fioRead(File, &gsFont->Texture.PSM, 4) <= 0)
+	if(fioRead(File, &Texture->PSM, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
@@ -226,17 +226,17 @@ s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
         }
 	fioLseek(File, 288, SEEK_SET);
 
-	int FileSize = gsKit_texture_size(gsFont->Texture.Width, gsFont->Texture.Height, gsFont->Texture.PSM);
-	gsFont->Texture.Mem = malloc(FileSize);
-	gsFont->Texture.Vram = gsKit_vram_alloc(gsGlobal, FileSize);
-	if(fioRead(File, gsFont->Texture.Mem, FileSize) <= 0)
+	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
+	Texture->Mem = malloc(FileSize);
+	Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
+	if(fioRead(File, Texture->Mem, FileSize) <= 0)
 	{
 		printf("Could not load font: %s\n", gsFont->Path);
 		return -1;
 	}
 	fioClose(File);
-	gsKit_texture_upload(&gsGlobal, &gsFont->Texture);
-	free(gsFont->Texture.Mem);
+	gsKit_texture_upload(gsGlobal, Texture);
+	free(Texture->Mem);
 	return 0;
 }
 
@@ -328,14 +328,14 @@ int log( int Value )
 }
 
 
-void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,
-                                                                       int x2, int y2, int u2, int v2,
-                                                                       int z, u64 color)
+void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float u1, float v1,
+                                                                       float x2, float y2, float u2, float v2,
+                                                                       float z, u64 color)
 {
         u64* p_store;
         u64* p_data;
         int size = 8;
-        
+
         x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
         x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
         y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
@@ -347,6 +347,18 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, i
         y1 += gsGlobal->OffsetY << 4;
         y2 += gsGlobal->OffsetY << 4;
         
+
+        int ix1 = (int)(x1 * 16.0f);
+        int ix2 = (int)(x2 * 16.0f);
+        int iy1 = (int)(y1 * 16.0f);
+        int iy2 = (int)(y2 * 16.0f);
+        int iz = (int)(z * 16.0f);
+
+        int iu1 = (int)(u1 * 16.0f);
+        int iu2 = (int)(u2 * 16.0f);
+        int iv1 = (int)(v1 * 16.0f);
+        int iv2 = (int)(v2 * 16.0f);
+
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
 
@@ -375,16 +387,16 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, i
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
         
-        *p_data++ = GS_SETREG_UV( u1<<4, v1<<4 );
+        *p_data++ = GS_SETREG_UV( iu1<<4, iv1<<4 );
         *p_data++ = GS_UV;
 
-        *p_data++ = GS_SETREG_XYZ2( x1, y1, z );
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
         *p_data++ = GS_XYZ2;
 
-        *p_data++ = GS_SETREG_UV( u2<<4, v2<<4 );
+        *p_data++ = GS_SETREG_UV( iu2<<4, iv2<<4 );
         *p_data++ = GS_UV;
 
-        *p_data++ = GS_SETREG_XYZ2( x2, y2, z );
+        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
         *p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );

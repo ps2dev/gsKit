@@ -11,9 +11,9 @@
 
 #include "gsKit.h"
 
-s8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
+s8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
 {
-	if( gsKit_texture_fnt(gsGlobal, gsFont) == -1 )
+	if( gsKit_texture_fnt(gsGlobal, gsFont, Texture) == -1 )
 	{
 		printf("Error uploading font!\n");
 		return -1;
