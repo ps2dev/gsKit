@@ -15,7 +15,7 @@ EE_OBJS = font.o
 all: $(EE_BIN)
 
 test: all
-	ps2client execee host:font.elf
+	ps2client -t 1 execee host:font.elf
 
 reset: clean
 	ps2client reset

@@ -15,7 +15,7 @@ EE_OBJS = textures.o
 all: $(EE_BIN)
 
 test: all
-	ps2client execee host:textures.elf
+	ps2client -t 1 execee host:textures.elf
 
 reset: clean
 	ps2client reset

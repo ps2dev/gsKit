@@ -16,15 +16,6 @@
 
 #include "gsKit.h"
 
-void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field)
-{
-	__asm__ __volatile__("
-		# SetGsCrt
-		li  $3, 0x02;
-		syscall;
-		nop;");
-}
-
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
@@ -36,12 +27,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	
 		GS_RESET();
 
-		__asm__("sync.p;" 
-			"nop;");
+		__asm__("sync.p; nop;");
 
 		GsPutIMR(0x0000F700);
 
-		gsKit_init(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
+		SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
 		gsGlobal->Setup = 1;
 	}

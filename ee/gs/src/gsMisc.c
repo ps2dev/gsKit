@@ -13,7 +13,7 @@
 
 int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 {
-	int result;
+	int result = 0;
 
 	if(axis == GS_AXIS_X || axis == GS_MAP_U || axis == GS_MAP_V)
 	{

@@ -140,6 +140,7 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 
+u32  gsKit_texture_size(int width, int height, int psm);
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 

@@ -15,7 +15,7 @@ EE_OBJS = basic.o
 all: $(EE_BIN)
 
 test: all
-	ps2client execee host:basic.elf
+	ps2client -t 1 execee host:basic.elf
 
 reset: clean
 	ps2client reset

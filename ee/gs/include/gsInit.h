@@ -193,9 +193,9 @@ typedef struct gsClamp GSCLAMP;
 
 struct gsGlobals
 {
-	u8 Mode;
-	u8 Interlace;
-	u8 Field;
+	s16 Mode;
+	s16 Interlace;
+	s16 Field;
 	u8 Setup;
 	u32 CurrentPointer;
 	u32 ScreenBuffer[2];
@@ -276,7 +276,6 @@ typedef struct gsRegisters GSREG __attribute__((packed));
 extern "C" {
 #endif
 
-void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 GSGLOBAL *gsKit_init_global(u8 mode);
 GSFONT *gsKit_init_font(u8 type, char *path);

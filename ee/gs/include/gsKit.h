@@ -17,6 +17,8 @@
 #include <kernel.h>
 #include <fileio.h>
 #include <malloc.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "dmaKit.h"
 

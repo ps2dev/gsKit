@@ -19,7 +19,7 @@ int main(void)
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
-	GSFONT *gsFont;// = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "NULL");
+	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "NULL");
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -43,11 +43,11 @@ int main(void)
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, Black);
 
-	gsKit_font_upload(gsGlobal, gsFont);
+//	gsKit_font_upload(gsGlobal, gsFont);
 
 	while(1){
 		gsKit_clear(gsGlobal, Black);
-
+/*
 		gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, White, "Hello World!");
 
 		gsKit_font_print(gsGlobal, gsFont, 50, 80, 1, Red, "red");
@@ -64,7 +64,7 @@ int main(void)
 								       "Testing 8\n"\
 								       "Testing 9\n"\
 								       "Testing 10\n");
-
+*/
 		gsKit_sync_flip(gsGlobal);
 	}
 	

@@ -16,6 +16,7 @@
 #define __DMAKIT_H__
 
 #include <tamtypes.h>
+#include <stdio.h>
 
 #include "dmaCore.h"
 #include "dmaInit.h"
