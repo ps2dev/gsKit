@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture);
+u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z, 
 		      unsigned long color, char *String);
 

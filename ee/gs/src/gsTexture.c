@@ -82,11 +82,13 @@ u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	if(Bitmap.InfoHeader.PSM == 4)
 	{
 		Texture->PSM = GS_PSM_T4;
+		printf("NOTICE: GS_PSM_T4\n");
 		// TODO: Do CLUT Stuff.
 	}
         else if(Bitmap.InfoHeader.PSM == 8)
         {
                 Texture->PSM = GS_PSM_T8;
+		printf("NOTICE: GS_PSM_T8\n");
                 // TODO: Do CLUT Stuff.
         }
         else if(Bitmap.InfoHeader.PSM == 16)
@@ -185,21 +187,21 @@ u8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return 0;
 }
 
-u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
+u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	int File = fioOpen(gsFont->Path, O_RDONLY);
 	fioLseek(File, 4, SEEK_SET);
-        if(fioRead(File, &Texture->Width, 4) <= 0)
+        if(fioRead(File, &gsFont->Texture->Width, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
         }
-	if(fioRead(File, &Texture->Height, 4) <= 0)
+	if(fioRead(File, &gsFont->Texture->Height, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
         }
-	if(fioRead(File, &Texture->PSM, 4) <= 0)
+	if(fioRead(File, &gsFont->Texture->PSM, 4) <= 0)
         {
                 printf("Could not load font: %s\n", gsFont->Path);
                 return -1;
@@ -226,17 +228,17 @@ u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
         }
 	fioLseek(File, 288, SEEK_SET);
 
-	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
-	Texture->Mem = malloc(FileSize);
-	Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
-	if(fioRead(File, Texture->Mem, FileSize) <= 0)
+	int FileSize = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
+	gsFont->Texture->Mem = malloc(FileSize);
+	gsFont->Texture->Vram = gsKit_vram_alloc(gsGlobal, FileSize);
+	if(fioRead(File, gsFont->Texture->Mem, FileSize) <= 0)
 	{
 		printf("Could not load font: %s\n", gsFont->Path);
 		return -1;
 	}
 	fioClose(File);
-	gsKit_texture_upload(gsGlobal, Texture);
-	free(Texture->Mem);
+	gsKit_texture_upload(gsGlobal, gsFont->Texture);
+	free(gsFont->Texture->Mem);
 	return 0;
 }
 

@@ -175,31 +175,6 @@
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
 
-struct gsTexture
-{
-        u32     Width;
-        u32     Height;
-        u32     PSM;
-        void    *Mem;
-        void    *Clut;
-        u32     Vram;
-        u32     VramClut;
-};
-typedef struct gsTexture GSTEXTURE;
-
-struct gsFont
-{
-        char *Path;
-        u8 Type;
-        GSTEXTURE Texture;
-        u32 CharWidth;
-        u32 CharHeight;
-	u32 HChars;
-	u32 VChars;
-	u8 *Additional;
-};
-typedef struct gsFont GSFONT;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

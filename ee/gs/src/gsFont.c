@@ -11,13 +11,13 @@
 
 #include "gsKit.h"
 
-u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
+u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	gsFont->Additional=0;
 
 	if( gsFont->Type == GSKIT_FTYPE_FNT )
 	{
-		if( gsKit_texture_fnt(gsGlobal, gsFont, Texture) == -1 )
+		if( gsKit_texture_fnt(gsGlobal, gsFont) == -1 )
 		{
 			printf("Error uploading font!\n");
 			return -1; 
@@ -25,29 +25,25 @@ u8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
 	}
 	else if( gsFont->Type == GSKIT_FTYPE_BMP_DAT )
 	{
-		char tmp[512];
-		sprintf( tmp, "%s.bmp", gsFont->Path );
-		if( gsKit_texture_bmp(gsGlobal, Texture, tmp) == -1 )
+		if( gsKit_texture_bmp(gsGlobal, gsFont->Texture, gsFont->Path_BMP) == -1 )
 		{
 			printf("Error uploading font bmp!\n");
 			return -1;
 		}
-
-		sprintf( tmp, "%s.dat", gsFont->Path );
-		int File = fioOpen(tmp, O_RDONLY);
+		int File = fioOpen(gsFont->Path_DAT, O_RDONLY);
 		fioLseek(File, 0, SEEK_SET);
 		gsFont->Additional=malloc( 0x100 );
-        if(fioRead(File, gsFont->Additional, 0x100) <= 0)
-        {
-                printf("Could not load font sizes: %s\n", tmp);
-                return -1;
-        }
-        fioClose(File);
+	        if(fioRead(File, gsFont->Additional, 0x100) <= 0)
+	        {
+	                printf("Could not load font sizes: %s\n", gsFont->Path_DAT);
+	                return -1;
+	        }
+	        fioClose(File);
 
 		gsFont->HChars=16;
 		gsFont->VChars=16;
-		gsFont->CharWidth=gsFont->Texture.Width/16;
-		gsFont->CharHeight=gsFont->Texture.Height/16;
+		gsFont->CharWidth = gsFont->Texture->Width / 16;
+		gsFont->CharHeight = gsFont->Texture->Height / 16;
 
 	}
 	else return -1; //type unknown
@@ -80,11 +76,10 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 				py=(c-px)/16;
 				charsiz=gsFont->Additional[c];
 
-				gsKit_prim_sprite_texture(gsGlobal, &gsFont->Texture, 
-					cx,							cy, 
-					px*gsFont->CharWidth,		py*gsFont->CharHeight, 
-					cx+gsFont->CharWidth,		cy+gsFont->CharHeight, 
-					(px+1)*gsFont->CharWidth,	(py+1)*gsFont->CharHeight, 
+				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, cx, cy, 
+					px*gsFont->CharWidth, py*gsFont->CharHeight, 
+					cx+gsFont->CharWidth, cy+gsFont->CharHeight, 
+					(px+1)*gsFont->CharWidth, (py+1)*gsFont->CharHeight, 
 					Z, color);
 
 				cx+=charsiz+1;

@@ -28,8 +28,8 @@ int main(void)
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
 	
-	Tex1.Width = 256.0;
-	Tex1.Height = 256.0;
+	Tex1.Width = 256;
+	Tex1.Height = 256;
 	Tex1.PSM = GS_PSM_CT24;
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");

@@ -222,8 +222,34 @@ struct gsGlobals
 	int PrimAlphaEnable;
 	u64 PrimAlpha;
 };
-
 typedef struct gsGlobals GSGLOBAL;
+
+struct gsTexture
+{
+        u32     Width;
+        u32     Height;
+        u32     PSM;
+        void    *Mem;
+        void    *Clut;
+        u32     Vram;
+        u32     VramClut;
+};
+typedef struct gsTexture GSTEXTURE;
+
+struct gsFont
+{
+        char *Path;
+        char *Path_BMP;
+        char *Path_DAT;
+        u8 Type;
+        GSTEXTURE *Texture;
+        u32 CharWidth;
+        u32 CharHeight;
+        u32 HChars;
+        u32 VChars;
+        u8 *Additional;
+};
+typedef struct gsFont GSFONT;
 
 struct gsRegisters {
  u64 SIGNAL:      1 __attribute__((packed)); /* ro */
@@ -251,6 +277,7 @@ extern "C" {
 void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 GSGLOBAL *gsKit_init_global(u8 mode);
+GSFONT *gsKit_init_font(u8 type, char *path);
 
 #ifdef __cplusplus
 }

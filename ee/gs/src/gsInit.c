@@ -211,3 +211,17 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	return gsGlobal;
 }
+
+GSFONT *gsKit_init_font(u8 type, char *path)
+{
+	
+	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
+	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
+	gsFont->Path = calloc(1,strlen(path));
+	strcpy(gsFont->Path, path);
+	gsFont->Type = type;
+	if(type != GSKIT_FTYPE_BMP_DAT)
+		printf("gsFont->Path = %s\n",gsFont->Path);
+		
+	return gsFont;
+}
