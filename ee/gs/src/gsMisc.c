@@ -15,25 +15,16 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, int vertex)
 {
 	if(axis == GS_AXIS_X)
 	{
-		if(gsGlobal->Aspect == GS_ASPECT_4_3)
-		{
 			vertex = vertex << 4;
-		}
-
-		if(gsGlobal->Aspect == GS_ASPECT_16_9)
-		{
-		}
 	}
 
 	else if(axis == GS_AXIS_Y)
 	{
-		if(gsGlobal->Aspect == GS_ASPECT_4_3)
+		vertex = vertex << 4;
+		if(gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL)
 		{
-			vertex = vertex << 4;
-		}
-
-		if(gsGlobal->Aspect == GS_ASPECT_16_9)
-		{
+			if( gsGlobal->Interlace == GS_NONINTERLACED )
+				vertex = vertex / 2;
 		}
 	}
 

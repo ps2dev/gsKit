@@ -165,6 +165,14 @@
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
 
+struct VertexList
+{
+	int X;
+	int Y;
+};
+
+typedef struct VertexList VERTEXLIST;
+
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, int size);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 void gsKit_setactive(GSGLOBAL *gsGlobal);

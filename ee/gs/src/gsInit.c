@@ -25,7 +25,7 @@ void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field)
 		nop;");
 }
 
-void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field)
+void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
 	u64	*p_store;
@@ -39,7 +39,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field)
 
 	GsPutIMR(0x0000F700);
 
-	gsKit_init(interlace, mode, field);
+	gsKit_init(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
 	GS_SET_PMODE(0,		// Read Circuit 1
 		     1,		// Read Circuit 2
@@ -100,7 +100,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, 0, 0 );
+	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 	*p_data++ = GS_ZBUF_1;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test.ATE, gsGlobal->Test.ATST, 
@@ -122,7 +122,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, 0, 0 );
+	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 	*p_data++ = GS_ZBUF_2;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test.ATE, gsGlobal->Test.ATST, 

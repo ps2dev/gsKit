@@ -49,6 +49,16 @@
 #define GS_MODE_DVD_PAL  0x73
 #define GS_MODE_DVD_480P 0x74
 
+#define GS_PSM_CT32 0x00
+#define GS_PSM_CT24 0x01
+#define GS_PSM_CT16 0x02
+#define GS_PSM_CT16S 0x0A
+
+#define GS_PSMZ_32 0x00
+#define GS_PSMZ_24 0x01
+#define GS_PSMZ_16 0x02
+#define GS_PSMZ_16S 0x0A
+
 #define PMODE           ((volatile u64 *)(0x12000000))
 
 #define GS_SET_PMODE(EN1,EN2,MMOD,AMOD,SLBG,ALP) \
@@ -163,6 +173,9 @@ typedef struct gsTest GSTEST;
 
 struct gsGlobals
 {
+	u8 Mode;
+	u8 Interlace;
+	u8 Field;
 	u32 CurrentPointer;
 	u32 ScreenBuffer[2];
 	u32 ZBuffer;
@@ -177,7 +190,10 @@ struct gsGlobals
 	GSBGCOLOR BGColor;
 	GSTEST Test;
 	int PSM;
+	int PSMZ;
 	int PrimContext;
+	int PrimFogEnable;
+	int PrimAAEnable;
 	int PrimAlphaEnable;
 	u64 PrimAlpha;
 };
@@ -185,6 +201,6 @@ struct gsGlobals
 typedef struct gsGlobals GSGLOBAL;
 
 void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
-void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field);
+void gsKit_init_screen(GSGLOBAL *gsGlobal);
 
 #endif /* __GSINIT_H__ */
