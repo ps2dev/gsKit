@@ -25,6 +25,7 @@ int main(void)
 	int *LineStripPtr;
 	int *TriStrip;
 	int *TriStripPtr;
+	int *TriFanPtr;
 	int *TriFan;
 
 	LineStripPtr = LineStrip = malloc(12 * sizeof(int));
@@ -55,6 +56,31 @@ int main(void)
         *TriStrip++ = 575;
         *TriStrip++ = 175;
 
+        TriFanPtr = TriFan = malloc(16 * sizeof(int));
+	*TriFan++ = 300;
+	*TriFan++ = 125;
+
+	*TriFan++ = 250;
+	*TriFan++ = 125;
+
+	*TriFan++ = 275;
+	*TriFan++ = 100;
+
+	*TriFan++ = 290;
+	*TriFan++ = 75;
+
+	*TriFan++ = 300;
+	*TriFan++ = 50;
+
+	*TriFan++ = 310;
+	*TriFan++ = 75;
+
+	*TriFan++ = 325;
+	*TriFan++ = 100;
+
+	*TriFan++ = 350;
+	*TriFan++ = 125;
+
 	GSGLOBAL gsGlobal;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
@@ -77,7 +103,7 @@ int main(void)
 	/* Generic Values */
 	gsGlobal.Mode = GS_MODE_NTSC;
 	gsGlobal.Interlace = GS_NONINTERLACED;
-	gsGlobal.Field = GS_FIELD;
+	gsGlobal.Field = GS_FRAME;
 	gsGlobal.Aspect = GS_ASPECT_4_3;
 	gsGlobal.Width = 640;
 	gsGlobal.Height = 448;
@@ -120,14 +146,14 @@ int main(void)
 
 		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1, Red);
 
+		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 1, Red);
+
 		gsKit_prim_line(&gsGlobal, 525, 125, 575, 125, 1, Black);
 		gsKit_prim_line(&gsGlobal, 550, 150, 600, 100, 1, Black);
 
 		gsKit_prim_point(&gsGlobal, 575, 75, 1, Black);
 		gsKit_prim_point(&gsGlobal, 600, 100, 1, Black);
 		gsKit_prim_point(&gsGlobal, 625, 125, 1, Black);
-
-		gsKit_prim_point(&gsGlobal, 575, 175, 1, Black);
 
 		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 1, Black);
 

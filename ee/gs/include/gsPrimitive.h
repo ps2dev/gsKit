@@ -43,6 +43,8 @@ void gsKit_prim_triangle(GSGLOBAL *gsGlobal, int x1, int y1,
 
 void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, int *TriStrip, int segments, int z, u64 color);
 
+void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, int *TriFan, int verticies, int z, u64 color);
+
 void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
 						     int x2, int y2,
 						     int x3, int y3, int z, 

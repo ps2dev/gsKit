@@ -311,6 +311,55 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, int *TriStrip, int segments, 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 }
 
+void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, int *TriFan, int verticies, int z, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 3 + verticies;
+        int count;
+        int vertexdata[verticies*2];
+
+        for(count = 0; count < (verticies * 2); count+=2)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
+                vertexdata[count] += gsGlobal->OffsetX << 4;
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
+                vertexdata[count+1] += gsGlobal->OffsetY << 4;
+        }
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIFAN, 0, 0, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    0, gsGlobal->PrimContext, 0) ;
+
+        *p_data++ = GS_PRIM;
+
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+
+        for(count = 0; count < (verticies * 2); count+=2)
+        {
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], z );
+                *p_data++ = GS_XYZ2;
+        }
+
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+
 void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
                                                      int x2, int y2,
                                                      int x3, int y3, int z, 
