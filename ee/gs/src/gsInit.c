@@ -80,7 +80,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 
 	gsGlobal.ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 1
 	gsGlobal.ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Context 2
-	gsGlobal.ScreenBuffer[2] = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Z Buffer
+	gsGlobal.ZBuffer = gsKit_vram_alloc( gsGlobal, 256*640*4 ); // Z Buffer
 
 	p_data = p_store  = dmaKit_spr_alloc( 13*16 );
 
@@ -90,7 +90,7 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
 	
-	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal.Width / 64, gsGlobal.PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( 0, gsGlobal.Width / 64, 0, 0 );
 	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal.OffsetX << 4, gsGlobal.OffsetY << 4 );
@@ -99,13 +99,14 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );
+	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ZBuffer / 8192, 0, 0 );
 	*p_data++ = GS_ZBUF_1;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal.Test.ATE, gsGlobal.Test.ATST, 
 				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
 				    gsGlobal.Test.DATE, gsGlobal.Test.DATM,
 				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
+	
 	*p_data++ = GS_TEST_1;
 
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
@@ -120,17 +121,17 @@ GSGLOBAL gsKit_init_screen(GSGLOBAL gsGlobal, u8 interlace, u8 mode, u8 field)
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal.Width - 1, 0, gsGlobal.Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
-	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ScreenBuffer[2] / 8192, 0, 0 );
+	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal.ZBuffer / 8192, 0, 0 );
 	*p_data++ = GS_ZBUF_2;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal.Test.ATE, gsGlobal.Test.ATST, 
-				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
+			    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
 				    gsGlobal.Test.DATE, gsGlobal.Test.DATM,
 				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
+	
 	*p_data++ = GS_TEST_2;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 13 );
 
 	return gsGlobal;
 }
-

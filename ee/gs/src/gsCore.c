@@ -30,6 +30,7 @@ GSGLOBAL gsKit_sync_flip(GSGLOBAL gsGlobal)
 		gsGlobal.Width / 64, gsGlobal.PSM, 0, 0 );
   
 	gsGlobal.ActiveBuffer ^= 1;
+	gsGlobal.PrimContext ^= 1;
 
 	gsKit_setactive( gsGlobal );
 
@@ -125,6 +126,7 @@ int gsKit_set_test(GSGLOBAL gsGlobal, u8 Preset)
 				    gsGlobal.Test.AREF, gsGlobal.Test.AFAIL, 
 				    gsGlobal.Test.DATE, gsGlobal.Test.DATM, 
 				    gsGlobal.Test.ZTE, gsGlobal.Test.ZTST );
+
 	*p_data++ = GS_TEST_1+gsGlobal.PrimContext;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 2);

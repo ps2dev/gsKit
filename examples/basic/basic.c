@@ -50,7 +50,7 @@ int main(void)
 
 	/* TEST Register Values */
 	gsGlobal.Test.ATE = 0;
-	gsGlobal.Test.ATST = 7;
+	gsGlobal.Test.ATST = 1;
 	gsGlobal.Test.AREF = 0x80;
 	gsGlobal.Test.AFAIL = 0;
 	gsGlobal.Test.DATE = 0;

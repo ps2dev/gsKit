@@ -162,7 +162,8 @@ struct gsTest
 struct gsGlobals
 {
 	u32 CurrentPointer;
-	u32 ScreenBuffer[3];
+	u32 ScreenBuffer[2];
+	u32 ZBuffer;
 	int ActiveBuffer;
 	int Width;
 	int Height;

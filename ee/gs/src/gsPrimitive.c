@@ -65,3 +65,49 @@ int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, 
         return 0;
 }
 
+int gsKit_zblank(GSGLOBAL gsGlobal)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 6;
+        printf("Drawing Sprite Primitive\n");
+
+        int x1 = gsKit_scale(gsGlobal, GS_AXIS_X, 0);
+        int x2 = gsKit_scale(gsGlobal, GS_AXIS_X, gsGlobal.Width);
+        int y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, 0);
+        int y2 = gsKit_scale(gsGlobal, GS_AXIS_Y, gsGlobal.Height);
+
+        x1 += gsGlobal.OffsetX << 4;
+        x2 += gsGlobal.OffsetX << 4;
+
+        y1 += gsGlobal.OffsetY << 4;
+        y2 += gsGlobal.OffsetY << 4;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, 0, 0,
+                                    0, 0, gsGlobal.PrimContext, 0) ;
+
+        *p_data++ = GS_PRIM;
+
+	*p_data++ = 0x00030000;
+	*p_data++ = GS_TEST_1;
+	
+        *p_data++ = 0;
+        *p_data++ = GS_RGBAQ;
+
+        *p_data++ = GS_SETREG_XYZ2( x1, y1, 0 );
+        *p_data++ = GS_XYZ2;
+
+        *p_data++ = GS_SETREG_XYZ2( x2, y2, 0 );
+        *p_data++ = GS_XYZ2;
+
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+
+        printf("Sprite Primitive Drawn\n");
+        return 0;
+}
+
