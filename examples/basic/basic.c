@@ -57,7 +57,7 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
-	gsGlobal = gsKit_init_screen(gsGlobal, GS_NONINTERLACED, GS_MODE_NTSC, GS_FRAME);
+	gsGlobal = gsKit_init_screen(gsGlobal, GS_INTERLACED, GS_MODE_NTSC, GS_FIELD);
 
 	gsKit_clear(gsGlobal, White);
 	printf("DEBUG: SCREEN CLEARED\n");

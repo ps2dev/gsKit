@@ -43,9 +43,9 @@ GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal)
 	u64 *p_data;
 	u64 *p_store;
 
-	p_data = p_store = dmaKit_spr_alloc( 6*16 );
+	p_data = p_store = dmaKit_spr_alloc( 5*16 );
 	
-	*p_data++ = GIF_TAG( 5, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 	
 	// Context 1
@@ -66,7 +66,7 @@ GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal)
                                  gsGlobal.Width / 64, gsGlobal.PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 5 );
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 4 );
 
 	return gsGlobal;
 }

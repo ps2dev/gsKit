@@ -20,10 +20,10 @@ int gsKit_prim_sprite(GSGLOBAL gsGlobal, int x1, int y1, int x2, int y2, int z, 
 	int size = 5;
 	printf("Drawing Sprite Primitive\n");
 
-//        x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-//        x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-//        y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-//        y2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+        x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+        x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+        y1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+        y2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
 
 	x1 += gsGlobal.OffsetX << 4;
 	x2 += gsGlobal.OffsetX << 4;
