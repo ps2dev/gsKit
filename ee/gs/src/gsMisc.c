@@ -15,12 +15,12 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 {
 	int result;
 
-	if(axis == GS_AXIS_X || axis == GS_MAP_U)
+	if(axis == GS_AXIS_X || axis == GS_MAP_U || axis == GS_MAP_V)
 	{
 			result = (int)(vertex * 16.0f);
 			result += gsGlobal->OffsetX << 4;
 	}
-	else if(axis == GS_AXIS_Y || axis == GS_MAP_V)
+	else if(axis == GS_AXIS_Y)
 	{
 		if(gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL)
 		{

@@ -373,9 +373,6 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         
         *p_data++ = GS_PRIM;
         
-	printf("u2 =%f | v2 = %f\n",u2, v2);
-	printf("iu2 =%i | iv2 = %i\n",iu2, iv2);
-
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
         

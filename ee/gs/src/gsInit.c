@@ -74,9 +74,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 			(gsGlobal->Width-1)*4,	// Display area width
 			(gsGlobal->Height-1));	// Display area height
 
-	GS_SET_BGCOLOR(gsGlobal->BGColor.Red,		// Red
-		       gsGlobal->BGColor.Green,	// Green
-		       gsGlobal->BGColor.Blue);	// Blue
+	GS_SET_BGCOLOR(gsGlobal->BGColor->Red,		// Red
+		       gsGlobal->BGColor->Green,	// Green
+		       gsGlobal->BGColor->Blue);	// Blue
 
 	gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
 	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 1
@@ -103,10 +103,10 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 	*p_data++ = GS_ZBUF_1;
 
-	*p_data++ = GS_SETREG_TEST( gsGlobal->Test.ATE, gsGlobal->Test.ATST, 
-				    gsGlobal->Test.AREF, gsGlobal->Test.AFAIL, 
-				    gsGlobal->Test.DATE, gsGlobal->Test.DATM,
-				    gsGlobal->Test.ZTE, gsGlobal->Test.ZTST );
+	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
+				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				    gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+				    gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_1;
 
@@ -125,10 +125,10 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 	*p_data++ = GS_ZBUF_2;
 
-	*p_data++ = GS_SETREG_TEST( gsGlobal->Test.ATE, gsGlobal->Test.ATST, 
-				    gsGlobal->Test.AREF, gsGlobal->Test.AFAIL, 
-				    gsGlobal->Test.DATE, gsGlobal->Test.DATM,
-				    gsGlobal->Test.ZTE, gsGlobal->Test.ZTST );
+	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
+				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				    gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+				    gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_2;
 
@@ -136,4 +136,57 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	gsKit_set_test(gsGlobal, GS_ZTEST_INIT);
 	gsKit_set_clamp(gsGlobal, GS_CMODE_INIT);
 	
+}
+
+GSGLOBAL *gsKit_init_global(void)
+{
+	
+	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
+	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
+	gsGlobal->Test = calloc(1,sizeof(GSTEST));
+	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
+
+        /* Generic Values */
+        gsGlobal->Mode = GS_MODE_NTSC;
+        gsGlobal->Interlace = GS_NONINTERLACED;
+        gsGlobal->Field = GS_FRAME;
+        gsGlobal->Aspect = GS_ASPECT_4_3;
+        gsGlobal->Width = 640;
+        gsGlobal->Height = 480;
+        gsGlobal->OffsetX = 2048;
+        gsGlobal->OffsetY = 2048;
+        gsGlobal->StartX = 0;
+        gsGlobal->StartY = 0;
+        gsGlobal->PSM = GS_PSM_CT16;
+        gsGlobal->PSMZ = GS_PSMZ_16;
+        gsGlobal->ActiveBuffer = 1;
+        gsGlobal->PrimFogEnable = 0;
+        gsGlobal->PrimAAEnable = 0;
+        gsGlobal->PrimAlphaEnable = 1;
+        gsGlobal->PrimAlpha = 1;
+        gsGlobal->PrimContext = 0;
+
+        /* BGColor Register Values */
+        gsGlobal->BGColor->Red = 0x00;
+        gsGlobal->BGColor->Green = 0x00;
+        gsGlobal->BGColor->Blue = 0x0;
+
+        /* TEST Register Values */
+        gsGlobal->Test->ATE = 0;
+        gsGlobal->Test->ATST = 1;
+        gsGlobal->Test->AREF = 0x80;
+        gsGlobal->Test->AFAIL = 0;
+        gsGlobal->Test->DATE = 0;
+        gsGlobal->Test->DATM = 0;
+        gsGlobal->Test->ZTE = 1;
+        gsGlobal->Test->ZTST = 2;
+
+	gsGlobal->Clamp->WMS = GS_CMODE_REPEAT;
+	gsGlobal->Clamp->WMT = GS_CMODE_REPEAT;
+        gsGlobal->Clamp->MINU = 0;
+        gsGlobal->Clamp->MAXU = 0;
+        gsGlobal->Clamp->MINV = 0;
+        gsGlobal->Clamp->MAXV = 0;
+
+	return gsGlobal;
 }

@@ -16,8 +16,7 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL gsGlobal;
-
+	GSGLOBAL *gsGlobal = gsKit_init_global();
 
 	float x = 10;
 	float y = 10;
@@ -94,98 +93,62 @@ int main(void)
 	GreenTrans = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x50,0x00);
 	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
-	/* Generic Values */
-	gsGlobal.Mode = GS_MODE_NTSC;
-	gsGlobal.Interlace = GS_NONINTERLACED;
-	gsGlobal.Field = GS_FRAME;
-	gsGlobal.Aspect = GS_ASPECT_4_3;
-	gsGlobal.Width = 640;
-	gsGlobal.Height = 480;
-	gsGlobal.OffsetX = 2048;
-	gsGlobal.OffsetY = 2048;
-//	gsGlobal.StartX = -100;
-	gsGlobal.StartX = 0;
-	gsGlobal.StartY = -10;
-	gsGlobal.PSM = GS_PSM_CT16;
-	gsGlobal.PSMZ = GS_PSMZ_16;
-	gsGlobal.ActiveBuffer = 1;
-	gsGlobal.PrimFogEnable = 0;
-	gsGlobal.PrimAAEnable = 0;
-	gsGlobal.PrimAlphaEnable = 1;
-	gsGlobal.PrimAlpha = 1;
-	gsGlobal.PrimContext = 0;
-
-	/* BGColor Register Values */
-	gsGlobal.BGColor.Red = 0x00;
-	gsGlobal.BGColor.Green = 0x00;
-	gsGlobal.BGColor.Blue = 0x0;
-
-	/* TEST Register Values */
-	gsGlobal.Test.ATE = 0;
-	gsGlobal.Test.ATST = 1;
-	gsGlobal.Test.AREF = 0x80;
-	gsGlobal.Test.AFAIL = 0;
-	gsGlobal.Test.DATE = 0;
-	gsGlobal.Test.DATM = 0;
-	gsGlobal.Test.ZTE = 1;
-	gsGlobal.Test.ZTST = 2;
-
-	gsKit_init_screen(&gsGlobal);
+	gsKit_init_screen(gsGlobal);
 
 	while(1){
-		gsKit_clear(&gsGlobal, White);
+		gsKit_clear(gsGlobal, White);
 
-		gsKit_set_test(&gsGlobal, GS_ZTEST_OFF);
+		gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
 	
-		gsKit_prim_line_strip(&gsGlobal, LineStripPtr, 6, 1.0, Black);
+		gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1.0, Black);
 
-		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1.0, Red);
+		gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1.0, Red);
 
-		gsKit_prim_line(&gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
-		gsKit_prim_line(&gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
+		gsKit_prim_line(gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
+		gsKit_prim_line(gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
 
-		gsKit_prim_point(&gsGlobal, 575.0, 75.0, 1.0, Black);
-		gsKit_prim_point(&gsGlobal, 600.0, 100.0, 1.0, Black);
-		gsKit_prim_point(&gsGlobal, 625.0, 125.0, 1.0, Black);
+		gsKit_prim_point(gsGlobal, 575.0, 75.0, 1.0, Black);
+		gsKit_prim_point(gsGlobal, 600.0, 100.0, 1.0, Black);
+		gsKit_prim_point(gsGlobal, 625.0, 125.0, 1.0, Black);
 
-		gsKit_prim_quad(&gsGlobal, 150.0, 150.0, 
+		gsKit_prim_quad(gsGlobal, 150.0, 150.0, 
 					   150.0, 400.0,
 					   450.0, 150.0,
 					   450.0, 400.0, 2.0, Green);
 
-		gsKit_set_test(&gsGlobal, GS_ZTEST_ON);
+		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 
-		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 5.0, Black);
+		gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5.0, Black);
 
-		gsKit_prim_quad_gouraud(&gsGlobal, 500.0, 250.0, 
+		gsKit_prim_quad_gouraud(gsGlobal, 500.0, 250.0, 
 						   500.0, 350.0, 
 						   600.0, 250.0,
 						   600.0, 350.0, 2.0,
 						   Red, Green, Blue, Black);
 
-		gsKit_prim_triangle_gouraud(&gsGlobal, 280.0, 200.0, 
+		gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0, 
 						       280.0, 350.0, 
 						       180.0, 350.0, 5.0, 
 						       Blue, Red, White);
 
-		gsKit_prim_triangle(&gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
+		gsKit_prim_triangle(gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
 
-		gsKit_prim_sprite(&gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
+		gsKit_prim_sprite(gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
 
-		if( y <= 10  && (x + width) < (gsGlobal.Width - 10))
+		if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
 			x+=10;
-		else if( (y + height)  <  (gsGlobal.Height - 10) && (x + width) >= (gsGlobal.Width - 10) )
+		else if( (y + height)  <  (gsGlobal->Height - 10) && (x + width) >= (gsGlobal->Width - 10) )
 			y+=10;		
-		else if( (y + height) >=  (gsGlobal.Height - 10) && x > 10 )
+		else if( (y + height) >=  (gsGlobal->Height - 10) && x > 10 )
 			x-=10;
 		else if( y > 10 && x <= 10 )
 			y-=10;
 
-		gsKit_prim_sprite(&gsGlobal, x, y, x + width, y + height, 4.0, BlueTrans);
+		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4.0, BlueTrans);
 
-		gsKit_prim_sprite(&gsGlobal, 100.0, 100.0, 200.0, 200.0, 5.0, RedTrans);
+		gsKit_prim_sprite(gsGlobal, 100.0, 100.0, 200.0, 200.0, 5.0, RedTrans);
 
-		gsKit_sync_flip(&gsGlobal);
+		gsKit_sync_flip(gsGlobal);
 
 	}
 	

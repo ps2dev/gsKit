@@ -207,9 +207,9 @@ struct gsGlobals
 	int OffsetY;
 	int StartX;
 	int StartY;
-	GSBGCOLOR BGColor;
-	GSTEST Test;
-	GSCLAMP Clamp;
+	GSBGCOLOR *BGColor;
+	GSTEST *Test;
+	GSCLAMP *Clamp;
 	int PSM;
 	int PSMZ;
 	int PrimContext;
@@ -227,6 +227,7 @@ extern "C" {
 
 void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
+GSGLOBAL *gsKit_init_global(void);
 
 #ifdef __cplusplus
 }
