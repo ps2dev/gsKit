@@ -14,9 +14,6 @@
 #include "dmaKit.h"
 #include "malloc.h"
 
-#include "arial.c"
-
-
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
@@ -45,18 +42,6 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, Black);
-
-/*	gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "host0:arial.fnt");
-	if (gsFont == NULL) {
-		gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "cdrom0:\\ARIAL.FNT;1");
-		if (gsFont == NULL) {
-			printf("Error loading arial.fnt\n");
-			return 1;
-		}
-	}*/
-	gsFont = gsKit_init_font_raw(GSKIT_FTYPE_FNT, arial_fnt, size_arial_fnt);
-//	gsFont->Path_BMP = "host:fonts/tahoma.bmp";
-//	gsFont->Path_DAT = "host:fonts/tahoma.dat";
 
 	gsKit_font_upload(gsGlobal, gsFont);
 

@@ -17,7 +17,7 @@
 #define GSKIT_FTYPE_FNT 0x00
 #define GSKIT_FTYPE_TTF 0x01
 #define GSKIT_FTYPE_BMP_DAT 0x02
-#define GSKIT_FTYPE_FNT 0x00
+#define GSKIT_FTYPE_FONTM 0x03
 
 #define ALPHA_SRC 0
 #define ALPHA_DST 1

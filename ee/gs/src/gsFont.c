@@ -82,8 +82,13 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 		return 0;
 	}
-
-	return -1; //type unknown
+	else if( gsFont->Type == GSKIT_FTYPE_FONTM )
+        {
+//		gsKit_fontm_unpack(gsFont);
+		return 0;
+	}
+	else 
+		return -1; //type unknown
 }
 
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
