@@ -144,7 +144,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
-        gsKit_texture_upload(gsGlobal, Texture);
+	gsKit_texture_upload(gsGlobal, Texture);
 	free(Texture->Mem);
 
         return 0;
@@ -156,18 +156,27 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	
 	jpgData *jpg;
 
+	int TextureSize = 0;
+
 	jpg = jpgOpen(Path);
 	if (jpg == NULL) {
 		return -1;
 		printf("error opening %s\n", Path);
 	}
+	
+	TextureSize = (jpg->width * jpg->color_components * jpg->height);
 
-	Texture->Mem = malloc(jpg->width * jpg->color_components * jpg->height);
+	Texture->Mem = malloc(TextureSize);
 	jpgReadImage(jpg, Texture->Mem);
 	Texture->Width =  jpg->width;
 	Texture->Height = jpg->height;
 	Texture->PSM = GS_PSM_CT24;
 	jpgClose(jpg);
+	
+	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);
+	gsKit_texture_upload(gsGlobal, Texture);
+	
+	free(Texture->Mem);	
 	
 	return 0;
 	

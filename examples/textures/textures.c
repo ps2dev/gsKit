@@ -29,25 +29,18 @@ int main(void)
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
 	
-	char *a = malloc(16);
-	printf("Pointer A = %p\n",a);
-	char *b = malloc(16);
-	printf("Pointer B = %p\n",b);
-	char *c = malloc(16);
-	printf("Pointer C = %p\n",c);
-	
-	free(b);
-	printf("Pointer B Free\n\n");
-	a = realloc(a, 32);
-	printf("Reallocated Pointer A = %p\n",a);
-
 	Tex1.Width = 256;
 	Tex1.Height = 256;
 	Tex1.PSM = GS_PSM_CT24;
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");
+	
+	#ifdef HAVE_LIBJPG
+	gsKit_texture_jpeg(gsGlobal, &Tex2, "host:bsdgirl.jpg");
+	#else
 	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");
-
+	#endif
+	
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
 	while(1){
@@ -58,7 +51,7 @@ int main(void)
                                                             0.0,  // U1
                                                             0.0,  // V1
                                                             Tex1.Width + 20.0, // X2
-                                                            Tex1.Height + 50.0, // Y2
+                                                            Tex1.Height + 20.0, // Y2
                                                             Tex1.Width, // U2
                                                             Tex1.Height, // V2
                                                             1.0,
