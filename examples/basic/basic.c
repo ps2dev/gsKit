@@ -42,7 +42,7 @@ int main(void)
 	gsGlobal.PSM = 0;
 	gsGlobal.ActiveBuffer = 1;
 	gsGlobal.PrimAlphaEnable = 1;
-	gsGlobal.PrimAlpha = 0;
+	gsGlobal.PrimAlpha = 1;
 	gsGlobal.PrimContext = 0;
 
 	/* BGColor Register Values */
@@ -51,7 +51,7 @@ int main(void)
 	gsGlobal.BGColor.Blue = 0x00;
 
 	/* TEST Register Values */
-	gsGlobal.Test.ATE = 0;
+	gsGlobal.Test.ATE = 1;
 	gsGlobal.Test.ATST = 1;
 	gsGlobal.Test.AREF = 0x80;
 	gsGlobal.Test.AFAIL = 0;
@@ -64,13 +64,13 @@ int main(void)
 	gsKit_init_screen(&gsGlobal, GS_INTERLACED, GS_MODE_NTSC, GS_FIELD);
 	printf("blah got here3 \n");
 
-	gsKit_zblank(&gsGlobal);
-	gsKit_sync_flip(&gsGlobal);
-	gsKit_zblank(&gsGlobal);
+	int x = 10;
+	int y = 10;
+	int width = 150;
+	int height = 150;
 
-	gsKit_clear(&gsGlobal, White);
-
-//	while(1){
+	while(1){
+		gsKit_clear(&gsGlobal, White);
 		printf("DEBUG: SCREEN CLEARED\n");
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_OFF);
@@ -82,18 +82,26 @@ int main(void)
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_ON);
 
-		gsKit_prim_sprite(&gsGlobal, 400, 100, 500, 200, 4, Red);
+		gsKit_prim_sprite(&gsGlobal, 400, 100, 500, 200, 5, Red);
 		printf("DEBUG: PRIM 3 DRAWN\n");
 
-		gsKit_prim_sprite(&gsGlobal, 100, 300, 500, 400, 5, BlueTrans);
+		if( y <= 10  && (x + width) < (gsGlobal.Width - 10))
+			x+=10;
+		else if( (y + height)  <  (gsGlobal.Height - 10) && (x + width) >= (gsGlobal.Width - 10) )
+			y+=10;		
+		else if( (y + height) >=  (gsGlobal.Height - 10) && x > 10 )
+			x-=10;
+		else if( y > 10 && x <= 10 )
+			y-=10;
+
+		gsKit_prim_sprite(&gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
 		printf("DEBUG: PRIM 4 DRAWN\n");
 
 		gsKit_sync_flip(&gsGlobal);
 
 		printf("DEBUG: SYNC FLIP 2\n");
 		printf("FINISH\n");
-//	}
-	while(1);
+	}
 	
 	return 0;
 }

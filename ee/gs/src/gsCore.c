@@ -29,7 +29,7 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 		gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
   
 	gsGlobal->ActiveBuffer ^= 1;
-//	gsGlobal->PrimContext ^= 1;
+	gsGlobal->PrimContext ^= 1;
 
 	gsKit_setactive( gsGlobal );
 }
