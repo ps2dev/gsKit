@@ -18,7 +18,6 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z
 	u64* p_store;
 	u64* p_data;
 	int size = 5;
-	printf("Drawing Sprite Primitive\n");
 
         x1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
         x2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -60,16 +59,12 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z
 	*p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-
-        printf("Sprite Primitive Drawn\n");
 }
 
 void gsKit_zblank(GSGLOBAL *gsGlobal)
 {
         u64* p_store;
         u64* p_data;
-
-        printf("Drawing Sprite Primitive\n");
 
         int x1 = gsKit_scale(gsGlobal, GS_AXIS_X, 0);
         int x2 = gsKit_scale(gsGlobal, GS_AXIS_X, gsGlobal->Width);
@@ -105,7 +100,5 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         *p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 6 );
-
-        printf("Sprite Primitive Drawn\n");
 }
 

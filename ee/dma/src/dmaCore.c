@@ -15,7 +15,9 @@
 
 int dmaKit_wait(unsigned int channel, unsigned int timeout)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Waiting for DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
+	#endif
 	while((*(volatile u32 *)DMA_CHCR[channel]) & 0x00000100)
 	{
 		if ( timeout != 0 )
@@ -28,14 +30,18 @@ int dmaKit_wait(unsigned int channel, unsigned int timeout)
 			timeout--;
 		}
 	}
+	#ifdef GSKIT_DEBUG
 	printf("DMA Channel %i - %s is now clear.\n",channel, DMA_NAME[channel]);
-
+	#endif
+	
 	return 0;
 }
 
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
+	#endif
 	if(dmaKit_wait(channel, timeout) < 0 )
 	{
 		printf("Timed Out. Aborting Send.\n");
@@ -54,13 +60,18 @@ int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned
 							  1,	// Start DMA
 							  0 );	// Priority Control Enable??
 
+	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel\n");
+	#endif
+
 	return 0;
 }
 
 int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel w/ SPR %i - %s\n",channel, DMA_NAME[channel]);
+	#endif
 	if(dmaKit_wait(channel, timeout) < 0 )
 	{
 		printf("Timed Out. Aborting Send.\n");
@@ -77,7 +88,9 @@ int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsi
 							  0,    // No Interrupts
 							  1,    // Start DMA
 							  0 );  // Priority Control Enable??
+	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel w/ SPR\n");
+	#endif
 
 	return 0;
 }
@@ -85,7 +98,9 @@ int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsi
 int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
 		      unsigned int size)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode %i - %s\n",channel, DMA_NAME[channel]);
+	#endif
         if(dmaKit_wait(channel, timeout) < 0 )
         {
                 printf("Timed Out. Aborting Send.\n");
@@ -104,14 +119,18 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
 							  1,	// Start DMA
 							  0 );	// Priority Control Enable??
 
+	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel in Chain Mode\n");
+	#endif
         return 0;
 }
 
 int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data,
                           unsigned int size)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode w/Scratchpad %i - %s\n",channel, DMA_NAME[channel]);
+	#endif
         if(dmaKit_wait(channel, timeout) < 0 )
         {
                 printf("Timed Out. Aborting Send.\n");
@@ -131,7 +150,9 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
 							  1, 	// Start DMA
 							  0 );	// Priority Control Enable??
 
+	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel in Chain Mode w/Scratchpad\n");
+	#endif
 	return 0;
 }
 

@@ -15,8 +15,10 @@
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
 		unsigned int STD, unsigned int RCYC)
 {
+	#ifdef GSKIT_DEBUG
 	printf("Initializing the DMAC: RELE=%i MFD=%i STS=%i STD=%i RCYC=%i\n",
 		RELE, MFD, STS, STD, RCYC);
+	#endif
 	
 	*DMA_REG_CTRL = 0x00000000;
 	*DMA_REG_STAT = 0x00000000;
@@ -27,7 +29,9 @@ int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
 
 	*DMA_REG_CTRL = DMA_SET_CTRL(1, RELE, MFD, STS, STD, RCYC);
 
+	#ifdef GSKIT_DEBUG
 	printf("DMAC Initialized.\n");	
+	#endif
 
 	return 0;
 }
@@ -36,7 +40,9 @@ int dmaKit_chan_init(unsigned int channel)
 {
 	if(channel >= 0 && channel <= 9)
 	{
+		#ifdef GSKIT_DEBUG
 		printf("Initilizating DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
+		#endif
 	
 		*(volatile u32 *)DMA_CHCR[channel] = 0x00000000;
 		*(volatile u32 *)DMA_MADR[channel] = 0x00000000;
@@ -60,7 +66,9 @@ int dmaKit_chan_init(unsigned int channel)
 		return -1;
 	}
 
+	#ifdef GSKIT_DEBUG
 	printf("DMA Channel Initialized.\n");	
+	#endif
 
 	return 0;
 }

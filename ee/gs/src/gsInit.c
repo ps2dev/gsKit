@@ -55,20 +55,20 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal, u8 interlace, u8 mode, u8 field)
 		       0);			// Upper Left Y in Buffer
 
 	GS_SET_DISPFB2(0,                       // Frame Buffer Base Pointer (Address/2048)
-		       gsGlobal->Width / 64,     // Buffer Width (Address/64)
-		       gsGlobal->PSM,            // Pixel Storage Format
+		       gsGlobal->Width / 64,    // Buffer Width (Address/64)
+		       gsGlobal->PSM,           // Pixel Storage Format
 		       0,                       // Upper Left X in Buffer
 		       0);                      // Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(656,                    // X position in the display area (in VCK unit
-			35,                     // Y position in the display area (in Raster u
+	GS_SET_DISPLAY1(656+gsGlobal->StartX,   // X position in the display area (in VCK unit
+			35+gsGlobal->StartY,    // Y position in the display area (in Raster u
 			3,                      // Horizontal Magnification
 			0,                      // Vertical Magnification
-			gsGlobal->Width*4,       // Display area width
-			gsGlobal->Height);       // Display area height
+			gsGlobal->Width*4,      // Display area width
+			gsGlobal->Height);      // Display area height
 
-	GS_SET_DISPLAY2(656,			// X position in the display area (in VCK units)
-			35,			// Y position in the display area (in Raster units)
+	GS_SET_DISPLAY2(656+gsGlobal->StartX,	// X position in the display area (in VCK units)
+			35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
 			3,			// Horizontal Magnification
 			0,			// Vertical Magnification
 			gsGlobal->Width*4,	// Display area width

@@ -172,6 +172,8 @@ struct gsGlobals
 	int Aspect;
 	int OffsetX;
 	int OffsetY;
+	int StartX;
+	int StartY;
 	GSBGCOLOR BGColor;
 	GSTEST Test;
 	int PSM;
