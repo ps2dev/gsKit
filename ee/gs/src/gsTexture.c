@@ -318,7 +318,7 @@ void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 	gsKit_texture_send(Texture->Mem, gsGlobal->Width, Texture->Width, Texture->Height, Texture->Vram/256, Texture->PSM);
 }
 
-int log( int Value )
+static int log( int Value )
 {
   int r = 0;
   
