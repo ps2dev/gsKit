@@ -38,9 +38,9 @@ int main(void)
 	gsGlobal.OffsetX = 2048;
 	gsGlobal.OffsetY = 2048;
 	gsGlobal.PSM = 0;
-	gsGlobal.ActiveBuffer = 1;
+	gsGlobal.ActiveBuffer = 0;
 	gsGlobal.PrimAlphaEnable = 1;
-	gsGlobal.PrimContext = 0;
+	gsGlobal.PrimContext = 1;
 
 	/* BGColor Register Values */
 	gsGlobal.BGColor.Red = 0x00;
@@ -71,9 +71,9 @@ int main(void)
 	gsKit_prim_sprite(gsGlobal, 200, 200, 400, 400, 1, Green);
 	printf("DEBUG: PRIM 2 DRAWN\n");
 
-	gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+//	gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 
-	gsKit_prim_sprite(gsGlobal, 400, 100, 500, 200, 1, Red);
+	gsKit_prim_sprite(gsGlobal, 400, 100, 500, 200, 3, Red);
 	printf("DEBUG: PRIM 3 DRAWN\n");
 	gsKit_prim_sprite(gsGlobal, 150, 150, 450, 300, 2, BlueTrans);
 	printf("DEBUG: PRIM 4 DRAWN\n");

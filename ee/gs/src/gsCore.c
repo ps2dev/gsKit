@@ -66,7 +66,7 @@ GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal)
                                  gsGlobal.Width / 64, gsGlobal.PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 4 );
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 5 );
 
 	return gsGlobal;
 }
