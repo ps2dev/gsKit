@@ -14,22 +14,21 @@
 
 int dmaKit_wait(unsigned int channel, unsigned int timeout)
 {
-	printf("Waiting for DMA Channel %i - %s\n",channel, DMA_CHAN_NAME[channel]);
+	printf("Waiting for DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
 	while((*(volatile u32 *)DMA_CHCR[channel]) & 0x00000100)
 	{
 		if ( timeout != 0 )
 		{
 			if ( timeout == 1 )
 			{
-				printf("Timed out waiting for DMA Channel %i - %s to be clear.\n",channel, DMA_CHAN_NAME[channel]);
+				printf("Timed out waiting for DMA Channel %i - %s to be clear.\n",channel, DMA_NAME[channel]);
 				return -1;
 			}
 			timeout--;
 		}
 	}
-	printf("DMA Channel %i - %s is now clear.\n",channel, DMA_CHAN_NAME[channel]);
+	printf("DMA Channel %i - %s is now clear.\n",channel, DMA_NAME[channel]);
 
 	return 0;
 }
-
 

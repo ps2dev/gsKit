@@ -34,100 +34,32 @@ int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
 
 int dmaKit_chan_init(unsigned int channel)
 {
-	printf("Initilizating DMA Channel %i - ",channel);
-	if(channel == DMA_CHANNEL_VIF0)
+	if(channel >= 0 && channel <= 9)
 	{
-		printf("VIF0\n");
-		*VIF0_CHCR = 0x00000000;
-		*VIF0_MADR = 0x00000000;
-		*VIF0_SIZE = 0x00000000;
-		*VIF0_TADR = 0x00000000;
-		*VIF0_ASR0 = 0x00000000;
-		*VIF0_ASR1 = 0x00000000;
-		*VIF0_SADR = 0x00000000;
-	}	
-	else if(channel == DMA_CHANNEL_VIF1)
-	{
-		printf("VIF1\n");
-		*VIF1_CHCR = 0x00000000;
-		*VIF1_MADR = 0x00000000;
-		*VIF1_SIZE = 0x00000000;
-		*VIF1_TADR = 0x00000000;
-		*VIF1_ASR0 = 0x00000000;
-		*VIF1_ASR0 = 0x00000000;
-		*VIF1_SADR = 0x00000000;
-	}
-        else if(channel == DMA_CHANNEL_GIF)
-        {
-		printf("GIF\n");
-		*GIF_CHCR = 0x00000000;
-		*GIF_MADR = 0x00000000; 
-		*GIF_SIZE = 0x00000000;
-		*GIF_TADR = 0x00000000;
-		*GIF_ASR0 = 0x00000000;
-		*GIF_ASR1 = 0x00000000;
-		*GIF_SADR = 0x00000000;
-        }
-	else if(channel == DMA_CHANNEL_FROMIPU)
-	{
-		printf("fromIPU\n");
-		*FROMIPU_CHCR = 0x00000000;
-		*FROMIPU_MADR = 0x00000000;
-		*FROMIPU_QWC  = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_TOIPU)
-	{
-		printf("toIPU\n");
-		*TOIPU_CHCR = 0x00000000;
-		*TOIPU_MADR = 0x00000000;
-		*TOIPU_QWC  = 0x00000000;
-		*TOIPU_TADR = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_SIF0)
-	{
-		printf("SIF0\n");
-		*SIF0_CHCR = 0x00000000;
-		*SIF0_MADR = 0x00000000;
-		*SIF0_QWC = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_SIF1)
-	{
-		printf("SIF1\n");
-		*SIF1_CHCR = 0x00000000;
-		*SIF1_MADR = 0x00000000;
-		*SIF1_QWC  = 0x00000000;
-		*SIF1_TADR = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_SIF2)
-	{
-		printf("SIF2\n");
-		*SIF2_CHCR = 0x00000000;
-		*SIF2_MADR = 0x00000000;
-		*SIF2_QWC = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_FROMSPR)
-	{
-		printf("fromSPR\n");
-		*FROMSPR_CHCR = 0x00000000;
-		*FROMSPR_MADR = 0x00000000;
-		*FROMSPR_QWC = 0x00000000;
-		*FROMSPR_SADR = 0x00000000;
-	}
-	else if(channel == DMA_CHANNEL_TOSPR)
-	{
-		printf("toSPR\n");
-		*TOSPR_CHCR = 0x00000000;
-		*TOSPR_MADR = 0x00000000;
-		*TOSPR_QWC = 0x00000000;
-		*TOSPR_TADR = 0x00000000;
-		*TOSPR_SADR = 0x00000000;
+		printf("Initilizating DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
+	
+		*(volatile u32 *)DMA_CHCR[channel] = 0x00000000;
+		*(volatile u32 *)DMA_MADR[channel] = 0x00000000;
+		if(DMA_SIZE[channel] > 0)
+			*(volatile u32 *)DMA_SIZE[channel] = 0x00000000;
+		if(DMA_TADR[channel] > 0)
+			*(volatile u32 *)DMA_TADR[channel] = 0x00000000;
+		if(DMA_ASR0[channel] > 0)
+			*(volatile u32 *)DMA_ASR0[channel] = 0x00000000;
+		if(DMA_ASR1[channel] > 0)
+			*(volatile u32 *)DMA_ASR1[channel] = 0x00000000;
+		if(DMA_SADR[channel] > 0)
+			*(volatile u32 *)DMA_SADR[channel] = 0x00000000;
+		if(DMA_QWC[channel] > 0)
+			*(volatile u32 *)DMA_QWC[channel]  = 0x00000000; 
 	}
 	else
 	{
-		printf("INVALID\n");
+		printf("Invalid DMA Channel Specified: %i\n",channel);
 		printf("Failed to Initialize DMA Channel.\n");
 		return -1;
 	}
+
 	printf("DMA Channel Initialized.\n");	
 
 	return 0;

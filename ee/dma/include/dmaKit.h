@@ -9,7 +9,7 @@
 // dmaKit.h - Master header for dmaKit. Include _ONLY_THIS_HEADER_
 //           for gsKit. (Do NOT include dmacore.h, etc)
 //
-// Parts taken from mrbrown's dmac tutorial.
+// Parts taken from ooPo's dmac tutorial.
 //
 
 #ifndef __DMAKIT_H__
