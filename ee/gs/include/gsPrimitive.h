@@ -8,6 +8,8 @@
 //
 // gsPrimitive.h - Header for gsPrimitive.c
 //
+// Parts taken from emoon's BreakPoint Demo Library
+//
 
 #ifndef __GSPRIMITIVE_H__
 #define __GSPRIMITIVE_H__
@@ -26,10 +28,7 @@
 
 #define GS_SETREG_PRMODECONT(ac) ((u64)(ac))
 
-static int g_PbPrimAlphaEnable = 0;
-static int g_PbPrimContext     = 0;
-static u64 g_PbPrimAlpha       = 0;
-
-int gsKit_prim_sprite(int x1, int y1, int x2, int y2, int z, int color);
+int gsKit_prim_sprite(GSGLOBAL gsGlobal, float x1, float y1, float x2, float y2, int z, int color);
+int gsKit_prim_sprite_ztest(GSGLOBAL gsGlobal, float x1, float y1, float x2, float y2, int z, int color);
 
 #endif /* __GSPRIMITIVE_H__ */

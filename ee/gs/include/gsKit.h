@@ -16,13 +16,13 @@
 #include <tamtypes.h>
 #include <kernel.h>
 
+#include "dmaKit.h"
+
+#include "gsInit.h"
 #include "gsCore.h"
 #include "gsFont.h"
-#include "gsInit.h"
 #include "gsMisc.h"
 #include "gsPrimitive.h"
 #include "gsTexture.h"
-
-#include "dmaKit.h"
 
 #endif /* __GSKIT_H__ */

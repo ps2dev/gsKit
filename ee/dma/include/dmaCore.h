@@ -79,5 +79,9 @@ static char* DMA_NAME[10] = { "VIF0", "VIF1", "GIF", "fromIPU", "toIPU", \
 	(u32)((A) & 0x0000FFFF) <<  0
 
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
+int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 
 #endif /* __DMACORE_H__ */

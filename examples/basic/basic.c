@@ -20,14 +20,40 @@ int main(void)
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 
-	gsKit_init(GS_NONINTERLACED, GS_MODE_DTV_480P, GS_FRAME);
+	gsKit_init(GS_NONINTERLACED, GS_MODE_NTSC, GS_FRAME);
 
 	// Wait for a the channel to be clear. (dmaKit_send does this automagicly)
 	dmaKit_wait(DMA_CHANNEL_GIF, 0);
 
-	unsigned White = GS_SETREG_RGBA(0x00,0x00,0x00,0x80);
+	unsigned White = GS_SETREG_RGBA(0xFF,0xFF,0xFF,0x00);
+	unsigned Red = GS_SETREG_RGBA(0xFF,0x00,0x00,0x00);
+	unsigned Green = GS_SETREG_RGBA(0x00,0xFF,0x00,0x00);
+	unsigned Blue = GS_SETREG_RGBA(0x00,0x00,0xFF,0x00);
 
-	gsKit_prim_sprite(50, 50, 300, 300, 1, White);
+	GSGLOBAL gsGlobal;
+
+	gsGlobal.Width = 640;
+	gsGlobal.Height = 448;
+	gsGlobal.Aspect = GS_ASPECT_4_3;
+	gsGlobal.OffsetX = 2048;
+	gsGlobal.OffsetY = 2048;
+	gsGlobal.PSM = 0;
+	gsGlobal.ActiveBuffer = 1;
+	gsGlobal.PrimAlphaEnable = 0;
+	gsGlobal.BGColor.Red = 0x00;
+	gsGlobal.BGColor.Green = 0x00;
+	gsGlobal.BGColor.Blue = 0x00;
+
+	gsGlobal = gsKit_init_screen(gsGlobal);
+
+	gsKit_clear(gsGlobal, White);
+
+	gsGlobal = gsKit_sync_flip(gsGlobal);
+	
+	gsKit_prim_sprite(gsGlobal, 100, 100, 200, 200, 1, Blue);
+	gsKit_prim_sprite_ztest(gsGlobal, 200, 200, 400, 400, 1, Green);
+
+	gsGlobal = gsKit_sync_flip(gsGlobal);
 
 	while(1);
 

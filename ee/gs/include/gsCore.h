@@ -8,11 +8,19 @@
 //
 // gsCore.h - Header for gsCore.c
 //
+// Parts taken from emoon's BreakPoint Demo Library
+//
 
 #ifndef __GSCORE_H__
 #define __GSCORE_H__
 
 #include "gsKit.h"
+
+#define GS_ASPECT_4_3 0x00
+#define GS_ASPECT_16_9 0x01
+
+#define GS_AXIS_X 0x00
+#define GS_AXIS_Y 0x01
 
 #define GS_PRIM       0x00
 #define GS_RGBAQ      0x01
@@ -97,6 +105,20 @@
 #define GIF_AD          0x0e
 #define GIF_NOP         0x0f
 
+#define GS_VRAM_BLOCKSIZE 8192
+#define GS_VRAM_BLOCKSIZEW 64
+#define GS_VRAM_BLOCKSIZEH 32
+
+#define CSR ((volatile u64 *)(0x12001000))
+#define GS_RESET() *CSR = ((u64)(1)      << 9)
+#define GSSREG_CSR    0x40
+#define GS_CSR_FLUSH    1
+#define GS_CSR_FIELD_EVEN   0
+#define GS_CSR_FIELD_ODD    1
+#define GS_CSR_FIFO_HALFFULL  0
+#define GS_CSR_FIFO_EMPTY   1
+#define GS_CSR_FIFO_ALMOSTFULL  2
+
 #define GIF_TAG(NLOOP,EOP,PRE,PRIM,FLG,NREG) \
                 ((u64)(NLOOP)<< 0)              | \
                 ((u64)(EOP)     << 15)          | \
@@ -123,5 +145,10 @@
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
 
+u32 gsKit_vram_alloc(GSGLOBAL gsGlobal, int size);
+GSGLOBAL gsKit_sync_flip(GSGLOBAL gsGlobal);
+GSGLOBAL gsKit_setactive(GSGLOBAL gsGlobal);
+void gsKit_vsync(void);
+void gsKit_clear(GSGLOBAL gsGlobal, int Color);
 
 #endif /* __GSCORE_H__ */

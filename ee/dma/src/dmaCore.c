@@ -58,6 +58,29 @@ int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned
 	return 0;
 }
 
+int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
+{
+	printf("Sending to DMA Channel w/ SPR %i - %s\n",channel, DMA_NAME[channel]);
+	if(dmaKit_wait(channel, timeout) < 0 )
+	{
+		printf("Timed Out. Aborting Send.\n");
+		return -1;
+	}
+	SyncDCache(data, data+size*16);
+	if(DMA_QWC[channel] != 0)
+		*(volatile u32 *)DMA_QWC[channel] = size;
+	*(volatile u32 *)DMA_MADR[channel] = (u32)data | 0x80000000;
+	*(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,    // Direction
+							  0,    // ChainMode
+							  0,    // Address Stack Pointer
+							  0,    // Transfer DMA Tag
+							  0,    // No Interrupts
+							  1,    // Start DMA
+							  0 );  // Priority Control Enable??
+
+	return 0;
+}
+
 int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
 		      unsigned int size)
 {
@@ -75,7 +98,7 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
         *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,	// Direction
 							  1,	// ChainMode
 							  0,	// Address Stack Pointer
-							  1,	// Transfer DMA Tag
+							  0,	// Transfer DMA Tag
 							  0,	// No Interrupts
 							  1,	// Start DMA
 							  0 );	// Priority Control Enable??
@@ -93,20 +116,16 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
                 printf("Timed Out. Aborting Send.\n");
                 return -1;                                
         }
-//        SyncDCache(data, data+size*16);
-
-	printf("Got here 1\n");	
+        SyncDCache(data, data+size*16);
 
 	if(DMA_QWC[channel] != 0)
 	        *(volatile u32 *)DMA_QWC[channel] = 0;
-	printf("Got here 2\n");	
 	if(DMA_TADR[channel] != 0)
 		*(volatile u32 *)DMA_TADR[channel] = (u32)data | 0x80000000;
-	printf("Got here 3\n");	
 	*(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1, 	// Direction
 							  1, 	// ChainMode
 							  0, 	// Address Stack Pointer
-							  1, 	// Transfer DMA Tag
+							  0, 	// Transfer DMA Tag
 							  0,	// No Interrupts
 							  1, 	// Start DMA
 							  0 );	// Priority Control Enable??
