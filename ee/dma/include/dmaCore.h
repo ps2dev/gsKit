@@ -14,13 +14,13 @@
 
 #include "dmaKit.h"
 
-#define D_CHAN_VIF1 0x1
-#define D_CHAN_GIF 0x2
-#define D_CHAN_FROMIPU 0x3
-#define D_CHAN_SIF0 0x5
-#define D_CHAN_SIF1 0x6
-#define D_CHAN_FROMSPR 0x8
+static u32 DMA_CHCR[10] = { 0x10008000, 0x10009000, 0x1000A000, 0x1000B000, \
+			    0x1000B400, 0x1000C000, 0x1000C400, 0x1000C800, \
+			    0x1000D000, 0x1000D400 };
 
-void dmaKit_Wait(unsigned int channel);
+static char* DMA_CHAN_NAME[10] = { "VIF0", "VIF1", "GIF", "fromIPU", "toIPU", \
+				   "SIF0", "SIF1", "SIF2", "fromSPR", "toSPR" };
+
+int dmaKit_wait(unsigned int channel, unsigned int timeout);
 
 #endif /* __DMACORE_H__ */

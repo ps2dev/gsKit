@@ -8,7 +8,7 @@
 //
 // dmaInit.h - Header for dmaInit.c
 //
-// Portions taken from mrbrown's tutorial at:
+// Portions taken from ooPo's tutorial at:
 // http://www.oopo.net/consoledev/files/ps2-using-the-dmac.txt
 //
 

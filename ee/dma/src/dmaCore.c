@@ -10,20 +10,26 @@
 //
 
 #include "dmaKit.h"
+#include "kernel.h"
 
-void dmaKit_Wait(unsigned int channel)
+int dmaKit_wait(unsigned int channel, unsigned int timeout)
 {
- asm __volatile__("
-	 # DMA Wait
-	 lui $2, 0x1000;
-	 addu $2, $4;
-	 loop:
-	      lw $3, 0x00($2);
-	      andi $3, 0x100;
-	      bnez $3, loop;
-	      nop;
-	      jr $31;
-	      nop;");
+	printf("Waiting for DMA Channel %i - %s\n",channel, DMA_CHAN_NAME[channel]);
+	while((*(volatile u32 *)DMA_CHCR[channel]) & 0x00000100)
+	{
+		if ( timeout != 0 )
+		{
+			if ( timeout == 1 )
+			{
+				printf("Timed out waiting for DMA Channel %i - %s to be clear.\n",channel, DMA_CHAN_NAME[channel]);
+				return -1;
+			}
+			timeout--;
+		}
+	}
+	printf("DMA Channel %i - %s is now clear.\n",channel, DMA_CHAN_NAME[channel]);
+
+	return 0;
 }
 
 
