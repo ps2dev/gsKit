@@ -19,4 +19,4 @@ EE_LIB_DIRS = -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDKSRC)/ee/kernel/lib -L$(PS2SDK
 EE_LDFLAGS += $(EE_LIB_DIRS)
 
 # link with following libraries (libs need to be defined multiple times in order for linking to work!!)
-EE_LIBS += -lgcc -lgskit -lc -lkernel -lc -lsyscall
+EE_LIBS += -lgcc -lgskit -ldmakit -lc -lkernel -lc -lsyscall

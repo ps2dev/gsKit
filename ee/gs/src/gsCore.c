@@ -11,16 +11,4 @@
 
 #include "gsKit.h"
 
-void gsKit_DMA_Wait(unsigned int channel)
-{
- asm __volatile__(" # DMA Wait
-	 lui $2, 0x1000;
-	 addu $2, $4;
-	 loop:
-	      lw $3, 0x00($2);
-	      andi $3, 0x100;
-	      bnez $3, loop;
-	      nop;
-	      jr $31;
-	      nop;");
-}
+

@@ -14,6 +14,13 @@
 
 #include "dmaKit.h"
 
-void dmaKit_DMA_Wait(unsigned int channel);
+#define D_CHAN_VIF1 0x1
+#define D_CHAN_GIF 0x2
+#define D_CHAN_FROMIPU 0x3
+#define D_CHAN_SIF0 0x5
+#define D_CHAN_SIF1 0x6
+#define D_CHAN_FROMSPR 0x8
+
+void dmaKit_Wait(unsigned int channel);
 
 #endif /* __DMACORE_H__ */

@@ -10,8 +10,17 @@
 //
 
 #include "gsKit.h"
+#include "dmaKit.h"
 
 int main(void)
 {
+	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
+		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
+
+//	dmaKit_gif_init();
+//	dmaKit_Wait(D_CHAN_GIF);
+
+	while(1);
+
 	return 0;
 }

@@ -11,9 +11,10 @@
 
 #include "dmaKit.h"
 
-void dmaKit_DMA_Wait(unsigned int channel)
+void dmaKit_Wait(unsigned int channel)
 {
- asm __volatile__(" # DMA Wait
+ asm __volatile__("
+	 # DMA Wait
 	 lui $2, 0x1000;
 	 addu $2, $4;
 	 loop:
@@ -24,3 +25,5 @@ void dmaKit_DMA_Wait(unsigned int channel)
 	      jr $31;
 	      nop;");
 }
+
+
