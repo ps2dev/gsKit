@@ -197,6 +197,10 @@ struct gsFont
 };
 typedef struct gsFont GSFONT;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 s32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
 s32 gsKit_vram_free(GSGLOBAL *gsGlobal, u32 Pointer, u32 size);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
@@ -205,5 +209,9 @@ void gsKit_vsync(void);
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 Color);
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSCORE_H__ */

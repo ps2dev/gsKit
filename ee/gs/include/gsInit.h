@@ -221,7 +221,15 @@ struct gsGlobals
 
 typedef struct gsGlobals GSGLOBAL;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void gsKit_init(unsigned int interlace, unsigned int mode, unsigned int field);
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSINIT_H__ */

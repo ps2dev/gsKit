@@ -58,10 +58,18 @@
         ((u64)(ID)   << 28) | ((u64)(IRQ) << 31) | \
         ((u64)(ADDR) << 32) | ((u64)(SPR) << 63))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DMACORE_H__ */

@@ -128,6 +128,10 @@ struct gsBitmap
 };
 typedef struct gsBitmap GSBITMAP;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 s8 gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
@@ -141,6 +145,8 @@ void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,  
 								       int x2, int y2, int u2, int v2,  
 								       int z, u64 color);
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSTEXTURE_H__ */

@@ -65,9 +65,17 @@
     (u32)(C & 0x00000003) <<  2 | (u32)(D & 0x00000003) <<  4 | \
     (u32)(E & 0x00000003) <<  6 | (u32)(F & 0x00000007) <<  8
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS, 
                 unsigned int STD, unsigned int RCYC);
 
 int dmaKit_chan_init(unsigned int channel);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DMAINIT_H__ */

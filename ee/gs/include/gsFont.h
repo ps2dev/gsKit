@@ -17,8 +17,15 @@
 #define GSKIT_FTYPE_FNT 0x00
 #define GSKIT_FTYPE_TTF 0x01
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 s8 gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z, 
 		      unsigned long color, char *String);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSFONT_H__ */

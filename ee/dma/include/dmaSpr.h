@@ -17,8 +17,16 @@
 
 #define SPR_START 0x70000000
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void *dmaKit_spr_begin(void);
 int dmaKit_spr_end(void *data, void *StorePtr);
 void *dmaKit_spr_alloc(int size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __DMASPR_H__ */

@@ -28,6 +28,10 @@
 
 #define GS_SETREG_PRMODECONT(ac) ((u64)(ac))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void gsKit_prim_point(GSGLOBAL *gsGlobal, int x1, int y1, int z, u64 color);
 
 void gsKit_prim_line(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
@@ -63,5 +67,9 @@ void gsKit_prim_quad_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
 						 u64 color3, u64 color4);
 
 void gsKit_zblank(GSGLOBAL *gsGlobal);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSPRIMITIVE_H__ */

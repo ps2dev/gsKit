@@ -14,6 +14,14 @@
 
 #include "gsKit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, int vertex);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __GSMISC_H__ */
