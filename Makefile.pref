@@ -13,7 +13,7 @@
 # Change the settings, so they match yours
 ####################################################
 
-include $(PS2SDKSRC)/Defs.make
+include $(PS2SDK)/Defs.make
 
 PS2DEV = /usr/local/ps2dev
 
