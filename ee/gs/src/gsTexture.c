@@ -79,7 +79,6 @@ s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Width = Bitmap.InfoHeader.Width;
 	Texture->Height = Bitmap.InfoHeader.Height;
 
-	printf("bitmap PSM = %d\n", Bitmap.InfoHeader.PSM);
 	if(Bitmap.InfoHeader.PSM == 4)
 	{
 		Texture->PSM = GS_PSM_T4;

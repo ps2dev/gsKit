@@ -72,8 +72,8 @@ int main(void)
 	gsGlobal.Test.ZTE = 1;
 	gsGlobal.Test.ZTST = 2;
 
-	gsGlobal.Clamp.WMS = GS_CMODE_CLAMP;
-	gsGlobal.Clamp.WMT = GS_CMODE_CLAMP;
+	gsGlobal.Clamp.WMS = GS_CMODE_REPEAT;
+	gsGlobal.Clamp.WMT = GS_CMODE_REPEAT;
 /*
 	// These are only relevant if you are using REGION_CLAMP or REGION_REPEAT
 	gsGlobal.Clamp.MINU =
@@ -98,21 +98,21 @@ int main(void)
                                                             50,  // Y2    
                                                             0,  // U1
                                                             0,  // V1
-                                                            276, // X2
-                                                            306, // Y2
-                                                            256, // U2
-                                                            256, // V2
+                                                            Tex1.Width + 20, // X2
+                                                            Tex1.Height + 50, // Y2
+                                                            Tex1.Width, // U2
+                                                            Tex1.Height, // V2
                                                             1,
                                                             0x80808080);
 
                 gsKit_prim_sprite_texture(&gsGlobal, &Tex2, 310,  // X1
-                                                            0,  // Y2
+                                                            50,  // Y2
                                                             0,  // U1
                                                             0,  // V1
-                                                            630, // X2
-                                                            480, // Y2
-                                                            320, // U2
-                                                            480, // V2
+                                                            Tex2.Width + 310, // X2
+                                                            Tex2.Height +  50, // Y2
+                                                            Tex2.Width, // U2
+                                                            Tex2.Height, // V2
                                                             1,
                                                             0x80808080);
 
