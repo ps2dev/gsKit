@@ -17,8 +17,6 @@
 
 #define SPR_START 0x70000000
 
-static void* DMA_SPR = (void*)SPR_START;
-
 void *dmaKit_spr_begin(void);
 int dmaKit_spr_end(void *data, void *StorePtr);
 void *dmaKit_spr_alloc(int size);
