@@ -22,7 +22,7 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 	{
 		gsGlobal->CurrentPointer -= size;
 		printf("ERROR: Not enough VRAM for this allocation!\n");
-		return -1;
+		return 0;
 	}
 	else
 		return gsGlobal->CurrentPointer - size;
@@ -43,7 +43,7 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 	gsGlobal->ActiveBuffer ^= 1;
 	gsGlobal->PrimContext ^= 1;
 
-	gsGlobal->EvenOrOdd=((GSREG*)CSR)->FIELD;
+	gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
 
 	gsKit_setactive(gsGlobal);
 }
@@ -83,8 +83,8 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 
 void gsKit_vsync(void)
 {
-	*CSR = *CSR & 8;
-	while(!(*CSR & 8));
+	*GS_CSR = *GS_CSR & 8;
+	while(!(*GS_CSR & 8));
 }
 
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
@@ -160,8 +160,9 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
         *p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
 
-	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, gsGlobal->Clamp->MINU, 
-				    gsGlobal->Clamp->MAXU, gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
 	*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
 

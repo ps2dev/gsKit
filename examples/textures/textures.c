@@ -48,15 +48,29 @@ int main(void)
 	while(1){
 		gsKit_clear(gsGlobal, White);
 
-                gsKit_prim_sprite_texture(gsGlobal, &Tex1, 20.0,  // X1
-                                                            50.0,  // Y2    
+                gsKit_prim_quad_texture_3d(gsGlobal, &Tex1, 20.0,  // X1
+                                                            50.0,  // Y1
+							    1.0, // Z1
                                                             0.0,  // U1
                                                             0.0,  // V1
-                                                            Tex1.Width + 20.0, // X2
-                                                            Tex1.Height + 20.0, // Y2
-                                                            Tex1.Width, // U2
-                                                            Tex1.Height, // V2
-                                                            1.0,
+
+							    20.0, // X2
+							    50.0 + Tex1.Height, // Y2
+							    1.0, // Z2
+							    0, // U2
+							    Tex1.Height, // V2
+
+							    20.0 + Tex1.Width, // X3
+							    50.0, // Y3
+							    1.0, // Z3
+							    Tex1.Width, // U3
+							    0, // V3
+
+                                                            Tex1.Width + 20.0, // X4
+                                                            Tex1.Height + 50.0, // Y4
+                                                            1.0, // Z4
+                                                            Tex1.Width, // U4
+                                                            Tex1.Height, // V4
                                                             TexCol);
 
                 gsKit_prim_sprite_texture(gsGlobal, &Tex2, 310.0,  // X1
@@ -71,15 +85,16 @@ int main(void)
                                                             TexCol);
 #ifdef HAVE_LIBJPG
                 gsKit_prim_sprite_texture(gsGlobal, &Tex3, 20.0,  // X1
-                                                            286.0,  // Y2
+                                                            386.0,  // Y2
                                                             0.0,  // U1
                                                             0.0,  // V1
                                                             Tex3.Width + 20, // X2
-                                                            Tex3.Height +  286.0, // Y2
+                                                            Tex3.Height +  386.0, // Y2
                                                             Tex3.Width, // U2
                                                             Tex3.Height, // V2
                                                             3.0,
                                                             TexCol);
+
 #endif
 		gsKit_sync_flip(gsGlobal);
 	}

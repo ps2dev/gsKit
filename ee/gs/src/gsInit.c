@@ -17,9 +17,34 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
 	u64	*p_store;
+	u8 Mode = 0;
+	int	fbHeight = 0;
 
 	if(!gsGlobal->Setup)
 	{
+		if(gsGlobal->Mode == GS_MODE_NTSC_I)
+		{
+			Mode = GS_MODE_NTSC;
+			fbHeight = gsGlobal->Height;
+		}
+		else if(gsGlobal->Mode == GS_MODE_PAL_I)
+		{
+			Mode = GS_MODE_PAL;
+			fbHeight = gsGlobal->Height;
+		}
+		else if(gsGlobal->Mode == GS_MODE_PAL || gsGlobal->Mode == GS_MODE_NTSC)
+		{
+			Mode = gsGlobal->Mode;
+			//  This is for half buffer support.. but it's broken.
+			//fbHeight = (gsGlobal->Height / 2);
+			fbHeight = gsGlobal->Height;
+		}
+		else
+		{
+			fbHeight = gsGlobal->Height;
+			Mode = gsGlobal->Mode;
+		}
+		
 		gsGlobal->CurrentPointer = (-GS_VRAM_BLOCKSIZE)&(0+GS_VRAM_BLOCKSIZE-1);
 	
 		GS_RESET();
@@ -27,8 +52,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		__asm__("sync.p; nop;");
 
 		GsPutIMR(0x0000F700);
-
-		SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
+		
+		SetGsCrt(gsGlobal->Interlace, Mode, gsGlobal->Field);
 
 		gsGlobal->Setup = 1;
 	}
@@ -52,18 +77,18 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 				0,						// Upper Left X in Buffer
 				0);						// Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(656+gsGlobal->StartX,	// X position in the display area (in VCK unit
-					35+gsGlobal->StartY,	// Y position in the display area (in Raster u
-					gsGlobal->MagX,			// Horizontal Magnification
+	GS_SET_DISPLAY1(gsGlobal->StartX,	// X position in the display area (in VCK unit
+					gsGlobal->StartY,	// Y position in the display area (in Raster u
+					gsGlobal->MagX,		// Horizontal Magnification
 					gsGlobal->MagY,			// Vertical Magnification
-					(gsGlobal->Width-1)*4,	// Display area width
+					(gsGlobal->Width * 4) -1,	// Display area width
 					(gsGlobal->Height-1));	// Display area height
 
-	GS_SET_DISPLAY2(656+gsGlobal->StartX,	// X position in the display area (in VCK units)
-					35+gsGlobal->StartY,	// Y position in the display area (in Raster units)
-					gsGlobal->MagX,			// Horizontal Magnification
+	GS_SET_DISPLAY2(gsGlobal->StartX,	// X position in the display area (in VCK units)
+					gsGlobal->StartY,	// Y position in the display area (in Raster units)
+					gsGlobal->MagX,		// Horizontal Magnification
 					gsGlobal->MagY,			// Vertical Magnification
-					(gsGlobal->Width-1)*4,	// Display area width
+					(gsGlobal->Width * 4) -1,	// Display area width
 					(gsGlobal->Height-1));	// Display area height
 
 	GS_SET_BGCOLOR(gsGlobal->BGColor->Red,	// Red
@@ -71,13 +96,20 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 				gsGlobal->BGColor->Blue);	// Blue
 
 	gsGlobal->CurrentPointer = 0;
-	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 1
-	gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) ); // Context 2
+	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) ); // Context 1
+	if(Mode == GS_MODE_VGA_1024_60 || Mode == GS_MODE_VGA_1024_70 || 
+	   Mode == GS_MODE_VGA_1024_75 || Mode == GS_MODE_VGA_1024_85 ||
+	   Mode == GS_MODE_VGA_1280_60 || Mode == GS_MODE_VGA_1280_75)
+	{
+		gsGlobal->ScreenBuffer[1] = gsGlobal->ScreenBuffer[0];
+	}
+	else
+		gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM) ); // Context 2
 	gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSMZ) ); // Z Buffer
 
-	p_data = p_store  = dmaKit_spr_alloc( 13*16 );
+	p_data = p_store  = dmaKit_spr_alloc( 15*16 );
 
-	*p_data++ = GIF_TAG( 12, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 14, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 
 	*p_data++ = 1;
@@ -85,10 +117,16 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
-
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, gsGlobal->OffsetY << 4 );
+/*
+	*p_data++ = GS_SETREG_XYOFFSET_1( ((gsGlobal->OffsetX - (gsGlobal->Width / 2) ) << 4), 
+					  ((gsGlobal->OffsetY - (gsGlobal->Height / 2) ) << 4));
+					  
 	*p_data++ = GS_XYOFFSET_1;
-
+*/	
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, 
+					  gsGlobal->OffsetY << 4);
+	*p_data++ = GS_XYOFFSET_1;
+					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
@@ -96,37 +134,52 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_ZBUF_1;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-								gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
-								gsGlobal->Test->DATE, gsGlobal->Test->DATM,
-								gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
+				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_1;
+	
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
+
+	*p_data++ = GS_CLAMP_1;
 
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
 	*p_data++ = GS_COLCLAMP;
 
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
-
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, gsGlobal->OffsetY << 4);
+/*
+	*p_data++ = GS_SETREG_XYOFFSET_1( ((gsGlobal->OffsetX - (gsGlobal->Width / 2) ) << 4), 
+					  ((gsGlobal->OffsetY - (gsGlobal->Height / 2) ) << 4));
 	*p_data++ = GS_XYOFFSET_2;
-
+*/
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, 
+					  gsGlobal->OffsetY << 4);
+	*p_data++ = GS_XYOFFSET_2;	
+					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
 	*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 	*p_data++ = GS_ZBUF_2;
-
+	
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-								gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
-								gsGlobal->Test->DATE, gsGlobal->Test->DATM,
-								gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
+				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
+				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
 	*p_data++ = GS_TEST_2;
+	
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 13 );
-	gsKit_set_test(gsGlobal, GS_ZTEST_INIT);
-	gsKit_set_clamp(gsGlobal, GS_CMODE_INIT);
+	*p_data++ = GS_CLAMP_2;
+	
+	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 15 );
 	
 }
 
@@ -139,34 +192,195 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 
 	/* Generic Values */
-	gsGlobal->Interlace = GS_NONINTERLACED;
-	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Setup = 0;
 	gsGlobal->Aspect = GS_ASPECT_4_3;
 
 	if(mode == GS_MODE_NTSC)
 	{
-		gsGlobal->Mode = GS_MODE_NTSC;
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 640;	
+		gsGlobal->Height = 480;
+		gsGlobal->StartX = 632;
+		gsGlobal->StartY = 20;
+		gsGlobal->MagX = 3;
+		gsGlobal->MagY = 0;
+	}
+	else if(mode == GS_MODE_NTSC_I)
+	{
+		gsGlobal->Interlace = GS_INTERLACED;
+		gsGlobal->Field = GS_FIELD;
+		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 480;
+		gsGlobal->StartX = 652;
+		gsGlobal->StartY = 30;
+		gsGlobal->MagX = 3;
+		gsGlobal->MagY = 1;
 	}
 	else if(mode == GS_MODE_PAL)
 	{
-		gsGlobal->Mode = GS_MODE_PAL;
-		gsGlobal->Width = 720;
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 640;
 		gsGlobal->Height = 576;
+		gsGlobal->StartX = 652;
+		gsGlobal->StartY = 42;
+		gsGlobal->MagX = 3;
+		gsGlobal->MagY = 0;
 	}
-
-	// TODO Add the rest of the mode values here!
-		
+	else if(mode == GS_MODE_PAL_I)
+	{
+		gsGlobal->Interlace = GS_INTERLACED;
+		gsGlobal->Field = GS_FIELD;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 640;		
+		gsGlobal->Height = 576;
+		gsGlobal->StartX = 652;
+		gsGlobal->StartY = 30;
+		gsGlobal->MagX = 3;
+		gsGlobal->MagY = 1;
+	}
+	else if(mode == GS_MODE_VGA_640_60 || mode == GS_MODE_VGA_640_72 ||
+			mode == GS_MODE_VGA_640_75 || mode == GS_MODE_VGA_640_85)
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 640;
+		gsGlobal->Height = 480;
+		if(mode == GS_MODE_VGA_640_60)
+			gsGlobal->StartX = 280;
+		else if(mode == GS_MODE_VGA_640_72)
+			gsGlobal->StartX = 330;
+		else if(mode == GS_MODE_VGA_640_75)
+			gsGlobal->StartX = 360;
+		else
+			gsGlobal->StartX = 260;
+		gsGlobal->StartY = 18;
+		gsGlobal->MagX = 1;
+		gsGlobal->MagY = 1;
+	}
+	else if(mode == GS_MODE_VGA_800_56 || mode == GS_MODE_VGA_800_60 || 
+			mode == GS_MODE_VGA_800_72 || mode == GS_MODE_VGA_800_75 || 
+			mode == GS_MODE_VGA_800_85)
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 800;
+		gsGlobal->Height = 600;
+		if(mode == GS_MODE_VGA_800_56)
+			gsGlobal->StartX = 450;
+		else if(mode == GS_MODE_VGA_800_60)
+			gsGlobal->StartX = 465;
+		else if(mode == GS_MODE_VGA_800_72)
+			gsGlobal->StartX = 465;
+		else if(mode == GS_MODE_VGA_800_75)
+			gsGlobal->StartX = 510;
+		else
+			gsGlobal->StartX = 500;
+		gsGlobal->StartY = 25;
+		gsGlobal->MagX = 1;
+		gsGlobal->MagY = 1;
+	}
+	else if(mode == GS_MODE_VGA_1024_60 || mode == GS_MODE_VGA_1024_70 ||
+			mode == GS_MODE_VGA_1024_75 || mode == GS_MODE_VGA_1024_85)
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 1024;
+		gsGlobal->Height = 768;
+		gsGlobal->StartY = 30;
+		gsGlobal->MagY = 1;
+		if(mode == GS_MODE_VGA_1024_60)
+		{
+			gsGlobal->MagX = 1;
+			gsGlobal->StartX = 580;
+		}
+		else if(mode == GS_MODE_VGA_1024_70)
+		{
+			gsGlobal->MagX = 0;
+			gsGlobal->StartX = 266;
+		}
+		else if(mode == GS_MODE_VGA_1024_75)
+		{
+			gsGlobal->MagX = 0;
+			gsGlobal->StartX = 260;
+		}
+		else
+		{
+				gsGlobal->MagX = 0;
+				gsGlobal->StartX = 290;
+		}
+	}
+	else if(mode == GS_MODE_VGA_1280_60 || mode == GS_MODE_VGA_1280_75 )
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 1280;
+		gsGlobal->Height = 1024;
+		gsGlobal->StartX = 350;
+		gsGlobal->StartY = 40;
+		gsGlobal->MagX = 0;
+		gsGlobal->MagY = 0;
+	}
+	else if(mode == GS_MODE_DTV_480P)
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 720;
+		gsGlobal->Height = 480;
+		gsGlobal->StartX = 232;
+		gsGlobal->StartY = 35;
+		gsGlobal->MagX = 1;
+		gsGlobal->MagY = 0;
+	}
+	else if(mode == GS_MODE_DTV_720P)
+	{
+		gsGlobal->Interlace = GS_NONINTERLACED;
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 1280;
+		gsGlobal->Height = 720;
+		gsGlobal->StartX = 302;
+		gsGlobal->StartY = 24;
+		gsGlobal->MagX = 0;
+		gsGlobal->MagY = 0;
+	}
+	else if(mode == GS_MODE_DTV_1080I)
+	{
+		gsGlobal->Interlace = GS_INTERLACED;
+		gsGlobal->Field = GS_FIELD;
+		gsGlobal->Mode = mode;
+		gsGlobal->Width = 1920;
+		gsGlobal->Height = 1080;
+		gsGlobal->StartX = 238;
+		gsGlobal->StartY = 40;
+		gsGlobal->MagX = 0;
+		gsGlobal->MagY = 0;
+	}
+	else 
+	{
+		printf("Invalid Mode Selected, Defaulting to NTSC.\n");
+		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Mode = GS_MODE_NTSC;
+		gsGlobal->Width = 640;
+		gsGlobal->Height = 480;
+		gsGlobal->StartX = 632;
+		gsGlobal->StartY = 50;
+		gsGlobal->MagX = 3;
+		gsGlobal->MagY = 0;
+	}		
 	gsGlobal->OffsetX = 2048;
 	gsGlobal->OffsetY = 2048;
-	gsGlobal->StartX = 0;
-	gsGlobal->StartY = 0;
-	gsGlobal->MagX = 3;
-	gsGlobal->MagY = 0;
-	gsGlobal->PSM = GS_PSM_CT16;
-	gsGlobal->PSMZ = GS_PSMZ_16;
+	gsGlobal->PSM = GS_PSM_CT24;
+	gsGlobal->PSMZ = GS_PSMZ_32;
 	gsGlobal->ActiveBuffer = 1;
 	gsGlobal->PrimFogEnable = 0;
 	gsGlobal->PrimAAEnable = 0;
@@ -177,7 +391,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	/* BGColor Register Values */
 	gsGlobal->BGColor->Red = 0x00;
 	gsGlobal->BGColor->Green = 0x00;
-	gsGlobal->BGColor->Blue = 0x0;
+	gsGlobal->BGColor->Blue = 0x00;
 
 	/* TEST Register Values */
 	gsGlobal->Test->ATE = 0;

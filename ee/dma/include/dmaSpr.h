@@ -21,8 +21,13 @@
 extern "C" {
 #endif
 
+/// DMA Scratchpad Chain Begin
 void *dmaKit_spr_begin(void);
+
+/// DMA Scratchpad Chain End
 int dmaKit_spr_end(void *data, void *StorePtr);
+
+/// DMA Scratchpad Allocation
 void *dmaKit_spr_alloc(int size);
 
 #ifdef __cplusplus

@@ -164,7 +164,7 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		printf("error opening %s\n", Path);
 	}
 	
-	TextureSize = (jpg->width * (jpg->bpp/8) * jpg->height);
+	TextureSize = (jpg->width * (jpg->color_components/8) * jpg->height);
 
 	Texture->Mem = malloc(TextureSize);
 	jpgReadImage(jpg, Texture->Mem);
@@ -414,25 +414,25 @@ static int log( int Value )
 }
 
 
-void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float u1, float v1,
-                                                                       float x2, float y2, float u2, float v2,
-                                                                       float z, u64 color)
+void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+				float x1, float y1, float z1, float u1, float v1,
+				float x2, float y2, float z2, float u2, float v2, u64 color)
 {
         u64* p_store;
         u64* p_data;
         int size = 8;
 
-        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-
-        int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
-        int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
-        int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
-        int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
-
-        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
+	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
+	
+	int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
+	int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
+	int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
+	int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
  
         if( gsGlobal->PrimAlphaEnable == 1 )
                 size++;
@@ -465,15 +465,411 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         *p_data++ = GS_SETREG_UV( iu1, iv1 );
         *p_data++ = GS_UV;
 
-        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
         *p_data++ = GS_XYZ2;
 
         *p_data++ = GS_SETREG_UV( iu2, iv2 );
         *p_data++ = GS_UV;
 
-        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
+        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
         *p_data++ = GS_XYZ2;
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 }
 
+void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+				float x1, float y1, float z1, float u1, float v1,
+				float x2, float y2, float z2, float u2, float v2,
+				float x3, float y3, float z3, float u3, float v3, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 10;
+
+	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
+	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
+	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
+	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
+	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
+	
+	int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
+	int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
+	int iu3 = gsKit_scale(gsGlobal, GS_MAP_U, u3);
+	int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
+	int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
+	int iv3 = gsKit_scale(gsGlobal, GS_MAP_V, v3);
+ 
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+        *p_data++ = GS_SETREG_UV( iu1, iv1 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
+        *p_data++ = GS_XYZ2;
+
+        *p_data++ = GS_SETREG_UV( iu2, iv2 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
+        *p_data++ = GS_XYZ2;
+	
+	*p_data++ = GS_SETREG_UV( iu3, iv3 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
+        *p_data++ = GS_XYZ2;
+
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriStrip, int segments, float z, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 4 + (segments * 2);
+        int count;
+        int vertexdata[segments*4];
+ 
+        for(count = 0; count < (segments * 4); count+=4)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
+		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_MAP_U, *TriStrip++);
+		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_V, *TriStrip++);
+        }
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
+	
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+	for(count = 0; count < (segments * 4); count+=4)
+        {
+		*p_data++ = GS_SETREG_UV( vertexdata[count+2], vertexdata[count+3] );
+		*p_data++ = GS_UV;
+	
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], iz );
+                *p_data++ = GS_XYZ2;
+        }
+	
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriStrip, int segments, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 4 + (segments * 2);
+        int count;
+        int vertexdata[segments*5];
+ 
+        for(count = 0; count < (segments * 5); count+=5)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
+		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriStrip++);
+		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_U, *TriStrip++);
+		vertexdata[count+4] = gsKit_scale(gsGlobal, GS_MAP_V, *TriStrip++);
+        }
+	
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+	for(count = 0; count < (segments * 5); count+=5)
+        {
+		*p_data++ = GS_SETREG_UV( vertexdata[count+3], vertexdata[count+4] );
+		*p_data++ = GS_UV;
+	
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], vertexdata[count+2] );
+                *p_data++ = GS_XYZ2;
+        }
+	
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriFan, int verticies, float z, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 4 + (verticies * 2);
+        int count;
+        int vertexdata[verticies*4];
+ 
+        for(count = 0; count < (verticies * 4); count+=4)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
+		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_MAP_U, *TriFan++);
+		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_V, *TriFan++);
+        }
+	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
+	
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIFAN, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+	for(count = 0; count < (verticies * 4); count+=4)
+        {
+		*p_data++ = GS_SETREG_UV( vertexdata[count+2], vertexdata[count+3] );
+		*p_data++ = GS_UV;
+	
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], iz );
+                *p_data++ = GS_XYZ2;
+        }
+	
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriFan, int verticies, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 4 + (verticies * 2);
+        int count;
+        int vertexdata[verticies*5];
+ 
+        for(count = 0; count < (verticies * 5); count+=5)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
+		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriFan++);
+		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_U, *TriFan++);
+		vertexdata[count+4] = gsKit_scale(gsGlobal, GS_MAP_V, *TriFan++);
+        }
+	
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIFAN, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+	for(count = 0; count < (verticies * 5); count+=5)
+        {
+		*p_data++ = GS_SETREG_UV( vertexdata[count+3], vertexdata[count+4] );
+		*p_data++ = GS_UV;
+	
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], vertexdata[count+2] );
+                *p_data++ = GS_XYZ2;
+        }
+	
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+				float x1, float y1, float z1, float u1, float v1,
+				float x2, float y2, float z2, float u2, float v2,
+				float x3, float y3, float z3, float u3, float v3,
+				float x4, float y4, float z4, float u4, float v4, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 12;
+
+        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
+        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
+	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
+	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
+	
+        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
+        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
+	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
+	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
+
+	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
+	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
+	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
+	int iz4 = gsKit_scale(gsGlobal, GS_AXIS_Z, z4);
+	
+        int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
+        int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
+	int iu3 = gsKit_scale(gsGlobal, GS_MAP_U, u3);
+	int iu4 = gsKit_scale(gsGlobal, GS_MAP_U, u4);
+	
+        int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
+        int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
+	int iv3 = gsKit_scale(gsGlobal, GS_MAP_V, v3);
+	int iv4 = gsKit_scale(gsGlobal, GS_MAP_V, v4);
+ 
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+        
+        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+                                   Texture->VramClut/256, 0, 0, 0, 1);
+        *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+ 
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 1, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    1, gsGlobal->PrimContext, 0);
+        
+        *p_data++ = GS_PRIM;
+        
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+        
+        *p_data++ = GS_SETREG_UV( iu1, iv1 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
+        *p_data++ = GS_XYZ2;
+
+        *p_data++ = GS_SETREG_UV( iu2, iv2 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
+        *p_data++ = GS_XYZ2;
+
+	*p_data++ = GS_SETREG_UV( iu3, iv3 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
+        *p_data++ = GS_XYZ2;
+
+	*p_data++ = GS_SETREG_UV( iu4, iv4 );
+        *p_data++ = GS_UV;
+
+        *p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
+        *p_data++ = GS_XYZ2;
+	
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}

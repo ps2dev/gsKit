@@ -16,7 +16,7 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_85);
 
 	float x = 10;
 	float y = 10;
@@ -126,8 +126,8 @@ int main(void)
 						   600.0, 350.0, 2.0,
 						   Red, Green, Blue, Black);
 
-		gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0, 
-						       280.0, 350.0, 
+		gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0,
+						       280.0, 350.0,
 						       180.0, 350.0, 5.0, 
 						       Blue, Red, White);
 

@@ -62,10 +62,27 @@
 extern "C" {
 #endif
 
+
+/// DMA Wait Routine
+/// This routine checks and waits for the DMAC to become free.
+/// The other routines in dmaKit use this to know when it's clear
+/// to send data over the DMAC.
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
+
+/// DMA Send Routine
+/// Standard DMA send routine. 
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+
+/// DMA Scratchpad Send Routine
+/// Similar to dmaKit_send, but reads from the scratchpad instead.
 int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+
+/// DMA Chain Send Routine
+/// Sends data over the DMAC using a DMA Chain.
 int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+
+/// DMA Chain Scratchpad Send 
+/// Sends data over the DMAC using a DMA Chain via the scratchpad.
 int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data);
 
 #ifdef __cplusplus

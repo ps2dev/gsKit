@@ -44,7 +44,7 @@
 
 #define DMA_REG_CTRL	(volatile u32 *)0x1000E000
 #define DMA_REG_STAT	(volatile u32 *)0x1000E010
-#define DMA_REG_PCR	(volatile u32 *)0x1000E020
+#define DMA_REG_PCR		(volatile u32 *)0x1000E020
 #define DMA_REG_SQWC	(volatile u32 *)0x1000E030
 #define DMA_REG_RBSR	(volatile u32 *)0x1000E040
 #define DMA_REG_RBOR	(volatile u32 *)0x1000E050
@@ -69,9 +69,11 @@
 extern "C" {
 #endif
 
+/// DMAC Initilization
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS, 
                 unsigned int STD, unsigned int RCYC);
 
+/// DMA Channel Initilization
 int dmaKit_chan_init(unsigned int channel);
 
 #ifdef __cplusplus

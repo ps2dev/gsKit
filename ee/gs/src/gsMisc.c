@@ -16,28 +16,21 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 	int result = 0;
 
 	if(axis == GS_AXIS_X || axis == GS_MAP_U || axis == GS_MAP_V)
-	{
-			result = (int)(vertex * 16.0f);
-			result += gsGlobal->OffsetX << 4;
+	{			
+		result = (int)(vertex * 16.0f);
+		result += gsGlobal->OffsetX << 4;
 	}
 	else if(axis == GS_AXIS_Y)
 	{
-		if(gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL)
-		{
-				vertex = vertex / 2;
+		vertex = vertex / 2;
 				
-			if( gsGlobal->Mode == GS_MODE_PAL && gsGlobal->Field == GS_FRAME)
-					vertex = (vertex+(!!gsGlobal->EvenOrOdd));
-
-		}
 		result = (int)(vertex * 16.0f);
 		result += gsGlobal->OffsetY << 4;
 	}
 	else if(axis == GS_AXIS_Z)
-        {
-                        result = (int)(vertex * 16.0f);
-        }
-
+	{
+		result = (int)(vertex * 16.0f);
+	}
 
 	return result;
 }

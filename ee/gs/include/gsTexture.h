@@ -144,9 +144,58 @@ u32  gsKit_texture_size(int width, int height, int psm);
 void gsKit_texture_send(u8 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
-void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float u1, float v1,  
-								       float x2, float y2, float u2, float v2,  
-								       float z, u64 color);
+void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float z1, float u1, float v1,
+                                                                       float x2, float y2, float z2, float u2, float v2,
+                                                                       u64 color);
+
+void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+				float x1, float y1, float z1, float u1, float v1,
+				float x2, float y2, float z2, float u2, float v2,
+				float x3, float y3, float z3, float u3, float v3, u64 color);
+				
+void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriStrip, int segments, float z, u64 color);
+				
+void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriStrip, int segments, u64 color);
+					
+void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriFan, int verticies, float z, u64 color);
+					
+void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+					float *TriFan, int verticies, u64 color);
+								       
+void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+				float x1, float y1, float z1, float u1, float v1,
+				float x2, float y2, float z2, float u2, float v2,
+				float x3, float y3, float z3, float u3, float v3,
+				float x4, float y4, float z4, float u4, float v4, u64 color);
+								       
+							
+#define gsKit_prim_sprite_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
+							x2, y2, u2, v2,		\
+							z, color)		\
+	gsKit_prim_sprite_texture_3d(gsGlobal, Texture, x1, y1, z, u1, v1,	\
+					 		x2, y2, z, u2, v2, color);
+							
+#define gsKit_prim_triangle_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
+							x2, y2, u2, v2,		\
+							x3, y3, u3, v3,		\
+							z, color)		\
+	gsKit_prim_triangle_texture_3d(gsGlobal, Texture, x1, y1, z, u1, v1,	\
+							x2, y2, z, u2, v2,	\
+							x3, y3, z, u3, v3, color);
+							
+#define gsKit_prim_quad_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
+							x2, y2, u2, v2,		\
+							x3, y3, u3, v3,		\
+							x4, y4, u4, v4,		\
+							z, color)		\
+	gsKit_prim_quad_texture_3d(gsGlobal, Texture, x1, y1, z, u1, v1,	\
+							x2, y2, z, u2, v2,	\
+							x3, y3, z, u3, v3,	\
+					 		x4, y4, z, u4, v4, color);
+
 #ifdef __cplusplus
 }
 #endif
