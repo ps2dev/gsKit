@@ -181,8 +181,8 @@ GSGLOBAL *gsKit_init_global(void)
         gsGlobal->Test->ZTE = 1;
         gsGlobal->Test->ZTST = 2;
 
-	gsGlobal->Clamp->WMS = GS_CMODE_REPEAT;
-	gsGlobal->Clamp->WMT = GS_CMODE_REPEAT;
+	gsGlobal->Clamp->WMS = GS_CMODE_CLAMP;
+	gsGlobal->Clamp->WMT = GS_CMODE_CLAMP;
         gsGlobal->Clamp->MINU = 0;
         gsGlobal->Clamp->MAXU = 0;
         gsGlobal->Clamp->MINV = 0;

@@ -26,13 +26,13 @@ u32  gsKit_texture_size(int width, int height, int psm)
 	return 0;
 }
 
-s8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+u8 gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_png unimplimented.\n");
 	return -1;
 }
 
-s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+u8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	GSBITMAP Bitmap;
 	int x, y;
@@ -137,7 +137,7 @@ s8 gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
         return 0;
 }
 
-s8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+u8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	// Jpeg stuff needs to be reimplimented, or we need to
 	// figure out tinyjpeg licensing.
@@ -162,13 +162,13 @@ s8  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return -1;
 }
 
-s8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+u8 gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_tga unimplimented.\n");
 	return -1;
 }
 
-s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+u8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	int File = fioOpen(Path, O_RDONLY);
 	int FileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
@@ -185,7 +185,7 @@ s8 gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return 0;
 }
 
-s8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
+u8 gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont, GSTEXTURE *Texture)
 {
 	int File = fioOpen(gsFont->Path, O_RDONLY);
 	fioLseek(File, 4, SEEK_SET);

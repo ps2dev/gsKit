@@ -13,7 +13,7 @@
 
 #include "gsKit.h"
 
-s32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
+u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
 {	
 	size = (-GS_VRAM_BLOCKSIZE)&(size+GS_VRAM_BLOCKSIZE-1);
 	gsGlobal->CurrentPointer += size;

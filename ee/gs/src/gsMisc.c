@@ -26,6 +26,13 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 		{
 			if( gsGlobal->Interlace == GS_NONINTERLACED )
 				vertex = vertex / 2;
+			else
+			{
+				if( gsGlobal->Field==GS_FRAME )
+					vertex = (vertex+(!!gsGlobal->ActiveBuffer))*0.5;
+				else
+					vertex = vertex * 0.5;
+			}
 		}
 		result = (int)(vertex * 16.0f);
 		result += gsGlobal->OffsetY << 4;

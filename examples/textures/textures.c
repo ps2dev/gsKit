@@ -24,8 +24,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-
-	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 	
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
@@ -36,6 +34,8 @@ int main(void)
 
 	gsKit_texture_raw(gsGlobal, &Tex1, "host:bitmap.raw");
 	gsKit_texture_bmp(gsGlobal, &Tex2, "host:bsdgirl.bmp");
+
+	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
 	while(1){
 		gsKit_clear(gsGlobal, White);
@@ -55,7 +55,7 @@ int main(void)
                                                             50.0,  // Y2
                                                             0.0,  // U1
                                                             0.0,  // V1
-                                                            Tex2.Width + 310.0, // X2
+                                                            Tex2.Width + 310, // X2
                                                             Tex2.Height +  50.0, // Y2
                                                             Tex2.Width, // U2
                                                             Tex2.Height, // V2

@@ -196,6 +196,7 @@ struct gsFont
         u32 CharHeight;
 	u32 HChars;
 	u32 VChars;
+	u8 *Additional;
 };
 typedef struct gsFont GSFONT;
 
@@ -203,8 +204,8 @@ typedef struct gsFont GSFONT;
 extern "C" {
 #endif
 
-s32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
-s32 gsKit_vram_free(GSGLOBAL *gsGlobal, u32 Pointer, u32 size);
+u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
+u32 gsKit_vram_free(GSGLOBAL *gsGlobal, u32 Pointer, u32 size);
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 void gsKit_vsync(void);

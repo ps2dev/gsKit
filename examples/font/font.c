@@ -9,6 +9,7 @@
 // font.c - Example demonstrating basic font operation.
 //
 
+#include "stdio.h"
 #include "gsKit.h"
 #include "dmaKit.h"
 #include "malloc.h"
@@ -17,7 +18,8 @@ int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans, Texture;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
-	GSFONT gsFont, gsFont2;
+
+	GSFONT gsFont;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -38,33 +40,19 @@ int main(void)
 	GreenTrans = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x50,0x00);
 	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
-	gsFont.Path = "host:lucida.fnt";
-	gsFont.Type = GSKIT_FTYPE_FNT;
-
-	gsFont2.Path = "host:arial.fnt";
-	gsFont2.Type = GSKIT_FTYPE_FNT;
-
 	gsKit_init_screen(gsGlobal);
 	gsKit_clear(gsGlobal, White);
 
-        gsKit_font_upload(gsGlobal, &gsFont, &gsFont.Texture);
-	gsKit_font_upload(gsGlobal, &gsFont2, &gsFont2.Texture);
+	gsFont.Path = "host:font2d";
+	gsFont.Type = GSKIT_FTYPE_BMP_DAT;
+	gsKit_font_upload(gsGlobal, &gsFont, &gsFont.Texture);	
 
 	while(1){
 		gsKit_clear(gsGlobal, White);
 
-		gsKit_font_print(gsGlobal, &gsFont, 400, 100, 2, Black, "?");
-
-		gsKit_prim_sprite_texture(gsGlobal, &gsFont.Texture, 50, 50, 0, 0, 
-				          gsFont.Texture.Width + 50, gsFont.Texture.Height + 50, 
-				          gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
-
-		gsKit_prim_sprite_texture(gsGlobal, &gsFont2.Texture, 320, 50, 0, 0, 
-				          gsFont.Texture.Width + 320, gsFont.Texture.Height + 50, 
-					  gsFont.Texture.Width, gsFont.Texture.Height, 1, 0x80808080);
+		gsKit_font_print(gsGlobal, &gsFont, 50, 50, 1, Black, "Hello World!");
 
 		gsKit_sync_flip(gsGlobal);
-
 	}
 	
 	return 0;
