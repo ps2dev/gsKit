@@ -12,6 +12,7 @@
 
 #include "dmaKit.h"
 #include "kernel.h"
+#include "dmaArrays.h"
 
 void *dmaKit_spr_begin(void)
 {
