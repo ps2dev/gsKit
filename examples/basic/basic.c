@@ -58,28 +58,21 @@ int main(void)
 
         TriFanPtr = TriFan = malloc(16 * sizeof(int));
 	*TriFan++ = 300;
-	*TriFan++ = 125;
-
-	*TriFan++ = 250;
-	*TriFan++ = 125;
-
-	*TriFan++ = 275;
 	*TriFan++ = 100;
-
-	*TriFan++ = 290;
+	*TriFan++ = 225;
+	*TriFan++ = 100;
+	*TriFan++ = 235;
 	*TriFan++ = 75;
-
+	*TriFan++ = 265;
+	*TriFan++ = 40;
 	*TriFan++ = 300;
-	*TriFan++ = 50;
-
-	*TriFan++ = 310;
+	*TriFan++ = 25;
+	*TriFan++ = 335;
+	*TriFan++ = 40;
+	*TriFan++ = 365;
 	*TriFan++ = 75;
-
-	*TriFan++ = 325;
+	*TriFan++ = 375;
 	*TriFan++ = 100;
-
-	*TriFan++ = 350;
-	*TriFan++ = 125;
 
 	GSGLOBAL gsGlobal;
 
@@ -95,8 +88,8 @@ int main(void)
 	Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
 	Blue = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x00,0x00);
 
-	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x50,0x00);
-	RedTrans = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x50,0x00);
+	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
+	RedTrans = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x60,0x00);
 	GreenTrans = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x50,0x00);
 	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
@@ -146,8 +139,6 @@ int main(void)
 
 		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1, Red);
 
-		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 1, Red);
-
 		gsKit_prim_line(&gsGlobal, 525, 125, 575, 125, 1, Black);
 		gsKit_prim_line(&gsGlobal, 550, 150, 600, 100, 1, Black);
 
@@ -155,14 +146,14 @@ int main(void)
 		gsKit_prim_point(&gsGlobal, 600, 100, 1, Black);
 		gsKit_prim_point(&gsGlobal, 625, 125, 1, Black);
 
-		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 1, Black);
-
 		gsKit_prim_quad(&gsGlobal, 150, 150, 
 					   150, 400,
 					   450, 150,
 					   450, 400, 2, Green);
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_ON);
+
+		gsKit_prim_triangle_fan(&gsGlobal, TriFanPtr, 8, 5, Black);
 
 		gsKit_prim_quad_gouraud(&gsGlobal, 500, 250, 
 						   500, 350, 
@@ -189,6 +180,8 @@ int main(void)
 			y-=10;
 
 		gsKit_prim_sprite(&gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
+
+		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 5, RedTrans);
 
 		gsKit_sync_flip(&gsGlobal);
 

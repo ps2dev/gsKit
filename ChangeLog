@@ -1,5 +1,12 @@
 gsKit ChangeLog:
 
+-> 06/29/04 - Chris Gilbert (Neovanglist) 
+   * dmaKit officially finished.
+   * gsKit has working ZTest.
+   * gsKit has working Alpha.
+   * All primitives implimented and working.
+   * gsKit 0.1 release.
+
 -> 06/15/04 - Chris Gilbert (Neovanglist) 
    * Changed directory layout. (See README)
    * Added dmaKit.
