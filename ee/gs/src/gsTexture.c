@@ -424,7 +424,7 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         *p_data++ = GIF_AD;
         
         *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, ((gsGlobal->Width/64)&63), Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), 0, 0,
+                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
                                    Texture->VramClut/256, 0, 0, 0, 1);
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
@@ -435,7 +435,7 @@ void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1,
         }
  
         *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
-                                    0/*gsGlobal->PrimAlphaEnable*/, gsGlobal->PrimAAEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
                                     1, gsGlobal->PrimContext, 0);
         
         *p_data++ = GS_PRIM;

@@ -29,13 +29,13 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsInit      | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsMisc      | Scaling "Functional" but not compelte.  | 50%  |
+| gsMisc      | PAL NTSC (I/NI) Work - VGA/DTV Does Not | 80%  |
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsTexture   | Kind of working, needs further dev.     | 50%  |
+| gsTexture   | Kind of working, needs further dev.     | 75%  |
 |--------------------------------------------------------------|
-| gsFont      | Needs to be stubbed out.                | 0%   |
+| gsFont      | BMP Font Support Implimented, But Ugly. | 25%  |
 |--------------------------------------------------------------|
 | dmaCore     | Completed.                              | 100% |
 |--------------------------------------------------------------|
@@ -48,4 +48,5 @@ Contributors: Please do not modify this file without letting the others
 
 BUGS:
 	* Scaling for DTV/VGA/DVD modes untested.
-
+	* Glitch in BMP reader causing artifacts in the textures example.
+	

@@ -61,6 +61,9 @@
 #define GS_PSMZ_16 0x02
 #define GS_PSMZ_16S 0x0A
 
+#define GS_BLEND_FRONT2BACK 0x12
+#define GS_BLEND_BACK2FRONT 0x01
+
 #define PMODE           ((volatile u64 *)(0x12000000))
 
 #define GS_SET_PMODE(EN1,EN2,MMOD,AMOD,SLBG,ALP) \
@@ -220,7 +223,7 @@ struct gsGlobals
 	int PrimFogEnable;
 	int PrimAAEnable;
 	int PrimAlphaEnable;
-	u64 PrimAlpha;
+	u8 PrimAlpha;
 };
 typedef struct gsGlobals GSGLOBAL;
 

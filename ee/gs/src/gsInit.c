@@ -141,11 +141,11 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	gsGlobal->Test = calloc(1,sizeof(GSTEST));
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 
-        /* Generic Values */
-        gsGlobal->Interlace = GS_NONINTERLACED;
-        gsGlobal->Field = GS_FRAME;
-        gsGlobal->Setup = 0;
-        gsGlobal->Aspect = GS_ASPECT_4_3;
+	/* Generic Values */
+	gsGlobal->Interlace = GS_NONINTERLACED;
+	gsGlobal->Field = GS_FRAME;
+	gsGlobal->Setup = 0;
+	gsGlobal->Aspect = GS_ASPECT_4_3;
 
 	if(mode == GS_MODE_NTSC)
 	{
@@ -162,20 +162,20 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	// TODO Add the rest of the mode values here!
 		
-        gsGlobal->OffsetX = 2048;
-        gsGlobal->OffsetY = 2048;
-        gsGlobal->StartX = 0;
-        gsGlobal->StartY = 0;
-        gsGlobal->MagX = 3;
-        gsGlobal->MagY = 0;
-        gsGlobal->PSM = GS_PSM_CT16;
-        gsGlobal->PSMZ = GS_PSMZ_16;
-        gsGlobal->ActiveBuffer = 1;
-        gsGlobal->PrimFogEnable = 0;
-        gsGlobal->PrimAAEnable = 0;
-        gsGlobal->PrimAlphaEnable = 1;
-        gsGlobal->PrimAlpha = 1;
-        gsGlobal->PrimContext = 0;
+	gsGlobal->OffsetX = 2048;
+	gsGlobal->OffsetY = 2048;
+	gsGlobal->StartX = 0;
+	gsGlobal->StartY = 0;
+	gsGlobal->MagX = 3;
+	gsGlobal->MagY = 0;
+	gsGlobal->PSM = GS_PSM_CT16;
+	gsGlobal->PSMZ = GS_PSMZ_16;
+	gsGlobal->ActiveBuffer = 1;
+	gsGlobal->PrimFogEnable = 0;
+	gsGlobal->PrimAAEnable = 0;
+	gsGlobal->PrimAlphaEnable = 1;
+	gsGlobal->PrimAlpha = GS_BLEND_BACK2FRONT;
+	gsGlobal->PrimContext = 0;
 
         /* BGColor Register Values */
         gsGlobal->BGColor->Red = 0x00;

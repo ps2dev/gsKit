@@ -18,6 +18,7 @@ int main(void)
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 	GSTEXTURE Tex1, Tex2;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
+	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -61,7 +62,7 @@ int main(void)
                                                             Tex1.Width, // U2
                                                             Tex1.Height, // V2
                                                             1.0,
-                                                            0x80808080);
+                                                            TexCol);
 
                 gsKit_prim_sprite_texture(gsGlobal, &Tex2, 310.0,  // X1
                                                             50.0,  // Y2
@@ -71,8 +72,8 @@ int main(void)
                                                             Tex2.Height +  50.0, // Y2
                                                             Tex2.Width, // U2
                                                             Tex2.Height, // V2
-                                                            1.0,
-                                                            0x80808080);
+                                                            2.0,
+                                                            TexCol);
 
 		gsKit_sync_flip(gsGlobal);
 	}

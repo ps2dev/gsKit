@@ -44,21 +44,21 @@ int main(void)
 	*LineStrip++ = 75;	// Segment 6 Y
 	*LineStrip++ = 250;	// Segment 6 Y
 
-        TriStripPtr = TriStrip = malloc(12 * sizeof(float));
-        *TriStrip++ = 550;
-        *TriStrip++ = 100;
-        *TriStrip++ = 525;
-        *TriStrip++ = 125;
-        *TriStrip++ = 575;
-        *TriStrip++ = 125;
-        *TriStrip++ = 550;
-        *TriStrip++ = 150;
-        *TriStrip++ = 600;
+	TriStripPtr = TriStrip = malloc(12 * sizeof(float));
+	*TriStrip++ = 550;
+	*TriStrip++ = 100;
+	*TriStrip++ = 525;
+	*TriStrip++ = 125;
+	*TriStrip++ = 575;
+	*TriStrip++ = 125;
+	*TriStrip++ = 550;
 	*TriStrip++ = 150;
-        *TriStrip++ = 575;
-        *TriStrip++ = 175;
-
-        TriFanPtr = TriFan = malloc(16 * sizeof(float));
+	*TriStrip++ = 600;
+	*TriStrip++ = 150;
+	*TriStrip++ = 575;
+	*TriStrip++ = 175;
+	
+	TriFanPtr = TriFan = malloc(16 * sizeof(float));
 	*TriFan++ = 300;
 	*TriFan++ = 100;
 	*TriFan++ = 225;
@@ -75,7 +75,7 @@ int main(void)
 	*TriFan++ = 75;
 	*TriFan++ = 375;
 	*TriFan++ = 100;
-
+	
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 

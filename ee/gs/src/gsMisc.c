@@ -24,7 +24,6 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 	{
 		if(gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL)
 		{
-			if( gsGlobal->Interlace == GS_NONINTERLACED )
 				vertex = vertex / 2;
 				
 			if( gsGlobal->Mode == GS_MODE_PAL && gsGlobal->Field == GS_FRAME)
