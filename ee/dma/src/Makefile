@@ -10,7 +10,8 @@
 #
 
 EE_OBJS = 	dmaCore.o \
-		dmaInit.o
+		dmaInit.o \
+		dmaSpr.o
 
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBDMAKIT) $(EE_OBJS)

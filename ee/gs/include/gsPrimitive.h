@@ -14,4 +14,22 @@
 
 #include "gsKit.h"
 
+#define GS_SETREG_PRIM(prim, iip, tme, fge, abe, aa1, fst, ctxt, fix) \
+  ((u64)(prim)      | ((u64)(iip) << 3)  | ((u64)(tme) << 4) | \
+  ((u64)(fge) << 5) | ((u64)(abe) << 6)  | ((u64)(aa1) << 7) | \
+  ((u64)(fst) << 8) | ((u64)(ctxt) << 9) | ((u64)(fix) << 10))
+
+#define GS_SETREG_PRMODE(iip, tme, fge, abe, aa1, fst, ctxt, fix) \
+  (((u64)(iip) << 3) | ((u64)(tme) << 4)  | \
+   ((u64)(fge) << 5) | ((u64)(abe) << 6)  | ((u64)(aa1) << 7) | \
+   ((u64)(fst) << 8) | ((u64)(ctxt) << 9) | ((u64)(fix) << 10))
+
+#define GS_SETREG_PRMODECONT(ac) ((u64)(ac))
+
+static int g_PbPrimAlphaEnable = 0;
+static int g_PbPrimContext     = 0;
+static u64 g_PbPrimAlpha       = 0;
+
+int gsKit_prim_sprite(int x1, int y1, int x2, int y2, int z, int color);
+
 #endif /* __GSPRIMITIVE_H__ */
