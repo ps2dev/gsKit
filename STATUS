@@ -33,7 +33,7 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsTexture   | Needs to be stubbed out.                | 0%   |
+| gsTexture   | Kind of working, needs further dev.     | 50%  |
 |--------------------------------------------------------------|
 | gsFont      | Needs to be stubbed out.                | 0%   |
 |--------------------------------------------------------------|
@@ -48,6 +48,4 @@ Contributors: Please do not modify this file without letting the others
 
 BUGS:
 	* Scaling for DTV/VGA/DVD modes untested.
-	* Small line of artifacts at the bottom of the screen in NON_INTERLACED
-	  mode while using NTSC or PAL.
-	* dmaKit_send_chain_spr hard locks the PS2. Can't figure out why.
+

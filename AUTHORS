@@ -12,6 +12,7 @@ The following people have contributed to the gsKit project:
 Alias       | Real Name         | e-mail
 ------------|-------------------|---------------------
 Neovanglist | Chris Gilbert     | Neovanglist@LainOS.org
+linuzappz   | Not Disclosed     | linuzappz@pcsx2.net
 
 People that I'd like to thank, and why:
 
@@ -24,5 +25,7 @@ ooPo - For research, documentation, and reference implimentations for the DMAC a
 t0mb0la - For several bugfixes, suggestions, and support.
 
 Drakonite - Bug fixes, misc. help, and support.
+
+linuzappz - First working implimentation for texture support, other code contributions.
 
 And everyone else from the PS2 Dev community! Thanks!

@@ -42,8 +42,21 @@
 #define DMA_SET_SIZE(A) \
 	(u32)((A) & 0x0000FFFF) <<  0
 
-#define DMA_CNT_TAG(COUNT)       (((unsigned long)(0x1) << 28) | COUNT)
-#define DMA_END_TAG(COUNT)       (((unsigned long)(0x7) << 28) | COUNT)
+#define DMA_MAX_SIZE    0xFFFF
+
+#define DMA_REFE        0x0
+#define DMA_CNT         0x1
+#define DMA_NEXT        0x2
+#define DMA_REF         0x3
+#define DMA_REFS        0x4
+#define DMA_CALL        0x5
+#define DMA_RET         0x6
+#define DMA_END         0x7
+        
+#define DMA_TAG(QWC,PCE,ID,IRQ,ADDR,SPR) ( \
+        ((u64)(QWC)  <<  0) | ((u64)(PCE) << 26) | \
+        ((u64)(ID)   << 28) | ((u64)(IRQ) << 31) | \
+        ((u64)(ADDR) << 32) | ((u64)(SPR) << 63))
 
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);

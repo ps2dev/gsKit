@@ -97,6 +97,11 @@
 
 #define GS_SETREG_UV(u, v) ((u64)(u) | ((u64)(v) << 16))
 
+#define GS_SETREG_BITBLTBUF(sbp, sbw, spsm, dbp, dbw, dpsm) \
+  ((u64)(sbp)         | ((u64)(sbw) << 16) | \
+  ((u64)(spsm) << 24) | ((u64)(dbp) << 32) | \
+  ((u64)(dbw) << 48)  | ((u64)(dpsm) << 56))
+
 struct gsTexture
 {
         u32     Width;
@@ -114,7 +119,7 @@ void gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
 void gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
 void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 
-void gsKit_texture_upload(GSTEXTURE *Texture);
+void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
 void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,  
 								       int x2, int y2, int u2, int v2,  

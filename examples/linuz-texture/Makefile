@@ -6,10 +6,23 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/Makefile - gsKit examples root makefile.
+# examples/basic/Makefile - Makefile for "basic" example.
 #
 
-SUBDIRS = basic textures linuz-texture
+EE_BIN  = texture.elf
+EE_OBJS = texture.o testorig.o
 
-include ../Rules.make
+all: $(EE_BIN)
 
+test: all
+	ps2client execee host:texture.elf
+
+reset: clean
+	ps2client reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+
+include ../../Makefile.pref
+include ../../Makefile.global
