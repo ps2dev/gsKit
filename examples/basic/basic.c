@@ -16,6 +16,8 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
+	GSGLOBAL gsGlobal;
+
 
 	int x = 10;
 	int y = 10;
@@ -74,8 +76,6 @@ int main(void)
 	*TriFan++ = 75;
 	*TriFan++ = 375;
 	*TriFan++ = 100;
-
-	GSGLOBAL gsGlobal;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);

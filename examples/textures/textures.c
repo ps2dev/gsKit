@@ -18,6 +18,7 @@ int main(void)
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 
 	GSGLOBAL gsGlobal;
+	GSTEXTURE Tex1;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -72,8 +73,6 @@ int main(void)
 	gsGlobal.Test.ZTST = 2;
 
 	gsKit_init_screen(&gsGlobal);
-
-	GSTEXTURE Tex1;
 
 	while(1){
 		gsKit_clear(&gsGlobal, Black);
