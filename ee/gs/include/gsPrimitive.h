@@ -32,7 +32,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, int x1, int y1, int z, u64 color);
 
 void gsKit_prim_line(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
 
-void gsKit_prim_linestrip(GSGLOBAL *gsGlobal, int LineStrip[], int segments, int z, u64 color);
+void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, int *LineStrip, int segments, int z, u64 color);
 
 void gsKit_prim_sprite(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color);
 
@@ -40,6 +40,8 @@ void gsKit_prim_triangle(GSGLOBAL *gsGlobal, int x1, int y1,
                                              int x2, int y2,
                                              int x3, int y3,
                                              int z, u64 color);
+
+void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, int *TriStrip, int segments, int z, u64 color);
 
 void gsKit_prim_triangle_gouraud(GSGLOBAL *gsGlobal, int x1, int y1,
 						     int x2, int y2,

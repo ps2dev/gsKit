@@ -21,23 +21,40 @@ int main(void)
 	int width = 150;
 	int height = 150;
 
-	int LineStrip[11];
+	int *LineStrip;
+	int *LineStripPtr;
 	int *TriStrip;
+	int *TriStripPtr;
 	int *TriFan;
 
-/*	LineStrip[0] = 75;
-	LineStrip[1] = 125;
-	LineStrip[2] = 40;
-	LineStrip[3] = 145;
-	LineStrip[4] = 50;
-	LineStrip[5] = 175;
-	LineStrip[6] = 100;
-	LineStrip[7] = 175;
-	LineStrip[8] = 110;
-	LineStrip[9] = 145;
-	LineStrip[10] = 75;
-	LineStrip[11] = 125;
-*/
+	LineStripPtr = LineStrip = malloc(12 * sizeof(int));
+	*LineStrip++ = 75;	// Segment 1 X
+	*LineStrip++ = 250;	// Segment 1 Y
+	*LineStrip++ = 125;	// Segment 2 X
+	*LineStrip++ = 290;	// Segment 2 Y
+	*LineStrip++ = 100;	// Segment 3 X
+	*LineStrip++ = 350;	// Segment 3 Y
+	*LineStrip++ = 50;	// Segment 4 X
+	*LineStrip++ = 350;	// Segment 4 Y
+	*LineStrip++ = 25;	// Segment 6 X
+	*LineStrip++ = 290;	// Segment 6 X
+	*LineStrip++ = 75;	// Segment 6 Y
+	*LineStrip++ = 250;	// Segment 6 Y
+
+        TriStripPtr = TriStrip = malloc(12 * sizeof(int));
+        *TriStrip++ = 550;
+        *TriStrip++ = 100;
+        *TriStrip++ = 525;
+        *TriStrip++ = 125;
+        *TriStrip++ = 575;
+        *TriStrip++ = 125;
+        *TriStrip++ = 550;
+        *TriStrip++ = 150;
+        *TriStrip++ = 600;
+	*TriStrip++ = 150;
+        *TriStrip++ = 575;
+        *TriStrip++ = 175;
+
 	GSGLOBAL gsGlobal;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
@@ -99,7 +116,18 @@ int main(void)
 
 		gsKit_set_test(&gsGlobal, GS_ZTEST_OFF);
 	
-//		gsKit_prim_linestrip(&gsGlobal, LineStrip, 6, 1, Black);
+		gsKit_prim_line_strip(&gsGlobal, LineStripPtr, 6, 1, Black);
+
+		gsKit_prim_triangle_strip(&gsGlobal, TriStripPtr, 6, 1, Red);
+
+		gsKit_prim_line(&gsGlobal, 525, 125, 575, 125, 1, Black);
+		gsKit_prim_line(&gsGlobal, 550, 150, 600, 100, 1, Black);
+
+		gsKit_prim_point(&gsGlobal, 575, 75, 1, Black);
+		gsKit_prim_point(&gsGlobal, 600, 100, 1, Black);
+		gsKit_prim_point(&gsGlobal, 625, 125, 1, Black);
+
+		gsKit_prim_point(&gsGlobal, 575, 175, 1, Black);
 
 		gsKit_prim_sprite(&gsGlobal, 100, 100, 200, 200, 1, Black);
 

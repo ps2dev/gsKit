@@ -103,22 +103,21 @@ void gsKit_prim_line(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 }
 
-/*
-void gsKit_prim_linestrip(GSGLOBAL *gsGlobal, int LineStrip, int segments, int z, u64 color)
+
+void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, int *LineStrip, int segments, int z, u64 color)
 {
         u64* p_store;
         u64* p_data;
         int size = 3 + segments;
 	int count;
+	int vertexdata[segments*2];
 
-	for(count = 0; count <= segments; count++)
+	for(count = 0; count < (segments * 2); count+=2)
 	{
-//		printf("Segment[%i]: X = %i\n",count,LineStrip[count]);
-	        LineStrip[count] = gsKit_scale(gsGlobal, GS_AXIS_X, LineStrip[count]);
-	        LineStrip[count] += gsGlobal->OffsetX << 4;
-//		printf("Segment[%i]: Y = %i\n",count,LineStrip[count+1]);
-		LineStrip[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, LineStrip[count+1] );
-	        LineStrip[count+1] += gsGlobal->OffsetX << 4;
+	        vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *LineStrip++);
+	        vertexdata[count] += gsGlobal->OffsetX << 4;
+	        vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *LineStrip++);
+                vertexdata[count+1] += gsGlobal->OffsetY << 4;
 	}
 		
         if( gsGlobal->PrimAlphaEnable == 1 )
@@ -135,7 +134,7 @@ void gsKit_prim_linestrip(GSGLOBAL *gsGlobal, int LineStrip, int segments, int z
                 *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
         }
         
-        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_LINE, 0, 0, gsGlobal->PrimFogEnable,
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_LINESTRIP, 0, 0, gsGlobal->PrimFogEnable,
                                     gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
                                     0, gsGlobal->PrimContext, 0) ;
         
@@ -144,15 +143,15 @@ void gsKit_prim_linestrip(GSGLOBAL *gsGlobal, int LineStrip, int segments, int z
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
 
-        for(count = 0; count <= segments; count++)
+        for(count = 0; count < (segments * 2); count+=2)
         {
-	        *p_data++ = GS_SETREG_XYZ2( LineStrip[count], LineStrip[count+1], z );
+	        *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], z );
 	        *p_data++ = GS_XYZ2;
 	}
 
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 }
-*/
+
 
 void gsKit_prim_sprite(GSGLOBAL *gsGlobal, int x1, int y1, int x2, int y2, int z, u64 color)
 {
@@ -261,6 +260,54 @@ void gsKit_prim_triangle(GSGLOBAL *gsGlobal, int x1, int y1,
         *p_data++ = GS_SETREG_XYZ2( x3, y3, z );
         *p_data++ = GS_XYZ2;
 
+        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+}
+
+void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, int *TriStrip, int segments, int z, u64 color)
+{
+        u64* p_store;
+        u64* p_data;
+        int size = 3 + segments;
+        int count;
+        int vertexdata[segments*2];
+        
+        for(count = 0; count < (segments * 2); count+=2)
+        {
+                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
+                vertexdata[count] += gsGlobal->OffsetX << 4;
+                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
+                vertexdata[count+1] += gsGlobal->OffsetY << 4;
+        }
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+                size++;
+
+        p_store = p_data = dmaKit_spr_alloc( size*16 );
+
+        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        *p_data++ = GIF_AD;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+        {
+                *p_data++ = gsGlobal->PrimAlpha;
+                *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+        }
+
+        *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 0, gsGlobal->PrimFogEnable,
+                                    gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+                                    0, gsGlobal->PrimContext, 0) ;
+
+        *p_data++ = GS_PRIM;
+
+        *p_data++ = color;
+        *p_data++ = GS_RGBAQ;
+
+        for(count = 0; count < (segments * 2); count+=2)
+        {
+                *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], z );
+                *p_data++ = GS_XYZ2;
+        }
+        
         dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
 }
 
