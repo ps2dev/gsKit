@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse-cdt version="2.0"?>
+
+<cdtproject id="org.eclipse.cdt.make.core.make">
+<extension point="org.eclipse.cdt.core.BinaryParser" id="org.eclipse.cdt.core.ELF"/>
+<data>
+<item id="org.eclipse.cdt.core.pathentry">
+<pathentry kind="src" path=""/>
+<pathentry kind="out" path=""/>
+<pathentry kind="con" path="org.eclipse.cdt.make.core.DISCOVERED_SCANNER_INFO"/>
+</item>
+<item id="cdt_indexer">
+<indexEnabled indexValue="true"/>
+<indexerProblemsEnabled indexProblemsValue="0"/>
+</item>
+<item id="org.eclipse.cdt.make.core.buildtargets">
+<buildTargets>
+<target name="Build Font" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/font">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean Font" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/font">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Test Font" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/font">
+<buildCommand>gmake</buildCommand>
+<buildTarget>test</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build gsKit" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee/gs">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean gsKit" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee/gs">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build Basic" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/basic">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Test Basic" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/basic">
+<buildCommand>gmake</buildCommand>
+<buildTarget>test</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean Basic" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples/basic">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build dmaKit" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee/dma">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean dmaKit" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee/dma">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build Examples" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean Examples" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="examples">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build All" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean All" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Console Reset" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="">
+<buildCommand>gmake</buildCommand>
+<buildTarget>reset</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Build EE" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee">
+<buildCommand>gmake</buildCommand>
+<buildTarget>all</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+<target name="Clean EE" targetID="org.eclipse.cdt.make.MakeTargetBuilder" path="ee">
+<buildCommand>gmake</buildCommand>
+<buildTarget>clean</buildTarget>
+<stopOnError>false</stopOnError>
+<useDefaultCommand>false</useDefaultCommand>
+</target>
+</buildTargets>
+</item>
+</data>
+</cdtproject>
