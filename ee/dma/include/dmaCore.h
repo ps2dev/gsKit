@@ -42,10 +42,13 @@
 #define DMA_SET_SIZE(A) \
 	(u32)((A) & 0x0000FFFF) <<  0
 
+#define DMA_CNT_TAG(COUNT)       (((unsigned long)(0x1) << 28) | COUNT)
+#define DMA_END_TAG(COUNT)       (((unsigned long)(0x7) << 28) | COUNT)
+
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
 int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
-int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
+int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data);
 
 #endif /* __DMACORE_H__ */

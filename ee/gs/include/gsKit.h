@@ -21,8 +21,8 @@
 #include "gsInit.h"
 #include "gsMisc.h"
 #include "gsCore.h"
-#include "gsTexture.h"
 #include "gsFont.h"
 #include "gsPrimitive.h"
+#include "gsTexture.h"
 
 #endif /* __GSKIT_H__ */

@@ -126,8 +126,7 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
         return 0;
 }
 
-int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data,
-                          unsigned int size)
+int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode w/Scratchpad %i - %s\n",channel, DMA_NAME[channel]);
@@ -137,7 +136,6 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
                 printf("Timed Out. Aborting Send.\n");
                 return -1;                                
         }
-        //SyncDCache(data, data+size*16);
 
 	if(DMA_QWC[channel] != 0)
 	        *(volatile u32 *)DMA_QWC[channel] = 0;

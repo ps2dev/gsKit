@@ -14,6 +14,89 @@
 
 #include "gsKit.h"
 
+#define GS_ST         0x02
+#define GS_UV         0x03
+#define GS_TEX0_1     0x06
+#define GS_TEX0_2     0x07
+#define GS_TEX1_1     0x14   
+#define GS_TEX1_2     0x15
+#define GS_TEX2_1     0x16
+#define GS_TEX2_2     0x17
+#define GS_TEXCLUT    0x1c
+#define GS_SCANMSK    0x22
+#define GS_MIPTBP1_1  0x34
+#define GS_MIPTBP1_2  0x35
+#define GS_MIPTBP2_1  0x36
+#define GS_MIPTBP2_2  0x37
+#define GS_TEXA       0x3b
+#define GS_TEXFLUSH   0x3f
+
+#define GS_SETREG_CLAMP_1 GS_SET_CLAMP
+#define GS_SETREG_CLAMP_2 GS_SET_CLAMP
+#define GS_SETREG_CLAMP(wms, wmt, minu, maxu, minv, maxv) \
+  ((u64)(wms)         | ((u64)(wmt) << 2) | \
+  ((u64)(minu) << 4)  | ((u64)(maxu) << 14) | \
+  ((u64)(minv) << 24) | ((u64)(maxv) << 34))
+
+#define GS_SETREG_COLCLAMP(clamp) ((u64)(clamp))
+
+#define GS_SETREG_MIPTBP1_1 GS_SETREG_MIPTBP1
+#define GS_SETREG_MIPTBP1_2 GS_SETREG_MIPTBP1
+#define GS_SETREG_MIPTBP1(tbp1, tbw1, tbp2, tbw2, tbp3, tbw3) \
+  ((u64)(tbp1)        | ((u64)(tbw1) << 14) | \
+  ((u64)(tbp2) << 20) | ((u64)(tbw2) << 34) | \
+  ((u64)(tbp3) << 40) | ((u64)(tbw3) << 54))
+
+#define GS_SETREG_MIPTBP2_1 GS_SETREG_MIPTBP2
+#define GS_SETREG_MIPTBP2_2 GS_SETREG_MIPTBP2
+#define GS_SETREG_MIPTBP2(tbp4, tbw4, tbp5, tbw5, tbp6, tbw6) \
+  ((u64)(tbp4)        | ((u64)(tbw4) << 14) | \
+  ((u64)(tbp5) << 20) | ((u64)(tbw5) << 34) | \
+  ((u64)(tbp6) << 40) | ((u64)(tbw6) << 54))
+
+#define GS_SETREG_TEX0_1  GS_SETREG_TEX0
+#define GS_SETREG_TEX0_2  GS_SETREG_TEX0
+#define GS_SETREG_TEX0(tbp, tbw, psm, tw, th, tcc, tfx,cbp, cpsm, csm, csa, cld) \
+  ((u64)(tbp)         | ((u64)(tbw) << 14) | \
+  ((u64)(psm) << 20)  | ((u64)(tw) << 26) | \
+  ((u64)(th) << 30)   | ((u64)(tcc) << 34) | \
+  ((u64)(tfx) << 35)  | ((u64)(cbp) << 37) | \
+  ((u64)(cpsm) << 51) | ((u64)(csm) << 55) | \
+  ((u64)(csa) << 56)  | ((u64)(cld) << 61))
+
+#define GS_SETREG_TEX1_1  GS_SETREG_TEX1
+#define GS_SETREG_TEX1_2  GS_SETREG_TEX1
+#define GS_SETREG_TEX1(lcm, mxl, mmag, mmin, mtba, l, k) \
+  ((u64)(lcm)        | ((u64)(mxl) << 2)  | \
+  ((u64)(mmag) << 5) | ((u64)(mmin) << 6) | \
+  ((u64)(mtba) << 9) | ((u64)(l) << 19) | \
+  ((u64)(k) << 32))
+
+#define GS_SETREG_TEX2_1  GS_SETREG_TEX2
+#define GS_SETREG_TEX2_2  GS_SETREG_TEX2
+#define GS_SETREG_TEX2(psm, cbp, cpsm, csm, csa, cld) \
+  (((u64)(psm) << 20) | ((u64)(cbp) << 37) | \
+  ((u64)(cpsm) << 51) | ((u64)(csm) << 55) | \
+  ((u64)(csa) << 56)  | ((u64)(cld) << 61))
+
+#define GS_SETREG_TEXA(ta0, aem, ta1) \
+  ((u64)(ta0) | ((u64)(aem) << 15) | ((u64)(ta1) << 32))
+
+#define GS_SETREG_TEXCLUT(cbw, cou, cov) \
+  ((u64)(cbw) | ((u64)(cou) << 6) | ((u64)(cov) << 12))
+
+#define GS_SETREG_TRXDIR(xdr) ((u64)(xdr))
+
+#define GS_SETREG_TRXPOS(ssax, ssay, dsax, dsay, dir) \
+  ((u64)(ssax)        | ((u64)(ssay) << 16) | \
+  ((u64)(dsax) << 32) | ((u64)(dsay) << 48) | \
+  ((u64)(dir) << 59))
+
+#define GS_SETREG_TRXREG(rrw, rrh) \
+  ((u64)(rrw) | ((u64)(rrh) << 32))
+
+#define GS_SETREG_UV(u, v) ((u64)(u) | ((u64)(v) << 16))
+
 struct gsTexture
 {
         u32     Width;
@@ -32,5 +115,10 @@ void gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
 void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 
 void gsKit_texture_upload(GSTEXTURE *Texture);
+
+void gsKit_prim_sprite_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int x1, int y1, int u1, int v1,  
+								       int x2, int y2, int u2, int v2,  
+								       int z, u64 color);
+
 
 #endif /* __GSTEXTURE_H__ */
