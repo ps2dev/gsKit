@@ -1,0 +1,36 @@
+#  ____     ___ |    / _____ _____
+# |  __    |    |___/    |     |
+# |___| ___|    |    \ __|__   |     gsKit Open Source Project.
+# ----------------------------------------------------------------------
+# Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>
+# Licenced under Academic Free License version 2.0
+# Review gsKit README & LICENSE files for further details.
+
+This is an overview of the current project status.
+
+This project has 6 major components:
+
+gsCore - A complete implimentation of every GS instruction.
+         This is really a C interface to what would otherwise
+	 be done in assembler. The rest of gsKit impliments this.
+gsFont - Font handling, conversion, and printing routines.
+gsInit - GS initialization and configuration routines.
+gsMisc - Miscellaneous routines that do not fit anywhere else.
+gsPrimitive - Primitive creation, manipulation, and handling routines.
+gsTexture - Texture loading, manipulation, and handling routines.
+
+ _____________________________________________________________
+| Component   | Comment                                 |  %  |
+|-------------------------------------------------------------|
+| gsCore      | Needs to be stubbed out.                | 0%  |
+|-------------------------------------------------------------|
+| gsInit      | Needs to be stubbed out.                | 0%  |
+|-------------------------------------------------------------|
+| gsMisc      | Nothing here yet.                       | N/A |
+|-------------------------------------------------------------|
+| gsPrimitive | Needs to be stubbed out.                | 0%  |
+|-------------------------------------------------------------|
+| gsTexture   | Needs to be stubbed out.                | 0%  |
+|-------------------------------------------------------------|
+
+Contributors: Please do not modify this file without letting the others know what's going on. Please document your changes in the ChangeLog instead.

@@ -1,0 +1,57 @@
+  ____     ___ |    / _____ _____
+ |  __    |    |___/    |     |
+ |___| ___|    |    \ __|__   |              gsKit Open Source Project.
+ -----------------------------------------------------------------------
+ Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>.
+ All rights reserved.
+ Licenced under Academic Free License version 2.0
+ -----------------------------------------------------------------------
+
+ Introduction
+ -----------------------------------------------------------------------
+
+ gsKit is a library that provides a C interface to the Playstation 2
+ Graphics Synthesizer. It is low level in nature, implimented using the
+ PS2SDK and inline assembly. This project does not aim to be all
+ inclusive, rather a "lean and mean" interface to the GS hardware.
+
+ The following list is of things that, when complete, gsKit will be capable
+ of when it reaches it's mature stages. It is currently in the early
+ stages of development. Read the STATUS file for detailed information.
+
+ gsKit aims to provide the following functionality:
+ 
+ - Multi format GS initialization. (NTSC, PAL, DTV, VESA)
+ - VSync, Double Buffering, Anti Aliasing, and Z Depth Test.
+ - Overlay and multi-context support utilizing the "Merge Circuit".
+ - Basic primitives as per the Sony documentation. (Line, Tri, TriStrip, ...)
+ - Extended primitives support. (Quads and GL Style Vertex Lists)
+ - Simple texture loading and handling.
+ - Font and printing support for FNT and TrueType formats.
+ - GS debugging and diagnostic functionality.
+ - C accessibility of all documented GS instructions.
+
+ This library is designed for intergration into the PS2SDK when it 
+ becomes mature. As such, it is also designed to link and compile
+ against the PS2SDK. Support for PS2LIB and other support libraries is
+ untested.
+
+ Project Layout
+ -----------------------------------------------------------------------
+
+ A source or binary release of gsKit will include the following
+ directories:
+
+ gsKit/include		- gsKit include files.
+ gsKit/lib		- gsKit compiled libraries.
+ gsKit/doc		- gsKit documentation.
+ gsKit/src		- gsKit source files.
+ gsKit/examples		- Example projects demonstrating use of gsKit.
+
+ Feedback & Questions
+ -----------------------------------------------------------------------
+
+ You can usually find the developers on EFnet in the channel #ps2dev. You
+ can also use the forums at http://forums.ps2dev.org, or optionally use
+ the CVS mailing list at http://www.topica.com/lists/ps2cvs.
+

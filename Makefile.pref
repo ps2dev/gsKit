@@ -1,0 +1,30 @@
+#  ____     ___ |    / _____ _____
+# |  __    |    |___/    |     |
+# |___| ___|    |    \ __|__   |     gsKit Open Source Project.
+# ----------------------------------------------------------------------
+# Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>
+# Licenced under Academic Free License version 2.0
+# Review gsKit README & LICENSE files for further details.
+#
+# Makefile.pref - Local path definitions.
+#
+
+####################################################
+# Change the settings, so they match yours
+####################################################
+
+include $(PS2SDKSRC)/Defs.make
+
+PS2DEV = /usr/local/ps2dev
+
+PS2SDKSRC = /usr/Projects/PS2Dev/ps2sdk-cvs
+GSKIT = /usr/Projects/PS2Dev/gsKit
+
+GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.2
+CPPLIB = $(PS2DEV)/ee/ee/lib
+
+LIBGSKIT = $(GSKIT)/lib/libgskit.a
+
+# Playstation 2 IP Address (For testing with ps2client)
+PS2IP = 192.168.0.10
+
