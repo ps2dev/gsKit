@@ -19,10 +19,10 @@
 #include "dmaKit.h"
 
 #include "gsInit.h"
-#include "gsCore.h"
-#include "gsFont.h"
 #include "gsMisc.h"
-#include "gsPrimitive.h"
+#include "gsCore.h"
 #include "gsTexture.h"
+#include "gsFont.h"
+#include "gsPrimitive.h"
 
 #endif /* __GSKIT_H__ */

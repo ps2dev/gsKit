@@ -53,6 +53,8 @@
 #define GS_PSM_CT24 0x01
 #define GS_PSM_CT16 0x02
 #define GS_PSM_CT16S 0x0A
+#define GS_PSM_T8 0x13
+#define GS_PSM_T4 0x14
 
 #define GS_PSMZ_32 0x00
 #define GS_PSMZ_24 0x01

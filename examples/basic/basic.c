@@ -103,7 +103,8 @@ int main(void)
 	gsGlobal.Height = 448;
 	gsGlobal.OffsetX = 2048;
 	gsGlobal.OffsetY = 2048;
-	gsGlobal.StartX = -5;
+//	gsGlobal.StartX = -100;
+	gsGlobal.StartX = 0;
 	gsGlobal.StartY = -5;
 	gsGlobal.PSM = GS_PSM_CT16;
 	gsGlobal.PSMZ = GS_PSMZ_16;

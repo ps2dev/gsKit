@@ -14,4 +14,23 @@
 
 #include "gsKit.h"
 
+struct gsTexture
+{
+        u32     Width;
+        u32     Height;
+        u32     PSM;
+        void    *Mem;
+        u32     *Clut;
+        u32     Vram;
+        u32     VramClut;
+};
+typedef struct gsTexture GSTEXTURE;
+
+void gsKit_texture_png(GSTEXTURE *Texture, char *Path);
+void gsKit_texture_jpeg(GSTEXTURE *Texture, char *Path);
+void gsKit_texture_tga(GSTEXTURE *Texture, char *Path);
+void gsKit_texture_rgb(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
+
+void gsKit_texture_upload(GSTEXTURE *Texture);
+
 #endif /* __GSTEXTURE_H__ */

@@ -42,7 +42,9 @@ dmaInit - DMA Initilization routines.
 | dmaInit     | Completed.                              | 100% |
 |--------------------------------------------------------------|
 
-Contributors: Please do not modify this file without letting the others know what's going on. Please document your changes in the ChangeLog instead.
+Contributors: Please do not modify this file without letting the others 
+	      know what's going on. Please document your changes in the 
+	      ChangeLog instead.
 
 BUGS:
 	* Scaling for DTV/VGA/DVD modes untested.
