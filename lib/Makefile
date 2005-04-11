@@ -9,10 +9,15 @@
 # lib/Makefile - gsKit lib/ Makefile.
 #
 
-all: dummy
+all:
 
 clean:
 	rm -f libgskit.a
 	rm -f libdmakit.a
 
-include ../Rules.make
+install:
+	mkdir -p $(GSKIT)/lib
+	cp libgskit.a libdmakit.a $(GSKIT)/lib
+
+include ../Makefile.global
+include ../Makefile.pref

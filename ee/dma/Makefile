@@ -9,7 +9,7 @@
 # ee/gs/Makefile - gsKit dma root makefile.
 #
 
-SUBDIRS = src
+SUBDIRS = src include
 
 include ../../Rules.make
 

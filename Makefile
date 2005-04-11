@@ -9,8 +9,12 @@
 # Makefile - gsKit root makefile.
 #
 
-ifeq (x$(GSKIT), x)
-GSKIT=`pwd`
+ifneq (x$GSKIT), x)
+GSKITSRC=$(GSKIT)
+endif
+
+ifeq (x$(GSKITSRC), x)
+GSKITSRC=`pwd`
 endif
 
 SUBDIRS = ee examples lib

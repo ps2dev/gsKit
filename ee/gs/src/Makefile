@@ -6,7 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# ee/gs/srcMakefile - gsKit gs makefile.
+# ee/gs/src/Makefile - gsKit gs makefile.
 #
 
 EE_OBJS = 	gsCore.o \
@@ -21,6 +21,8 @@ all: $(EE_OBJS)
 
 clean:
 	rm -f $(EE_OBJS)
+
+install:
 
 include ../../../Makefile.pref
 include ../../../Makefile.global

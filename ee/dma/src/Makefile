@@ -6,7 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# ee/gs/srcMakefile - gsKit gs makefile.
+# ee/dma/src/Makefile - gsKit dma makefile.
 #
 
 EE_OBJS = 	dmaCore.o \
@@ -20,6 +20,8 @@ all: $(EE_OBJS)
 
 clean:
 	rm -f $(EE_OBJS)
+
+install:
 
 include ../../../Makefile.pref
 include ../../../Makefile.global

@@ -9,7 +9,7 @@
 # Makefile.global - Makefile global variable include.
 #
 
-include $(GSKIT)/ee/Rules.make
+include $(GSKITSRC)/ee/Rules.make
 
 ifdef LIBJPG
 	EE_INCS += -I$(LIBJPG)/include
@@ -23,10 +23,10 @@ else
 endif
 
 # include dir
-EE_INCS += -I$(GSKIT)/ee/gs/include  -I$(GSKIT)/ee/dma/include -I$(GCCLIB)/include -I$(PS2GDB)/ee
+EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include -I$(GCCLIB)/include -I$(PS2GDB)/ee
 EE_CFLAGS += -fno-builtin-printf
 
 # linker flags
-EE_LIB_DIRS += -L$(GSKIT)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
+EE_LIB_DIRS += -L$(GSKITSRC)/lib -L$(GCCLIB) -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
 
