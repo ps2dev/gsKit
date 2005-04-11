@@ -15,9 +15,9 @@ clean: $(subdir_clean)
 
 ifdef SUBDIRS
 $(subdir_list): dummy
-	$(MAKE) -C $(patsubst all-%,%,$@)
+	GSKIT=$(GSKIT) $(MAKE) -C $(patsubst all-%,%,$@)
 $(subdir_clean): dummy
-	$(MAKE) -C $(patsubst clean-%,%,$@) clean
+	GSKIT=$(GSKIT) $(MAKE) -C $(patsubst clean-%,%,$@) clean
 endif
 
 # Default rule for clean.

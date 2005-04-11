@@ -9,6 +9,10 @@
 # Makefile - gsKit root makefile.
 #
 
+ifeq (x$(GSKIT), x)
+GSKIT=`pwd`
+endif
+
 SUBDIRS = ee examples lib
 
 include Rules.make
