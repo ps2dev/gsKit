@@ -388,7 +388,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 232;
 		gsGlobal->StartY = 35;
 		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 0;
+		gsGlobal->MagY = 1;
 	}
 	else if(mode == GS_MODE_DTV_720P)
 	{
@@ -399,10 +399,10 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1280;
 		gsGlobal->Height = 720;
-		gsGlobal->StartX = 302;
-		gsGlobal->StartY = 24;
+		gsGlobal->StartX = 355;
+		gsGlobal->StartY = 40;
 		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 0;
+		gsGlobal->MagY = 1;
 	}
 	else if(mode == GS_MODE_DTV_1080I)
 	{
@@ -413,10 +413,10 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1920;
 		gsGlobal->Height = 1080;
-		gsGlobal->StartX = 238;
-		gsGlobal->StartY = 40;
+		gsGlobal->StartX = 300;
+		gsGlobal->StartY = 60;
 		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 0;
+		gsGlobal->MagY = 1;
 	}
 	else 
 	{
