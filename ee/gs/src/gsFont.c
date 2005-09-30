@@ -65,25 +65,37 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 			printf("Error uploading font bmp!\n");
 			return -1;
 		}
-		int File = fioOpen(gsFont->Path_DAT, O_RDONLY);
-		fioLseek(File, 0, SEEK_SET);
-		gsFont->Additional=malloc( 0x100 );
-	        if(fioRead(File, gsFont->Additional, 0x100) <= 0)
-	        {
-	                printf("Could not load font sizes: %s\n", gsFont->Path_DAT);
-	                return -1;
-	        }
-	        fioClose(File);
 
 		gsFont->HChars=16;
 		gsFont->VChars=16;
 		gsFont->CharWidth = gsFont->Texture->Width / 16;
 		gsFont->CharHeight = gsFont->Texture->Height / 16;
 
+		int File = fioOpen(gsFont->Path_DAT, O_RDONLY);
+		gsFont->Additional=malloc( 0x100 );
+		if (File > 0)
+		{
+			fioLseek(File, 0, SEEK_SET);
+			if(fioRead(File, gsFont->Additional, 0x100) <= 0)
+			{
+				printf("Could not load font sizes: %s\n", gsFont->Path_DAT);
+				return -1;
+			}
+			fioClose(File);
+		}
+		else
+		{
+			int i;
+			for (i = 0; i < 0x100; i++)
+			{
+				gsFont->Additional[i] = gsFont->CharWidth;
+			}
+		}
+
 		return 0;
 	}
 	else if( gsFont->Type == GSKIT_FTYPE_FONTM )
-        {
+	{
 //		gsKit_fontm_unpack(gsFont);
 		return 0;
 	}
@@ -121,7 +133,7 @@ void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z,
 				charsiz=gsFont->Additional[(u8)c];
 
 				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, cx, cy, 
-					px*gsFont->CharWidth, py*gsFont->CharHeight, 
+					px*gsFont->CharWidth+1, py*gsFont->CharHeight+1, 
 					cx+gsFont->CharWidth, cy+gsFont->CharHeight, 
 					(px+1)*gsFont->CharWidth, (py+1)*gsFont->CharHeight, 
 					Z, color);

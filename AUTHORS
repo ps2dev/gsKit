@@ -15,6 +15,7 @@ Neovanglist | Chris Gilbert     | Neovanglist@LainOS.org
 linuzappz   | Not Disclosed     | linuzappz@pcsx2.net
 Hago @ gmx  | Not Disclosed     | Not Disclosed
 Pixel       | Not Disclosed     | Not Disclosed
+yulius      | Not Disclosed     | Not Disclosed
 
 People that I'd like to thank, and why:
 
@@ -35,5 +36,9 @@ Pixel - Tons of help with fontm and other various workings!
 adresd - Help with fontm, and code samples.
 
 Hajo - BMP/DAT font support, and some PAL/NonInterlaced Fixes.
+
+yulius - Font support stuffs!
+
+gawd^ - Using gsKit a lot, getting my butt in gear to fix bugs, and the fb demo!
 
 And everyone else from the PS2 Dev community! Thanks!

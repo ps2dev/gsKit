@@ -6,7 +6,7 @@
 // Licenced under Academic Free License version 2.0
 // Review gsKit README & LICENSE files for further details.
 //
-// basic.c - Example demonstrating basic gsKit operation.
+// texture.c - Example demonstrating CLUT texture operation.
 //
 
 #include "gsKit.h"

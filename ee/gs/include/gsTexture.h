@@ -31,6 +31,10 @@
 #define GS_TEXA       0x3b
 #define GS_TEXFLUSH   0x3f
 
+#define GS_CLUT_NONE	0x00
+#define GS_CLUT_PALLETE 0x01
+#define GS_CLUT_TEXTURE 0x02
+
 #define GS_SETREG_COLCLAMP(clamp) ((u64)(clamp))
 
 #define GS_SETREG_MIPTBP1_1 GS_SETREG_MIPTBP1
@@ -98,25 +102,36 @@
 struct gsBitMapFileHeader
 {
 	u16	Type;
-	u32	Offset;
-};
+	u32	Size;
+	u16 Reserved1;
+	u16 Reserved2;
+	u32 Offset;
+} __attribute__ ((packed));
 typedef struct gsBitMapFileHeader GSBMFHDR;
 
 struct gsBitMapInfoHeader
 {
-        u32	Size;
-        u32	Width;
-        u32	Height;
-        u16	PSM;
-};
+	u32	Size;
+	u32	Width;
+	u32	Height;
+	u16	Planes;
+	u16 BitCount;
+	u32 Compression;
+	u32 SizeImage;
+	u32 XPelsPerMeter;
+	u32 YPelsPerMeter;
+	u32 ColorUsed;
+	u32 ColorImportant;
+} __attribute__ ((packed));
 typedef struct gsBitMapInfoHeader GSBMIHDR;
 
 struct gsBitMapClut
 {
-	u8	Red;
-	u8	Green;
-	u8	Blue;
-};
+	u8 Blue;
+	u8 Green;
+	u8 Red;
+	u8 Alpha;
+} __attribute__ ((packed));
 typedef struct gsBitMapClut GSBMCLUT;
 
 struct gsBitmap
@@ -124,7 +139,7 @@ struct gsBitmap
 	GSBMFHDR FileHeader;
 	GSBMIHDR InfoHeader;
 	char *Texture;
-//	GSBMCLUT Clut[];
+	GSBMCLUT *Clut;
 };
 typedef struct gsBitmap GSBITMAP;
 
@@ -141,7 +156,7 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 
 u32  gsKit_texture_size(int width, int height, int psm);
-void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 psm);
+void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u8 clut);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float z1, float u1, float v1,

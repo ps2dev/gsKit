@@ -6,7 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/basic/Makefile - Makefile for "basic" example.
+# examples/linux-texture/Makefile - Example demonstrating CLUT texture operation.
 #
 
 EE_BIN  = texture.elf

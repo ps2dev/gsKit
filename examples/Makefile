@@ -9,7 +9,7 @@
 # examples/Makefile - gsKit examples root makefile.
 #
 
-SUBDIRS = basic textures linuz-texture font
+SUBDIRS = basic textures linuz-texture font fb
 
 include ../Rules.make
 

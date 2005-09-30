@@ -18,6 +18,21 @@
 #include <libjpg.h>
 #endif
 
+static int log( int Value )
+{
+  int r = 0;
+
+  Value--;
+
+  while( Value > 0 )
+  {
+    Value = Value >> 1;
+    r++;
+  }
+
+  return r;
+}
+
 u32  gsKit_texture_size(int width, int height, int psm)
 {
 	switch (psm) {
@@ -47,67 +62,79 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	u32 FTexSize;
 	u8  *image;
 	u8  *p;
+
 	int File = fioOpen(Path, O_RDONLY);
-	fioLseek(File, 0, SEEK_SET);
-        if(fioRead(File, &Bitmap.FileHeader.Type, 2) <= 0)
-        {
-                printf("Could not load bitmap: %s\n", Path);
-                return -1;
-        }
-	if( Bitmap.FileHeader.Type != 19778 )
+	if (fioRead(File, &Bitmap.FileHeader, sizeof(Bitmap.FileHeader)) <= 0)
 	{
-		printf("This Bitmap File May Be Invaid. Invalid Type.\n");
+		printf("Could not load bitmap: %s\n", Path);
 		return -1;
 	}
-	fioLseek(File, 10, SEEK_SET);
-        if(fioRead(File, &Bitmap.FileHeader.Offset, 4) <= 0)
-        {
-                printf("Could not load bitmap: %s\n", Path);
-                return -1;
-        }
-
-	fioLseek(File, 18, SEEK_SET);
-        if(fioRead(File, &Bitmap.InfoHeader.Width, 4) <= 0)
-        {
-                printf("Could not load bitmap: %s\n", Path);
-                return -1;
-        }
-        if(fioRead(File, &Bitmap.InfoHeader.Height, 4) <= 0)
-        {
-                printf("Could not load bitmap: %s\n", Path);
-                return -1;
-        }
-	fioLseek(File, 28, SEEK_SET);
-        if(fioRead(File, &Bitmap.InfoHeader.PSM, 2) <= 0)
-        {
-                printf("Could not load bitmap: %s\n", Path);
-                return -1;
-        }
+		
+	if (fioRead(File, &Bitmap.InfoHeader, sizeof(Bitmap.InfoHeader)) <= 0)
+	{
+		printf("Could not load bitmap: %s\n", Path);
+		return -1;
+	}
 
 	Texture->Width = Bitmap.InfoHeader.Width;
 	Texture->Height = Bitmap.InfoHeader.Height;
 	Texture->Filter = GS_FILTER_NEAREST;
 
-	if(Bitmap.InfoHeader.PSM == 4)
+	if(Bitmap.InfoHeader.BitCount == 4)
 	{
 		Texture->PSM = GS_PSM_T4;
 		printf("NOTICE: GS_PSM_T4\n");
-		// TODO: Do CLUT Stuff.
 	}
-        else if(Bitmap.InfoHeader.PSM == 8)
-        {
-                Texture->PSM = GS_PSM_T8;
+	else if(Bitmap.InfoHeader.BitCount == 8)
+    {
+		Texture->PSM = GS_PSM_T8;
+		Texture->Clut = malloc(256*sizeof(long));
+
+		memset(Texture->Clut, 0, sizeof(long)*256);
+		Texture->VramClut = gsKit_vram_alloc(gsGlobal, 256*sizeof(long));
+		fioLseek(File, 54, SEEK_SET);
+		if(fioRead(File, Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(long)) <= 0)
+		{
+			printf("Could not load bitmap: %s\n", Path);
+			return -1;
+		}
+
+		GSBMCLUT *clut = (GSBMCLUT *)Texture->Clut;
+		int i;
+		for (i = Bitmap.InfoHeader.ColorUsed; i < 256; i++)
+		{
+			memset(&clut[i], 0, sizeof(clut[i]));
+		}
+
+		for (i = 0; i < 256; i++)
+		{
+			u8 tmp = clut[i].Blue;
+			clut[i].Blue = clut[i].Red;
+			clut[i].Red = tmp;
+			clut[i].Alpha = 0;
+		}
+
+		// rotate clut
+		for (i = 0; i < 256; i++)
+		{
+			if ((i&0x18) == 8)
+			{
+				GSBMCLUT tmp = clut[i];
+				clut[i] = clut[i+8];
+				clut[i+8] = tmp;
+			}
+		}
+
 		printf("NOTICE: GS_PSM_T8\n");
-                // TODO: Do CLUT Stuff.
-        }
-        else if(Bitmap.InfoHeader.PSM == 16)
-        {
-                Texture->PSM = GS_PSM_CT16;
-        }
-        else if(Bitmap.InfoHeader.PSM == 24)
-        {
-                Texture->PSM = GS_PSM_CT24;
-        }
+	}
+	else if(Bitmap.InfoHeader.BitCount == 16)
+    {
+		Texture->PSM = GS_PSM_CT16;
+	}
+	else if(Bitmap.InfoHeader.BitCount == 24)
+    {
+		Texture->PSM = GS_PSM_CT24;
+	}
 
 	FTexSize = fioLseek(File, 0, SEEK_END);
 	FTexSize -= Bitmap.FileHeader.Offset;
@@ -119,8 +146,8 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Mem = malloc(TextureSize);
 
 	// Shouldn't we just always be doing this?
-        //if(Bitmap.InfoHeader.PSM == 24)
-        //{
+	if(Bitmap.InfoHeader.BitCount == 24)
+	{
 		image = malloc(FTexSize);
 		if (image == NULL) return -1;
 		fioRead(File, image, FTexSize);
@@ -133,11 +160,33 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			}
 		}
 		free(image);
-        //} else {
-	//	fioRead(File, Texture->Mem, TextureSize);
-	//}
+	}
+	else if(Bitmap.InfoHeader.BitCount == 16)
+	{
+		printf("16-bit BMP not supported yet.\n");
+	}
+	else if(Bitmap.InfoHeader.BitCount == 8)
+	{
+		//fioRead(File, Texture->Mem, FTexSize);
+		char *tex = Texture->Mem;
+		image = malloc(FTexSize);
+		fioRead(File, image, FTexSize);
+		for (y=Texture->Height-1; y>=0; y--) 
+		{
+			memcpy(&tex[y*Texture->Width], &image[(Texture->Height-y-1)*Texture->Width], Texture->Width);
+		}
+		free(image);
+	}
+	else if(Bitmap.InfoHeader.BitCount == 4)
+	{
+		printf("16-bit BMP not supported yet.\n");
+	}
+	else
+	{
+		printf("Unknown BMP bit depth format %d\n", Bitmap.InfoHeader.BitCount);
+	}
 
-        fioClose(File);
+	fioClose(File);
 
 	Texture->Vram = gsKit_vram_alloc(gsGlobal, TextureSize);
 	if(Texture->Vram == GSKIT_ALLOC_ERROR)
@@ -356,7 +405,7 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	return 0;
 }
 
-void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 psm)
+void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u8 clut)
 {
 	u64* p_store;
 	u64* p_data;
@@ -364,6 +413,7 @@ void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 p
 	int packets;
 	int remain;
 	int qwc;
+	int p2width;
 
 	qwc = gsKit_texture_size(width, height, psm) / 16;
 	if( gsKit_texture_size(width, height, psm) % 16 )
@@ -389,8 +439,36 @@ void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 p
 	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 
-//	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, fbw/64, psm);
-	*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, width/64, psm);
+	if(clut == GS_CLUT_PALLETE)
+	{	if(width/64 > 0)
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, 1, psm);
+		else
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, 1, psm);
+	}
+	else if(clut == GS_CLUT_TEXTURE)
+	{
+		if(width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (width > p2width);
+
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, (p2width/128)*2, psm);
+		}
+		else
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, 2, psm);
+	}
+	else
+	{
+		if(width/64 > 0)
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, width/64, psm);
+		else
+			*p_data++ = GS_SETREG_BITBLTBUF(0, 0, 0, tbp/256, 1, psm);
+	}
+
 	*p_data++ = GS_BITBLTBUF;
 
 	*p_data++ = GS_SETREG_TRXPOS(0, 0, 0, 0, 0);
@@ -427,36 +505,27 @@ void gsKit_texture_send(u32 *mem, int fbw, int width, int height, u32 tbp, u32 p
 	dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
 
 	if(dmaKit_wait( DMA_CHANNEL_GIF, 0 ) == -1)
-		printf("WTF THIS IS FUXXXXXX0R\n");
+		printf("FATAL: DMA WAIT TIMEOUT - THIS IS IMPOSSIBLE.\n");
 
 }
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 {
-	if (Texture->PSM == GS_PSM_T8) {
-		gsKit_texture_send(Texture->Clut, gsGlobal->Width, 16, 16, Texture->VramClut, 0);
+	if (Texture->PSM == GS_PSM_T8)
+	{
+		gsKit_texture_send(Texture->Clut, 16, 16, Texture->VramClut, GS_PSM_CT32, GS_CLUT_PALLETE);
+		gsKit_texture_send(Texture->Mem, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM, GS_CLUT_TEXTURE);
 	}
-	if (Texture->PSM == GS_PSM_T4) {
-		gsKit_texture_send(Texture->Clut, gsGlobal->Width,  8,  2, Texture->VramClut, 0);
+	else if (Texture->PSM == GS_PSM_T4)
+	{
+		gsKit_texture_send(Texture->Clut, 8,  2, Texture->VramClut, GS_PSM_CT32, GS_CLUT_PALLETE);
+		gsKit_texture_send(Texture->Mem, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM, GS_CLUT_TEXTURE);
 	}
-	gsKit_texture_send(Texture->Mem, gsGlobal->Width, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM);
+	else
+	{
+		gsKit_texture_send(Texture->Mem, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM, GS_CLUT_NONE);
+	}
 }
-
-static int log( int Value )
-{
-  int r = 0;
-  
-  Value--;
-
-  while( Value > 0 )
-  {
-    Value = Value >> 1;
-    r++;
-  }
-  
-  return r;
-}
-
 
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
 				float x1, float y1, float z1, float u1, float v1,
@@ -465,6 +534,7 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         u64* p_store;
         u64* p_data;
         int size = 9;
+	int p2width;
 
 	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -485,11 +555,44 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
-        
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -533,6 +636,7 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         u64* p_store;
         u64* p_data;
         int size = 11;
+	int p2width;
 
 	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
 	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -559,10 +663,43 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -612,6 +749,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         int size = 5 + (segments * 2);
         int count;
         int vertexdata[segments*4];
+	int p2width;
  
         for(count = 0; count < (segments * 4); count+=4)
         {
@@ -630,10 +768,43 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -674,6 +845,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
         int size = 5 + (segments * 2);
         int count;
         int vertexdata[segments*5];
+	int p2width;
  
         for(count = 0; count < (segments * 5); count+=5)
         {
@@ -692,10 +864,43 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -736,6 +941,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         int size = 5 + (verticies * 2);
         int count;
         int vertexdata[verticies*4];
+	int p2width;
  
         for(count = 0; count < (verticies * 4); count+=4)
         {
@@ -754,10 +960,43 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -798,6 +1037,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         int size = 5 + (verticies * 2);
         int count;
         int vertexdata[verticies*5];
+	int p2width;
  
         for(count = 0; count < (verticies * 5); count+=5)
         {
@@ -816,10 +1056,43 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
@@ -861,6 +1134,7 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         u64* p_store;
         u64* p_data;
         int size = 13;
+	int p2width;
 
         int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
         int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
@@ -895,10 +1169,43 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
         *p_data++ = GIF_AD;
         
-//        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, gsGlobal->Width/64, Texture->PSM,
-        *p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
-                                   log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
-                                   Texture->VramClut/256, 0, 0, 0, 1);
+	if(Texture->VramClut == 0)
+	{
+		if(Texture->Width/64 > 0)
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->Width/64, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 1, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				0, 0, 0, 0, 1);
+		}
+	}
+	else
+	{
+		if(Texture->Width/128 > 0)
+		{
+			p2width = 1;
+			do
+			{
+				p2width <<= 1;
+			}
+			while (Texture->Width > p2width);
+
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, (p2width/128)*2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+		else
+		{
+			*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, 2, Texture->PSM,
+				log(Texture->Width), log(Texture->Height), gsGlobal->PrimAlphaEnable, 0,
+				Texture->VramClut/256, 0, 0, 0, 1);
+		}
+	}
         *p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
 	*p_data++ = GS_SETREG_TEX1(0, 0, Texture->Filter, Texture->Filter, 0, 0, 0);
