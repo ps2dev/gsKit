@@ -13,6 +13,20 @@
 
 #include "gsKit.h"
 
+int gsKit_detect_signal(void)
+{
+	if (*(volatile char *)(0x1FC7FF52) == 'E')
+	{
+		/* PAL (SCEE) detected */
+		return GS_MODE_PAL;
+	}
+	else
+	{
+		/* rest of the world is NTSC */
+		return GS_MODE_NTSC;
+	}
+}
+
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
@@ -20,11 +34,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	u8 Mode = 0;
 	int	fbHeight = 0;
 	int	size;
-	
-	if(gsGlobal->ZBuffering == GS_SETTING_ON)
-		size = 15;
-	else
-		size = 13;
+
+	size = (gsGlobal->ZBuffering == GS_SETTING_ON) ? 15 : 13;	
 
 	if(!gsGlobal->Setup)
 	{
@@ -225,6 +236,17 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	/* Generic Values */
 	gsGlobal->Setup = 0;
 	gsGlobal->Aspect = GS_ASPECT_4_3;
+
+	/* Auto-detect signal if needed */
+	if(mode == GS_MODE_AUTO)
+	{
+		mode = gsKit_detect_signal();
+	}
+	else if(mode == GS_MODE_AUTO_I)
+	{
+		int m = gsKit_detect_signal();
+		mode = (m == GS_MODE_NTSC) ? GS_MODE_NTSC_I : GS_MODE_PAL_I;
+	}
 
 	if(mode == GS_MODE_NTSC)
 	{

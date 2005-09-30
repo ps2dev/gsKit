@@ -36,6 +36,11 @@
 /// PAL Half Buffer
 #define GS_MODE_PAL_I 0x05
 
+/// Auto-detect Full Buffer
+#define GS_MODE_AUTO  0x06
+/// Auto-detect Half Buffer
+#define GS_MODE_AUTO_I 0x07
+
 /// 4:3 Aspect Ratio (UNUSED)
 #define GS_ASPECT_4_3 0x0
 /// 16:9 Aspect Ratio (UNUSED)
@@ -568,6 +573,8 @@ typedef struct gsRegisters GSREG __attribute__((packed));
 extern "C" {
 #endif
 
+/// Detect signal (returns GS_MODE_NTSC or GS_MODE_PAL)
+int gsKit_detect_signal();
 /// Initialize Screen and GS Registers
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 /// Initialize gsGlobal
