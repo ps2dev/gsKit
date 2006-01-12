@@ -51,5 +51,4 @@ Contributors: Please do not modify this file without letting the others
 
 BUGS:
 	* Scaling for DTV/DVD modes untested. (480p tested and working)
-	* Strange 8bit bug... see examples/fb
 

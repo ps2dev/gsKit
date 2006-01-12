@@ -139,7 +139,10 @@ int main(int argc, char *argv[])
 	/* initialize screen */
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
-	gsGlobal->DoubleBuffering = GS_SETTING_OFF; /* only one screen */
+//	If we disable double buffering, we can't fill the frame fast enough.
+//	When this happens, we get a line through the top texture about 20% up
+//	from the bottom of the screen.
+//	gsGlobal->DoubleBuffering = GS_SETTING_OFF; /* only one screen */
 	gsKit_init_screen(gsGlobal);
 
 	fb.Width = 320;
