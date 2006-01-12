@@ -654,7 +654,7 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         
         *p_data++ = color;
         *p_data++ = GS_RGBAQ;
-        
+
         *p_data++ = GS_SETREG_UV( iu1, iv1 );
         *p_data++ = GS_UV;
 

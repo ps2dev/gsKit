@@ -55,8 +55,8 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 	gsGlobal->ActiveBuffer ^= 1;
 	gsGlobal->PrimContext ^= 1;
 
-//	gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
-	gsGlobal->EvenOrOdd ^= 1;
+	gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
+//	gsGlobal->EvenOrOdd ^= 1;
 //	printf("EvenOrOdd = %d\n",  gsGlobal->EvenOrOdd);
 
 	gsKit_setactive(gsGlobal);

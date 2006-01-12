@@ -50,6 +50,6 @@ Contributors: Please do not modify this file without letting the others
 	      ChangeLog instead.
 
 BUGS:
-	* Scaling for DTV/DVD modes untested.
+	* Scaling for DTV/DVD modes untested. (480p tested and working)
 	* Strange 8bit bug... see examples/fb
-	* Strange missing lines of vertical resolution in some textures...	
+

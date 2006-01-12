@@ -22,7 +22,12 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 	}
 	else if(axis == GS_AXIS_Y)
 	{
-		vertex = vertex / 2;
+		if(gsGlobal->Field == GS_FRAME)
+		{
+			vertex = vertex / 2;
+			if(!gsGlobal->EvenOrOdd)
+				vertex += 0.5;
+		}
 
 		result = (int)(vertex * 16.0f);
 		result += gsGlobal->OffsetY << 4;

@@ -16,7 +16,8 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // Half Buffers
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.
 	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;

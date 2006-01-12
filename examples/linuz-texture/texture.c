@@ -19,7 +19,7 @@ extern unsigned char  image_pixel[];
 
 int main(void)
 {
-	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
+	u64 White, Black;
 	GSTEXTURE tex;
 	GSTEXTURE tex8;
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
@@ -32,17 +32,10 @@ int main(void)
 
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
-	Red = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x00,0x00);
-	Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
-	Blue = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x00,0x00);
 
-	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
-	RedTrans = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x60,0x00);
-	GreenTrans = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x50,0x00);
-	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
+	gsGlobal->PSM = GS_PSM_CT24;
 
-	gsGlobal->PSM = GS_PSM_CT32;
-	gsGlobal->Test->ZTE = 0;
+	gsGlobal->ZBuffering = GS_SETTING_OFF;
 
 	gsKit_init_screen(gsGlobal);
 
@@ -50,7 +43,7 @@ int main(void)
 	tex.Height = 256;
 	tex.PSM = GS_PSM_CT24;
 	tex.Mem = testorig;
-	tex.Vram = 0x2000*256;
+	tex.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(tex.Width, tex.Height, tex.PSM), GSKIT_ALLOC_USERBUFFER);
 	tex.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex);
 
@@ -58,10 +51,10 @@ int main(void)
 	tex8.Height = 256;
 	tex8.PSM = GS_PSM_T8;
 	tex8.Mem = image_pixel;
-	tex8.Vram = 0x3000*256;
+	tex8.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(tex8.Width, tex8.Height, tex8.PSM), GSKIT_ALLOC_USERBUFFER);
 	tex8.Clut = image_clut32;
 	tex8.ClutPSM = GS_PSM_CT32;
-	tex8.VramClut = 0x3800*256;
+	tex8.VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(16, 16, GS_PSM_CT32), GSKIT_ALLOC_USERBUFFER);
 	tex8.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
 	

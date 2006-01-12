@@ -75,42 +75,42 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		gsGlobal->Test->ZTST = 1;
 	}
 	
-	GS_SET_PMODE(0,		// Read Circuit 1
-				1,		// Read Circuit 2
-				0,		// Use ALP Register for Alpha Blending
-				1,		// Alpha Value of Read Circuit 2 for Output Selection
-				0,		// Blend Alpha with output of Read Circuit 2
-				0x80);	// Alpha Value = 1.0
+	GS_SET_PMODE(	0,		// Read Circuit 1
+			1,		// Read Circuit 2
+			0,		// Use ALP Register for Alpha Blending
+			1,		// Alpha Value of Read Circuit 2 for Output Selection
+			0,		// Blend Alpha with output of Read Circuit 2
+			0x80);		// Alpha Value = 1.0
 
-	GS_SET_DISPFB1(0,					// Frame Buffer Base Pointer (Address/2048)
-				gsGlobal->Width / 64,	// Buffer Width (Address/64)
-				gsGlobal->PSM,			// Pixel Storage Format
-				0,						// Upper Left X in Buffer
-				0);	
+	GS_SET_DISPFB1(	0,			// Frame Buffer Base Pointer (Address/2048)
+			gsGlobal->Width / 64,	// Buffer Width (Address/64)
+			gsGlobal->PSM,		// Pixel Storage Format
+			0,			// Upper Left X in Buffer
+			0);	
 
-	GS_SET_DISPFB2(0,					// Frame Buffer Base Pointer (Address/2048)
-				gsGlobal->Width / 64,	// Buffer Width (Address/64)
-				gsGlobal->PSM,			// Pixel Storage Format
-				0,						// Upper Left X in Buffer
-				0);						// Upper Left Y in Buffer
+	GS_SET_DISPFB2(	0,			// Frame Buffer Base Pointer (Address/2048)
+			gsGlobal->Width / 64,	// Buffer Width (Address/64)
+			gsGlobal->PSM,		// Pixel Storage Format
+			0,			// Upper Left X in Buffer
+			0);			// Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(gsGlobal->StartX,	// X position in the display area (in VCK unit
-					gsGlobal->StartY,	// Y position in the display area (in Raster u
-					gsGlobal->MagX,		// Horizontal Magnification
-					gsGlobal->MagY,			// Vertical Magnification
-					(gsGlobal->Width * 4) -1,	// Display area width
-					(gsGlobal->Height-1));	// Display area height
+	GS_SET_DISPLAY1(gsGlobal->StartX,		// X position in the display area (in VCK unit
+			gsGlobal->StartY,		// Y position in the display area (in Raster u
+			gsGlobal->MagX,			// Horizontal Magnification
+			gsGlobal->MagY,			// Vertical Magnification
+			(gsGlobal->Width * 4) -1,	// Display area width
+			(gsGlobal->Height-1));		// Display area height
 
-	GS_SET_DISPLAY2(gsGlobal->StartX,	// X position in the display area (in VCK units)
-					gsGlobal->StartY,	// Y position in the display area (in Raster units)
-					gsGlobal->MagX,		// Horizontal Magnification
-					gsGlobal->MagY,			// Vertical Magnification
-					(gsGlobal->Width * 4) -1,	// Display area width
-					(gsGlobal->Height-1));	// Display area height
-
-	GS_SET_BGCOLOR(gsGlobal->BGColor->Red,	// Red
-				gsGlobal->BGColor->Green,	// Green
-				gsGlobal->BGColor->Blue);	// Blue
+	GS_SET_DISPLAY2(gsGlobal->StartX,		// X position in the display area (in VCK units)
+			gsGlobal->StartY,		// Y position in the display area (in Raster units)
+			gsGlobal->MagX,			// Horizontal Magnification
+			gsGlobal->MagY,			// Vertical Magnification
+			(gsGlobal->Width * 4) -1,	// Display area width
+			(gsGlobal->Height-1));		// Display area height
+	
+	GS_SET_BGCOLOR(	gsGlobal->BGColor->Red,		// Red
+			gsGlobal->BGColor->Green,	// Green
+			gsGlobal->BGColor->Blue);	// Blue
 
 	gsGlobal->CurrentPointer = 0;
 	// Context 1
@@ -244,7 +244,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	if(mode == GS_MODE_NTSC)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Field = GS_FIELD;
 		gsGlobal->DoubleBuffering = GS_SETTING_ON;
 		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
@@ -258,7 +258,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	else if(mode == GS_MODE_NTSC_I)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FIELD;
+		gsGlobal->Field = GS_FRAME;
 		gsGlobal->DoubleBuffering = GS_SETTING_ON;
 		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
@@ -267,12 +267,12 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 652;
 		gsGlobal->StartY = 30;
 		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_PAL)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FRAME;
+		gsGlobal->Field = GS_FIELD;
 		gsGlobal->DoubleBuffering = GS_SETTING_ON;
 		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
@@ -286,7 +286,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	else if(mode == GS_MODE_PAL_I)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FIELD;
+		gsGlobal->Field = GS_FRAME;
 		gsGlobal->DoubleBuffering = GS_SETTING_ON;
 		gsGlobal->ZBuffering = GS_SETTING_ON;
 		gsGlobal->Mode = mode;
@@ -295,7 +295,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 680;
 		gsGlobal->StartY = 50;
 		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_VGA_640_60 || mode == GS_MODE_VGA_640_72 ||
 			mode == GS_MODE_VGA_640_75 || mode == GS_MODE_VGA_640_85)
@@ -317,7 +317,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 			gsGlobal->StartX = 260;
 		gsGlobal->StartY = 18;
 		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_VGA_800_56 || mode == GS_MODE_VGA_800_60 || 
 			mode == GS_MODE_VGA_800_72 || mode == GS_MODE_VGA_800_75 || 
@@ -342,7 +342,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 			gsGlobal->StartX = 500;
 		gsGlobal->StartY = 25;
 		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_VGA_1024_60 || mode == GS_MODE_VGA_1024_70 ||
 			mode == GS_MODE_VGA_1024_75 || mode == GS_MODE_VGA_1024_85)
@@ -355,7 +355,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->Width = 1024;
 		gsGlobal->Height = 768;
 		gsGlobal->StartY = 30;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 		if(mode == GS_MODE_VGA_1024_60)
 		{
 			gsGlobal->MagX = 1;
@@ -403,7 +403,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 232;
 		gsGlobal->StartY = 35;
 		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_DTV_720P)
 	{
@@ -417,7 +417,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 355;
 		gsGlobal->StartY = 40;
 		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else if(mode == GS_MODE_DTV_1080I)
 	{
@@ -431,7 +431,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartX = 300;
 		gsGlobal->StartY = 60;
 		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 1;
+		gsGlobal->MagY = 0;
 	}
 	else 
 	{
