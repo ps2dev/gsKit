@@ -14,7 +14,8 @@ EE_OBJS = 	gsCore.o \
 		gsInit.o \
 		gsMisc.o \
 		gsPrimitive.o \
-		gsTexture.o
+		gsTexture.o \
+		gsVU1.o
 
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBGSKIT) $(EE_OBJS)

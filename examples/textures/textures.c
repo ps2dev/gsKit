@@ -20,8 +20,10 @@ int main(void)
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
-	gsGlobal->PSM = GS_PSM_CT32;
+	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
+//	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	gsGlobal->ZBuffering = GS_SETTING_OFF;
 
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
@@ -61,18 +63,7 @@ int main(void)
 	while(1){
 		gsKit_clear(gsGlobal, White);
 
-                gsKit_prim_sprite_texture(gsGlobal, &Tex2, 310.0,  // X1
-                                                            50.0,  // Y2
-                                                            0.0,  // U1
-                                                            0.0,  // V1
-                                                            Tex2.Width + 310, // X2
-                                                            Tex2.Height +  50.0, // Y2
-                                                            Tex2.Width, // U2
-                                                            Tex2.Height, // V2
-                                                            2.0,
-                                                            TexCol);
-  
-              gsKit_prim_quad_texture_3d(gsGlobal, &Tex1, 20.0,  // X1
+                gsKit_prim_quad_texture_3d(gsGlobal, &Tex1, 20.0,  // X1
                                                             50.0,  // Y1
 							    1.0, // Z1
                                                             0.0,  // U1
@@ -100,15 +91,15 @@ int main(void)
 
 
                 gsKit_prim_sprite_texture(gsGlobal, &Tex2, 310.0,  // X1
-                                                            50.0,  // Y2
-                                                            0.0,  // U1
-                                                            0.0,  // V1
-                                                            Tex2.Width + 310, // X2
-                                                            Tex2.Height +  50.0, // Y2
-                                                            Tex2.Width, // U2
-                                                            Tex2.Height, // V2
-                                                            2.0,
-                                                            TexCol);
+                                                           50.0,  // Y2
+                                                           0.0,  // U1
+                                                           0.0,  // V1
+                                                           Tex2.Width + 310, // X2
+                                                           Tex2.Height +  50.0, // Y2
+                                                           Tex2.Width, // U2
+                                                           Tex2.Height, // V2
+                                                           2.0,
+                                                           TexCol);
 
 
 #ifdef HAVE_LIBJPG

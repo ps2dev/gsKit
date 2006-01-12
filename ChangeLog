@@ -1,5 +1,9 @@
 gsKit ChangeLog:
 
+-> 01/12/05 - Chris Gilbert (Neovanglist)
+   * Big commit - fixed many bugs!
+   * HalfBuffers working now in PAL and NTSC
+
 -> 03/12/04 - linuzappz
    * Fixed FNT format support.
    * FNT files can be loaded in raw format.

@@ -22,6 +22,7 @@
  gsKit aims to provide the following functionality:
  
  - Multi format GS initialization. (NTSC, PAL, DTV, VESA)
+ - HalfBuffer Support (NTSC_I and PAL_I modes)
  - VSync, Double Buffering, Anti Aliasing, and Z Depth Test.
  - Overlay and multi-context support utilizing the "Merge Circuit".
  - Basic primitives as per the Sony documentation. (Line, Tri, TriStrip, ...)
@@ -57,6 +58,7 @@
  gsKit/ee/dma		- dmaKit source root.
  gsKit/ee/dma/include	- dmaKit include files.
  gsKit/ee/dms/src	- dmaKit source files.
+ gsKit/vu1		- VU1 assembly files.
 
  Feedback & Questions
  -----------------------------------------------------------------------

@@ -16,6 +16,8 @@
 #include <malloc.h>
 #include <math.h>
 
+#define USEBMP
+
 /** clut lookup table */
 static const short clut_xlut[256] =
 {
@@ -74,10 +76,10 @@ static void generate_framex(GSTEXTURE *tex)
 	unsigned char *pixels, c;
 
 	pixels = (unsigned char *)tex->Mem;
-	for (y=0; y<tex->Height; y++)
+	for (y=0; y < tex->Height; y++)
 	{
 		c = (unsigned char)(255.0 * y / tex->Height);
-		for (x=0; x<tex->Width; x++)
+		for (x=0; x < tex->Width; x++)
 		{
 			*pixels++ = c;
 		}
@@ -125,38 +127,61 @@ static void generate_frame(GSTEXTURE *tex)
 
 int main(int argc, char *argv[])
 {
-	GSTEXTURE fb;
+	GSTEXTURE fb, backtex;
 	GSGLOBAL *gsGlobal;
-	int texture_size;
 
 	/* initialize dmaKit */
 	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC, D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 
 	/* allocate GSGLOBAL structure */
-	gsGlobal = gsKit_init_global(GS_MODE_AUTO);
+	gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
 	/* initialize screen */
-	gsGlobal->PSM = GS_PSM_CT16;
+	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
-	//gsGlobal->DoubleBuffering = GS_SETTING_OFF; /* only one screen */
+	gsGlobal->DoubleBuffering = GS_SETTING_OFF; /* only one screen */
 	gsKit_init_screen(gsGlobal);
 
 	fb.Width = 320;
 	fb.Height = 200;
 	fb.PSM = GS_PSM_T8;
-	texture_size = gsKit_texture_size(fb.Width, fb.Height, fb.PSM);
+	fb.ClutPSM = GS_PSM_CT32;
 
-	fb.Mem = memalign(128, texture_size);
-	fb.Clut = memalign(128, 256 * 4);
-	fb.VramClut = gsKit_vram_alloc(gsGlobal, 256 * 4);
-	fb.Vram = gsKit_vram_alloc(gsGlobal, texture_size);
+	fb.Mem = memalign(128, gsKit_texture_size_ee(fb.Width, fb.Height, fb.PSM));
+	fb.Clut = memalign(128, gsKit_texture_size_ee(16, 16, fb.ClutPSM));
+
+	fb.VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(16, 16, fb.ClutPSM), GSKIT_ALLOC_USERBUFFER);
+	fb.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(fb.Width, fb.Height, fb.PSM), GSKIT_ALLOC_USERBUFFER);
+
 	fb.Filter = GS_FILTER_LINEAR; /* enable bilinear filtering */
 
-	/* print out useless debug information */
-	printf("Texture:\n");
-	printf("\tHost  index: 0x%08x, palette: 0x%08x\n", (unsigned)fb.Mem, (unsigned)fb.Clut);
-	printf("\tLocal index: 0x%08x, palette: 0x%08x\n", (unsigned)fb.Vram, (unsigned)fb.VramClut);
+	generate_palette(&fb);
 
+#ifdef USEBMP
+	gsKit_texture_bmp(gsGlobal, &backtex, "host:bsdgirl.bmp");
+#endif
+
+	/* print out useless debug information */
+	printf("CLUT Texture:\n");
+	printf("\tHost  start: 0x%08x, end: 0x%08x\n", (unsigned)fb.Mem, (unsigned)(gsKit_texture_size_ee(fb.Width, fb.Height, fb.PSM) + fb.Mem));
+	printf("\tLocal start: 0x%08x, end: 0x%08x\n", (unsigned)fb.Vram, (unsigned)(gsKit_texture_size(fb.Width, fb.Height, fb.PSM) + fb.Vram));
+	printf("\tWidth - %d : Height - %d : TBW - %d : Page - %d : Block %d\n", fb.Width, fb.Height, fb.TBW, (fb.Vram / 8192), (fb.Vram / 256));
+	printf("CLUT Pallete:\n");
+	printf("\tHost  start: 0x%08x, end: 0x%08x\n", (unsigned)fb.Clut, (unsigned)(gsKit_texture_size_ee(16, 16, GS_PSM_CT32) + fb.Clut));
+	printf("\tLocal start: 0x%08x, end: 0x%08x\n", (unsigned)fb.VramClut, (unsigned)(gsKit_texture_size(16, 16, GS_PSM_CT32) + fb.VramClut));
+	printf("\tWidth - %d : Height - %d : TBW - %d : Page - %d : Block %d\n", 16, 16, 1, (fb.VramClut / 8192), (fb.VramClut / 256));
+#ifdef USEBMP
+	printf("BMP Texture:\n");
+	printf("\tHost  start: 0x%08x, end: 0x%08x\n", (unsigned)backtex.Mem, (unsigned)(gsKit_texture_size_ee(backtex.Width, backtex.Height, backtex.PSM) + backtex.Mem));
+	printf("\tLocal start: 0x%08x, end: 0x%08x\n", (unsigned)backtex.Vram, (unsigned)(gsKit_texture_size(backtex.Width, backtex.Height, backtex.PSM) + backtex.Vram));
+	printf("\tWidth - %d : Height - %d : TBW - %d : Page - %d : Block %d\n", backtex.Width, backtex.Height, backtex.TBW, (backtex.Vram / 8192), (backtex.Vram / 256));
+#endif
+	printf("VRAM Alignment Check - Value of \"0\" is OKAY! Anything else is BAD!\n");
+	printf("VRAM - CLUT Pallete - Start Address Aligned: %d\n", fb.VramClut % GS_VRAM_BLOCKSIZE_256);
+	printf("VRAM - CLUT Texture - Start Address Aligned: %d\n", fb.Vram % GS_VRAM_BLOCKSIZE_256);
+#ifdef USEBMP
+	printf("VRAM - BMP Texture - Start Address Aligned: %d\n", backtex.Vram % GS_VRAM_BLOCKSIZE_256);
+#endif
 	/* clear buffer */
 	gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00));
 
@@ -164,13 +189,12 @@ int main(int argc, char *argv[])
 	{
 		/* generate next frame */
 		generate_frame(&fb);
-		generate_palette(&fb);
 
 		/* upload new frame buffer */
 		gsKit_texture_upload(gsGlobal, &fb);
 
 		/* render frame buffer */
-                gsKit_prim_sprite_texture(
+		gsKit_prim_sprite_texture(
 			gsGlobal, 
 			&fb, 
 			0, /* X1 */
@@ -181,9 +205,26 @@ int main(int argc, char *argv[])
 			gsGlobal->Height, /* Y2 */
 			fb.Width, /* U2 */
 			fb.Height, /* V2*/
-			1.0, /* Z */
-                        GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
+			1, /* Z */
+			GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
 		);
+
+#ifdef USEBMP
+		gsKit_prim_sprite_texture(
+			gsGlobal,
+			&backtex,
+			(gsGlobal->Width /2) - (backtex.Width / 2), /* X1 */
+			0, /* Y1 */
+			0, /* U1 */
+			0, /* V1 */
+			backtex.Width + ((gsGlobal->Width /2) - (backtex.Width / 2)), /* X2 */
+			backtex.Height, /* Y2 */
+			backtex.Width, /* U2 */
+			backtex.Height, /* V2*/
+			2, /* Z */
+			GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
+		);
+#endif
 
 		/* vsync and flip buffer */
 		gsKit_sync_flip(gsGlobal);

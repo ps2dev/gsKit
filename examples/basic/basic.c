@@ -27,6 +27,10 @@ int main(void)
 	float width = 150;
 	float height = 150;
 
+	float VHeight;
+
+	VHeight = gsGlobal->Height;
+
 	float *LineStrip;
 	float *LineStripPtr;
 	float *TriStrip;
@@ -141,9 +145,9 @@ int main(void)
 
 		if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
 			x+=10;
-		else if( (y + height)  <  (gsGlobal->Height - 10) && (x + width) >= (gsGlobal->Width - 10) )
+		else if( (y + height)  <  (VHeight - 10) && (x + width) >= (gsGlobal->Width - 10) )
 			y+=10;		
-		else if( (y + height) >=  (gsGlobal->Height - 10) && x > 10 )
+		else if( (y + height) >=  (VHeight - 10) && x > 10 )
 			x-=10;
 		else if( y > 10 && x <= 10 )
 			y-=10;

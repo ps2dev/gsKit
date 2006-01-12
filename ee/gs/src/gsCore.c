@@ -13,22 +13,31 @@
 
 #include "gsKit.h"
 
-u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size)
-{	
+u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
+{
+	u32 CurrentPointer = gsGlobal->CurrentPointer;
 	#ifdef DEBUG
-		printf("CP: %08X, size: %08X\n", gsGlobal->CurrentPointer, size);
+		printf("CurrentPointer Before:\t0x%08X\n", gsGlobal->CurrentPointer);
 	#endif
-	size = (-GS_VRAM_BLOCKSIZE)&(size+GS_VRAM_BLOCKSIZE-1);
-	gsGlobal->CurrentPointer += size;
 
-	if(gsGlobal->CurrentPointer >= 4194304)
+	if(type == GSKIT_ALLOC_SYSBUFFER)
+		size = (-GS_VRAM_BLOCKSIZE_8K)&(size+GS_VRAM_BLOCKSIZE_8K-1);
+	else
+		size = (-GS_VRAM_BLOCKSIZE_256)&(size+GS_VRAM_BLOCKSIZE_256-1);
+
+	if((gsGlobal->CurrentPointer + size)>= 4194304)
 	{
-		gsGlobal->CurrentPointer -= size;
 		printf("ERROR: Not enough VRAM for this allocation!\n");
 		return GSKIT_ALLOC_ERROR;
 	}
 	else
-		return gsGlobal->CurrentPointer - size;
+	{
+		gsGlobal->CurrentPointer += size;
+		#ifdef DEBUG
+		printf("CurrentPointer After:\t0x%08X\n", gsGlobal->CurrentPointer);
+		#endif
+		return CurrentPointer;
+	}
 }
 
 void gsKit_vram_free(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
@@ -46,7 +55,9 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 	gsGlobal->ActiveBuffer ^= 1;
 	gsGlobal->PrimContext ^= 1;
 
-	gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
+//	gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
+	gsGlobal->EvenOrOdd ^= 1;
+//	printf("EvenOrOdd = %d\n",  gsGlobal->EvenOrOdd);
 
 	gsKit_setactive(gsGlobal);
 }
@@ -102,7 +113,7 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 {
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
-		return 0;
+		return;
 
 	u64 *p_data;
 	u64 *p_store;

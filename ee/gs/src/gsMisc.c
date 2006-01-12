@@ -23,7 +23,7 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 	else if(axis == GS_AXIS_Y)
 	{
 		vertex = vertex / 2;
-				
+
 		result = (int)(vertex * 16.0f);
 		result += gsGlobal->OffsetY << 4;
 	}
@@ -33,10 +33,12 @@ int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 	}
 
 	return result;
+
 }
 
 void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 {
+#if 0
 	u64* p_store;
 	u64* p_data;
 	u32* p_mem;
@@ -101,5 +103,5 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 	FlushCache(0);
 	 
 	GS_SETREG_BUSDIR(1);
-	 
+#endif 
 }

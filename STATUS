@@ -8,7 +8,7 @@
 
 This is an overview of the current project status.
 
-This project has 6 major components:
+This project has 7 major components:
 
 gsCore - Low level routines that are critical to gsKit operation.
 gsFont - Font handling, conversion, and printing routines.
@@ -16,6 +16,7 @@ gsInit - GS initialization and configuration routines.
 gsMisc - Miscellaneous routines that do not fit anywhere else.
 gsPrimitive - Primitive creation, manipulation, and handling routines.
 gsTexture - Texture loading, manipulation, and handling routines.
+gsVU1 - VU1 renderpipe.
 
 dmaKit Components:
 
@@ -29,13 +30,15 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsInit      | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsMisc      | PAL NTSC (I/NI) Work - VGA/DTV Does Not | 80%  |
+| gsMisc      | PAL/NTSC/VGA Work - DTV is untested     | 90%  |
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
 | gsTexture   | Works well, still one small bug.        | 90%  |
 |--------------------------------------------------------------|
 | gsFont      | BMP and FNT Font Support Implimented.   | 50%  |
+|--------------------------------------------------------------|
+| gsVU1       | Not Started.                            | 0%   |
 |--------------------------------------------------------------|
 | dmaCore     | Completed.                              | 100% |
 |--------------------------------------------------------------|
@@ -47,6 +50,6 @@ Contributors: Please do not modify this file without letting the others
 	      ChangeLog instead.
 
 BUGS:
-	* Scaling for DTV/VGA/DVD modes untested.
-	* Bug in loading multiple textures.
-	
+	* Scaling for DTV/DVD modes untested.
+	* Strange 8bit bug... see examples/fb
+	* Strange missing lines of vertical resolution in some textures...	

@@ -35,6 +35,13 @@
 #define GS_CLUT_PALLETE 0x01
 #define GS_CLUT_TEXTURE 0x02
 
+#define GS_CLUT_STOREMODE_NOLOAD 0x00
+#define GS_CLUT_STOREMODE_LOAD 0x01
+#define GS_CLUT_STOREMODE_LOAD_CBP0 0x02
+#define GS_CLUT_STOREMODE_LOAD_CBP1 0x03
+#define GS_CLUT_STOREMODE_COMPARE_CBP0 0x04
+#define GS_CLUT_STOREMODE_COMPARE_CBP1 0x05
+
 #define GS_SETREG_COLCLAMP(clamp) ((u64)(clamp))
 
 #define GS_SETREG_MIPTBP1_1 GS_SETREG_MIPTBP1
@@ -155,8 +162,9 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
 int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 
+u32  gsKit_texture_size_ee(int width, int height, int psm);
 u32  gsKit_texture_size(int width, int height, int psm);
-void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u8 clut);
+void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float z1, float u1, float v1,

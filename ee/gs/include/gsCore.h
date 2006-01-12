@@ -28,8 +28,20 @@
 /// UV Coordinate on Axis V (Used for gsKit_scale())
 #define GS_MAP_V 0x04
 
-/// VRAM Allcoate Blocksize (CRITICAL FOR VRAM ALIGNMENT)
-#define GS_VRAM_BLOCKSIZE 8192
+#define GSKIT_ALLOC_SYSBUFFER 0x00
+#define GSKIT_ALLOC_USERBUFFER 0x01
+
+/// Return this is VRAM allocation fails.
+#define GSKIT_ALLOC_ERROR 0x00
+
+/// VRAM Allcoate Blocksize (For System Buffers)(CRITICAL FOR VRAM ALIGNMENT)
+#define GS_VRAM_BLOCKSIZE_8K 8192
+/// VRAM Allcoate Blocksize (For User Textures)(CRITICAL FOR VRAM ALIGNMENT)
+#define GS_VRAM_BLOCKSIZE_256 256
+/// Texture Base Width Allocation Allignment (32/24/16 Bit Textures)
+#define GS_VRAM_TBWALIGN 64
+/// Texture Base Width Allocation Allignment (8/4 Bit CLUT Textures)
+#define GS_VRAM_TBWALIGN_CLUT 128
 
 /// Repeats ("Tiles") Texture Across the Surface.
 #define GS_CMODE_REPEAT 0x00
@@ -41,17 +53,17 @@
 #define GS_CMODE_REGION_REPEAT 0x03
 
 /// Turns off Z Testing
-#define GS_ZTEST_OFF 0x00
+#define GS_ZTEST_OFF 0x01
 /// Turns on Z Testing
-#define GS_ZTEST_ON 0x01
+#define GS_ZTEST_ON 0x02
 /// Turns off Alpha Testing (Source)
-#define GS_ATEST_OFF 0x00
+#define GS_ATEST_OFF 0x03
 /// Turns on Alpha Testing (Source)
-#define GS_ATEST_ON 0x01
+#define GS_ATEST_ON 0x04
 /// Turns off Alpha Testing (Destination)
-#define GS_D_ATEST_OFF 0x00
+#define GS_D_ATEST_OFF 0x05
 /// Turns on Alpha Testing (Destination)
-#define GS_D_ATEST_ON 0x01
+#define GS_D_ATEST_ON 0x06
 
 /// Use simple filtering (nearest neighbor)
 #define GS_FILTER_NEAREST 0x00
@@ -63,7 +75,7 @@ extern "C" {
 #endif
 
 /// GS VRAM Allocation
-u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size);
+u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type);
 
 /// GS VRAM Deallocation
 /// This is currently unimplimented.

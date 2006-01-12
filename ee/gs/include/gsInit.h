@@ -106,9 +106,6 @@
 #define GS_BLEND_FRONT2BACK 0x12
 #define GS_BLEND_BACK2FRONT 0x01
 
-/// Return this is VRAM allocation fails.
-#define GSKIT_ALLOC_ERROR 0xFFFFFFFF
-
 /// Define a setting to be OFF
 #define GS_SETTING_OFF 0x00
 
@@ -521,7 +518,9 @@ struct gsTexture
 {
         u32     Width;    ///< Width of the Texture
         u32     Height;   ///< Height of the Texture
-        u32     PSM;      ///< Pixel Storage Method (Color Format)
+        u8	PSM;      ///< Pixel Storage Method (Color Format)
+	u8	ClutPSM;  ///< CLUT Pixel Storage Method (Color Format)
+	u32	TBW;      ///< Texture Base Width
         void    *Mem;     ///< EE Memory Pointer
         void    *Clut;    ///< EE CLUT Memory Pointer
         u32     Vram;     ///< GS VRAM Memory Pointer
