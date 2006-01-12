@@ -17,6 +17,7 @@ Hago @ gmx  | Not Disclosed     | Not Disclosed
 Pixel       | Not Disclosed     | Not Disclosed
 yulius      | Not Disclosed     | Not Disclosed
 gawd^       | Not Disclosed     | Not Disclosed
+jbit        | Not Disclosed     | Not Disclosed
 
 People that I'd like to thank, and why:
 
@@ -41,5 +42,7 @@ Hajo - BMP/DAT font support, and some PAL/NonInterlaced Fixes.
 yulius - Font support stuffs!
 
 gawd^ - Using gsKit a lot, getting my butt in gear to fix bugs, and the fb demo!
+
+jbit - Tons of help tracking down some really nasty texture bugs, plus letting me some code :)
 
 And everyone else from the PS2 Dev community! Thanks!

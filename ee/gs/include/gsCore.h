@@ -34,6 +34,9 @@
 /// Return this is VRAM allocation fails.
 #define GSKIT_ALLOC_ERROR 0x00
 
+/// GS GIF Data Transfer Blocksize
+#define GS_GIF_BLOCKSIZE 0x7fff
+
 /// VRAM Allcoate Blocksize (For System Buffers)(CRITICAL FOR VRAM ALIGNMENT)
 #define GS_VRAM_BLOCKSIZE_8K 8192
 /// VRAM Allcoate Blocksize (For User Textures)(CRITICAL FOR VRAM ALIGNMENT)

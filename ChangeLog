@@ -1,6 +1,10 @@
 gsKit ChangeLog:
 
 -> 01/12/05 - Chris Gilbert (Neovanglist)
+   * Fixed large-size textures bug.
+   * Modified texture_send to check the dma chain size and only use spr if room is avail.
+
+-> 01/12/05 - Chris Gilbert (Neovanglist)
    * Fixed missing lines of texture bug.
    * Fixed some issues in regards to halfbuffers.
 

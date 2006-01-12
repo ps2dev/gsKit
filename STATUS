@@ -34,7 +34,7 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsTexture   | Works well, still one small bug.        | 90%  |
+| gsTexture   | Completed.                              | 100% |
 |--------------------------------------------------------------|
 | gsFont      | BMP and FNT Font Support Implimented.   | 50%  |
 |--------------------------------------------------------------|

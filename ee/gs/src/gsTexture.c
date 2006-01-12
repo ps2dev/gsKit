@@ -477,24 +477,31 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		qwc++;
 	}
 
-	packets = qwc / DMA_MAX_SIZE;
-	remain  = qwc % DMA_MAX_SIZE;
+	packets = qwc / GS_GIF_BLOCKSIZE;
+	remain  = qwc % GS_GIF_BLOCKSIZE;
 	p_mem   = (u32*)mem;
 
-	p_size = (10+packets+remain);
-
 	if(clut == GS_CLUT_TEXTURE)
-		p_size-= 2;
+		p_size = (7+(packets * 3)+remain);
+	else
+		p_size = (9+(packets * 3)+remain);
 
-	p_store = p_data = dmaKit_spr_alloc( p_size*16 );
+	if(remain > 0)
+		p_size += 2; 
+
+	// Make sure our chain will fit on the scratchpad
+	if((p_size * 16) > (16 * 1024))
+		p_store = p_data = malloc( p_size*16 );
+	else
+		p_store = p_data = dmaKit_spr_alloc( p_size*16 );
 
 	FlushCache(0);
 
 	// DMA DATA
-	*p_data++ = DMA_TAG( 6, 0, DMA_CNT, 0, 0, 0 );
+	*p_data++ = DMA_TAG( 5, 0, DMA_CNT, 0, 0, 0 );
 	*p_data++ = 0;
 
-	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 4, 0, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
 	
 	if(tbp % 256)
@@ -512,15 +519,22 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	*p_data++ = GS_SETREG_TRXDIR(0);
 	*p_data++ = GS_TRXDIR;
 
-	*p_data++ = GIF_TAG( qwc, 1, 0, 0, 2, 1 );
-	*p_data++ = 0;
-
-	while (packets-- > 0) {
-		*p_data++ = DMA_TAG( DMA_MAX_SIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
+	while (packets-- > 0) 
+	{
+		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		p_mem+= (DMA_MAX_SIZE * 16);
+		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, 2, 0 );		
+		*p_data++ = 0;
+		*p_data++ = DMA_TAG( GS_GIF_BLOCKSIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
+		*p_data++ = 0;
+		p_mem+= (GS_GIF_BLOCKSIZE * 4);
 	}
+
 	if (remain > 0) {
+		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
+		*p_data++ = 0;
+		*p_data++ = GIF_TAG( remain, 0, 0, 0, 2, 0 );
+		*p_data++ = 0;
 		*p_data++ = DMA_TAG( remain, 1, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
 	}
@@ -542,7 +556,10 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		*p_data++ = 0;
 	}
 	
-	dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+	if((p_size * 16) > (16 * 1024))
+		dmaKit_send_chain( DMA_CHANNEL_GIF, 0, p_store, p_size);
+	else
+		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
 
 	if(dmaKit_wait( DMA_CHANNEL_GIF, 0 ) == -1)
 		printf("FATAL: DMA WAIT TIMEOUT - THIS IS IMPOSSIBLE.\n");
