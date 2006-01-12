@@ -564,6 +564,9 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	if(dmaKit_wait( DMA_CHANNEL_GIF, 0 ) == -1)
 		printf("FATAL: DMA WAIT TIMEOUT - THIS IS IMPOSSIBLE.\n");
 
+	if((p_size * 16) > (16 * 1024))
+		free(p_store);
+
 }
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
