@@ -16,12 +16,22 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_720P); // Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I); // HDTV 1080I Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I_I); // HDTV 1080I Half Buffers
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // Half Buffers
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.
 	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
 	// gsGlobal->ZBuffering = GS_SETTING_OFF;
+
+	// This makes things look marginally better in half-buffer mode...
+	// however on some CRT and all LCD, it makes a really horrible screen shake.
+	// Uncomment this to disable it. (It is on by default)
+	// gsGlobal->DoSubOffset = GS_SETTING_OFF;	
+
+	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;	
 	
 	float x = 10;
 	float y = 10;
@@ -85,11 +95,13 @@ int main(void)
 	*TriFan++ = 375;
 	*TriFan++ = 100;
 	
-	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
+	dmaKit_init(D_CTRL_RELE_OFF, D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
+	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
+	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
@@ -104,45 +116,50 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 
-	while(1){
-		gsKit_clear(gsGlobal, White);
+	gsGlobal->DrawMode = GS_PERSISTENT;
 
-		gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
+	gsKit_clear(gsGlobal, White);
+
+	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
 	
-		gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1.0, Black);
+	gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1.0, Black);
 
-		gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1.0, Red);
+	gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1.0, Red);
 
-		gsKit_prim_line(gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
-		gsKit_prim_line(gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
+	gsKit_prim_line(gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
+	gsKit_prim_line(gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
 
-		gsKit_prim_point(gsGlobal, 575.0, 75.0, 1.0, Black);
-		gsKit_prim_point(gsGlobal, 600.0, 100.0, 1.0, Black);
-		gsKit_prim_point(gsGlobal, 625.0, 125.0, 1.0, Black);
+	gsKit_prim_point(gsGlobal, 575.0, 75.0, 1.0, Black);
+	gsKit_prim_point(gsGlobal, 600.0, 100.0, 1.0, Black);
+	gsKit_prim_point(gsGlobal, 625.0, 125.0, 1.0, Black);
 
-		gsKit_prim_quad(gsGlobal, 150.0, 150.0, 
-					   150.0, 400.0,
-					   450.0, 150.0,
-					   450.0, 400.0, 2.0, Green);
+	gsKit_prim_quad(gsGlobal, 150.0, 150.0, 
+				   150.0, 400.0,
+				   450.0, 150.0,
+				   450.0, 400.0, 2.0, Green);
 
-		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+	gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 
-		gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5.0, Black);
+	gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5.0, Black);
 
-		gsKit_prim_quad_gouraud(gsGlobal, 500.0, 250.0, 
-						   500.0, 350.0, 
-						   600.0, 250.0,
-						   600.0, 350.0, 2.0,
-						   Red, Green, Blue, Black);
+	gsKit_prim_quad_gouraud(gsGlobal, 500.0, 250.0, 
+					   500.0, 350.0, 
+					   600.0, 250.0,
+					   600.0, 350.0, 2.0,
+					   Red, Green, Blue, Black);
 
-		gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0,
-						       280.0, 350.0,
-						       180.0, 350.0, 5.0, 
-						       Blue, Red, White);
+	gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0,
+					       280.0, 350.0,
+					       180.0, 350.0, 5.0, 
+					       Blue, Red, White);
 
-		gsKit_prim_triangle(gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
+	gsKit_prim_triangle(gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
 
-		gsKit_prim_sprite(gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
+	gsKit_prim_sprite(gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
+
+	while(1)
+	{
+		gsGlobal->DrawMode = GS_ONESHOT;
 
 		if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
 			x+=10;
@@ -155,10 +172,12 @@ int main(void)
 
 		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4.0, BlueTrans);
 
+		// RedTrans must be a oneshot for proper blending!
 		gsKit_prim_sprite(gsGlobal, 100.0, 100.0, 200.0, 200.0, 5.0, RedTrans);
 
-		gsKit_sync_flip(gsGlobal);
+		gsKit_queue_exec(gsGlobal);
 
+		gsKit_sync_flip(gsGlobal);
 	}
 	
 	return 0;

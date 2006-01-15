@@ -10,7 +10,7 @@ This is an overview of the current project status.
 
 This project has 7 major components:
 
-gsCore - Low level routines that are critical to gsKit operation.
+gsCore - Low level routines that are critical to gsKit operation, as well as the renderpipe.
 gsFont - Font handling, conversion, and printing routines.
 gsInit - GS initialization and configuration routines.
 gsMisc - Miscellaneous routines that do not fit anywhere else.
@@ -30,7 +30,7 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsInit      | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsMisc      | PAL/NTSC/VGA Work - DTV is untested     | 90%  |
+| gsMisc      | PAL/NTSC/DTV/VGA Work                   | 100% |
 |--------------------------------------------------------------|
 | gsPrimitive | Completed.                              | 100% |
 |--------------------------------------------------------------|
@@ -50,5 +50,6 @@ Contributors: Please do not modify this file without letting the others
 	      ChangeLog instead.
 
 BUGS:
-	* Scaling for DTV/DVD modes untested. (480p tested and working)
-
+	* Scaling for DVD modes untested.
+	* Reports of Mode StartX/StartY vaules off. Please e-mail me with ones that work for you.
+	* Strange awfulness when using a GS_PERSISTANT gsKit_clear() in shazz's libtest app.

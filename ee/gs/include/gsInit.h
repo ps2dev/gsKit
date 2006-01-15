@@ -16,6 +16,17 @@
 
 #include "gsKit.h"
 
+/// Execute this command via DMA immediately
+#define GS_IMMEDIATE 0x00
+/// Place this command into the render queue and execute once per frame
+#define GS_PERSISTENT 0x01
+/// Place this command into the render queue and only execute once
+#define GS_ONESHOT 0x02
+/// This mode is used internally by the renderqueue manager to mark unused elements of the array.
+#define GS_UNUSED 0x03
+/// Maximum number of elements possible in a renderqueue before we flush
+#define GS_RENDER_QUEUE_MAX 1024
+
 /// Non-Interlaced Mode
 #define GS_NONINTERLACED 0x00
 /// Interlaced Mode
@@ -35,11 +46,13 @@
 #define GS_MODE_NTSC_I 0x04
 /// PAL Half Buffer
 #define GS_MODE_PAL_I 0x05
+/// DTV 1080I Half Buffer
+#define GS_MODE_DTV_1080I_I 0x06
 
 /// Auto-detect Full Buffer
-#define GS_MODE_AUTO  0x06
+#define GS_MODE_AUTO  0x07
 /// Auto-detect Half Buffer
-#define GS_MODE_AUTO_I 0x07
+#define GS_MODE_AUTO_I 0x08
 
 /// 4:3 Aspect Ratio (UNUSED)
 #define GS_ASPECT_4_3 0x0
@@ -244,6 +257,9 @@
 #define GIF_AD          0x0E
 /// GIF No Operation (Used in GIF DMA Packets)
 #define GIF_NOP         0x0F
+
+/// Data cache prefetch (thx emoon!)
+#define GSKIT_PREFETCH(address) asm __volatile__("pref 0, 0(%0)" : : "r" (address));
 
 /// GS Reset Macro
 #define GS_RESET() *GS_CSR = ((u64)(1)      << 9)
@@ -459,6 +475,25 @@ struct gsClamp
 };
 typedef struct gsClamp GSCLAMP;
 
+struct gsElement
+{
+	void *data;
+	u32 size;
+	u32 channel;
+	u8 mode;
+};
+typedef struct gsElement GSELEMENT;
+
+struct gsQueue
+{
+	GSELEMENT *Elements[GS_RENDER_QUEUE_MAX];
+
+	u32 size;
+	u32 numElements;
+	u32 lastElement;
+};
+typedef struct gsQueue GSQUEUE;
+
 /// gsGlobal Structure
 /// This is the core structure for gsKit operation.
 ///
@@ -478,29 +513,32 @@ typedef struct gsClamp GSCLAMP;
 /// and specific values for the NTSC display mode.
 struct gsGlobal
 {
-	s16 Mode;	///< Display Mode
-	s16 Interlace;	///< Interlace (On/Off)
-	s16 Field;	///< Field / Frame
-	u8 Setup;	///< Setup (Is set to 1 after screen init, see gsKit_init() for more info.)
+	s16 Mode;		///< Display Mode
+	s16 Interlace;		///< Interlace (On/Off)
+	s16 Field;		///< Field / Frame
+	u8 Setup;		///< Setup (Is set to 1 after screen init, see gsKit_init() for more info.)
 	u32 CurrentPointer;	///< Current VRAM Pointer
-	u8 DoubleBuffering;	/// Enable/Disable Double Buffering
-	u8 ZBuffering;		/// Enable/Disable Z Buffering
+	u8 DoubleBuffering;	///< Enable/Disable Double Buffering
+	u8 ZBuffering;		///< Enable/Disable Z Buffering
 	u32 ScreenBuffer[2];	///< Screenbuffer Pointer Array
 	u32 ZBuffer;		///< ZBuffer Pointer
+	u8 DoSubOffset;		///< Do Subpixel Offset
 	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
+	u8 DrawMode;		///< Draw Mode (Immediate/Persistant/Oneshot)
 	int ActiveBuffer;	///< Active Framebuffer
-	int Width;	///< Framebuffer Width
-	int Height;	///< Framebuffer Height
-	int Aspect;	///< Framebuffer Aspect Ratio (Not Currently Used)
-	int OffsetX;	///< Window Offset X
-	int OffsetY;	///< Window Offset Y
-	int StartX;	///< X Starting Coordinate (Used for Placement Correction)
-	int StartY;	///< Y Starting Coordinate (Used for Placement Correction)
-	int MagX;	///< X Magnification Value
-	int MagY;	///< Y Magnification Value (Always 0!)
+	int Width;		///< Framebuffer Width
+	int Height;		///< Framebuffer Height
+	int Aspect;		///< Framebuffer Aspect Ratio (Not Currently Used)
+	int OffsetX;		///< Window Offset X
+	int OffsetY;		///< Window Offset Y
+	int StartX;		///< X Starting Coordinate (Used for Placement Correction)
+	int StartY;		///< Y Starting Coordinate (Used for Placement Correction)
+	int MagX;		///< X Magnification Value
+	int MagY;		///< Y Magnification Value (Always 0!)
 	GSBGCOLOR *BGColor;	///< Background Color Structure Pointer
 	GSTEST *Test;		///< TEST Register Value Structure Pointer
 	GSCLAMP *Clamp;		///< CLAMP Register Value Structure Pointer
+	GSQUEUE *Queue; 	///< Draw Queue 
 	int PSM;		///< Pixel Storage Method (Color Mode)
 	int PSMZ;		///< ZBuffer Pixel Storage Method
 	int PrimContext;	///< Primitive Context

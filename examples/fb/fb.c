@@ -131,14 +131,18 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal;
 
 	/* initialize dmaKit */
-	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC, D_CTRL_STD_OFF, D_CTRL_RCYC_8);
+	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC, D_CTRL_STD_OFF, D_CTRL_RCYC_8);
+
+        dmaKit_chan_init(DMA_CHANNEL_GIF);
+        dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
+        dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	/* allocate GSGLOBAL structure */
 	gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
 	/* initialize screen */
 	gsGlobal->PSM = GS_PSM_CT24;
-	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
+//	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
 //	If we disable double buffering, we can't fill the frame fast enough.
 //	When this happens, we get a line through the top texture about 20% up
 //	from the bottom of the screen.
@@ -188,6 +192,39 @@ int main(int argc, char *argv[])
 	/* clear buffer */
 	gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00));
 
+	gsGlobal->DrawMode = GS_PERSISTENT;
+
+	/* render frame buffer */
+	gsKit_prim_sprite_texture( gsGlobal,	&fb,
+						0, /* X1 */
+						0, /* Y1 */
+						0, /* U1 */
+						0, /* V1 */
+						gsGlobal->Width, /* X2 */
+						gsGlobal->Height, /* Y2 */
+						fb.Width, /* U2 */
+						fb.Height, /* V2*/
+						1, /* Z */
+						GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
+						);
+
+
+#ifdef USEBMP
+	gsKit_prim_sprite_texture(gsGlobal,	&backtex,
+						(gsGlobal->Width /2) - (backtex.Width / 2), /* X1 */
+						0, /* Y1 */
+						0, /* U1 */
+						0, /* V1 */
+						backtex.Width + ((gsGlobal->Width /2) - (backtex.Width / 2)), /* X2 */
+						backtex.Height, /* Y2 */
+						backtex.Width, /* U2 */
+						backtex.Height, /* V2*/
+						2, /* Z */
+						GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
+						);
+#endif
+
+
 	while (1)
 	{
 		/* generate next frame */
@@ -196,38 +233,8 @@ int main(int argc, char *argv[])
 		/* upload new frame buffer */
 		gsKit_texture_upload(gsGlobal, &fb);
 
-		/* render frame buffer */
-		gsKit_prim_sprite_texture(
-			gsGlobal, 
-			&fb, 
-			0, /* X1 */
-			0, /* Y1 */
-			0, /* U1 */
-			0, /* V1 */
-			gsGlobal->Width, /* X2 */
-			gsGlobal->Height, /* Y2 */
-			fb.Width, /* U2 */
-			fb.Height, /* V2*/
-			1, /* Z */
-			GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
-		);
-
-#ifdef USEBMP
-		gsKit_prim_sprite_texture(
-			gsGlobal,
-			&backtex,
-			(gsGlobal->Width /2) - (backtex.Width / 2), /* X1 */
-			0, /* Y1 */
-			0, /* U1 */
-			0, /* V1 */
-			backtex.Width + ((gsGlobal->Width /2) - (backtex.Width / 2)), /* X2 */
-			backtex.Height, /* Y2 */
-			backtex.Width, /* U2 */
-			backtex.Height, /* V2*/
-			2, /* Z */
-			GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
-		);
-#endif
+		/* execute render queue */
+		gsKit_queue_exec(gsGlobal);
 
 		/* vsync and flip buffer */
 		gsKit_sync_flip(gsGlobal);

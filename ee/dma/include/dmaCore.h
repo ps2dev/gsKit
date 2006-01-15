@@ -69,6 +69,11 @@ extern "C" {
 /// to send data over the DMAC.
 int dmaKit_wait(unsigned int channel, unsigned int timeout);
 
+/// DMA Fast Wait Routine
+/// This routine does the same as above, but using an accelerated
+/// EE instruction method rather than register polling.
+void dmaKit_wait_fast(unsigned int channel);
+
 /// DMA Send Routine
 /// Standard DMA send routine. 
 int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size);
@@ -84,6 +89,11 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data, un
 /// DMA Chain Scratchpad Send 
 /// Sends data over the DMAC using a DMA Chain via the scratchpad.
 int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data);
+
+/// DMA Get from Scratchpad Routine
+/// Transfers data from an external source to the EE.
+/// (ex: Scratchpad -> EE Main Memory)
+int dmaKit_get_spr(unsigned int channel, void *data, void *dest, unsigned int size);
 
 #ifdef __cplusplus
 }

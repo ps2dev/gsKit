@@ -142,6 +142,9 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
 /// UMSK (MINU), VMSK (MINV), UFIX (MAXU), and VFIX (MAXV)
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
+void gsKit_queue_add(GSGLOBAL *gsGlobal, unsigned int channel, void *data, unsigned int size);
+void gsKit_queue_exec(GSGLOBAL *gsGlobal);
+
 #ifdef __cplusplus
 }
 #endif

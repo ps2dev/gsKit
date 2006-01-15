@@ -17,6 +17,8 @@ EE_OBJS = 	gsCore.o \
 		gsTexture.o \
 		gsVU1.o
 
+EE_CFLAGS += -g
+
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBGSKIT) $(EE_OBJS)
 

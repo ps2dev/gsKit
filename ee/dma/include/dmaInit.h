@@ -44,10 +44,13 @@
 
 #define DMA_REG_CTRL	(volatile u32 *)0x1000E000
 #define DMA_REG_STAT	(volatile u32 *)0x1000E010
-#define DMA_REG_PCR		(volatile u32 *)0x1000E020
+#define DMA_REG_PCR	(volatile u32 *)0x1000E020
 #define DMA_REG_SQWC	(volatile u32 *)0x1000E030
 #define DMA_REG_RBSR	(volatile u32 *)0x1000E040
 #define DMA_REG_RBOR	(volatile u32 *)0x1000E050
+
+#define DMA_SET_STAT(A,B) *DMA_REG_STAT = ((A) << (B))
+#define DMA_SET_PCR(A,B) *DMA_REG_PCR = ((A) << (B))
 
 #define DMA_CHANNEL_VIF0	0x0
 #define DMA_CHANNEL_VIF1	0x1

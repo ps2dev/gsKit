@@ -1,5 +1,15 @@
 gsKit ChangeLog:
 
+-> 01/15/05 - Chris Gilbert (Neovanglist)
+   * Tons of optimizations!
+   * Now using toSPR as well as fromSPR.
+   * Fixed some other misc bugs.
+
+-> 01/14/05 - Chris Gilbert (Neovanglist)
+   * Implimented the long awaited gsKit render queue!
+   * Implimented DMA fromSPR into dmaKit.
+   * Optimzied examples to take advantage of the rew render queue.
+
 -> 01/12/05 - Chris Gilbert (Neovanglist)
    * Fixed large-size textures bug.
    * Modified texture_send to check the dma chain size and only use spr if room is avail.

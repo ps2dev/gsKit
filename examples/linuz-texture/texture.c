@@ -24,11 +24,13 @@ int main(void)
 	GSTEXTURE tex8;
 	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
 
-	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
+	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
+	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
+	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
@@ -58,12 +60,14 @@ int main(void)
 	tex8.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
 	
+	gsGlobal->DrawMode = GS_PERSISTENT;
+	gsKit_clear(gsGlobal, White);
+	gsKit_prim_sprite_texture(gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
+	gsKit_prim_sprite_texture(gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);
+
 	do
 	{
-		gsKit_clear(gsGlobal, White);
-
-		gsKit_prim_sprite_texture(gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
-		gsKit_prim_sprite_texture(gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);
+		gsKit_queue_exec(gsGlobal);			
 
 		gsKit_sync_flip(gsGlobal);
 	}while(1);

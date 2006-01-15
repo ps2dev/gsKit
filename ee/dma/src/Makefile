@@ -13,7 +13,7 @@ EE_OBJS = 	dmaCore.o \
 		dmaInit.o \
 		dmaSpr.o
 
-EE_CFLAGS += -Wno-unused
+EE_CFLAGS += -Wno-unused -g
 
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBDMAKIT) $(EE_OBJS)

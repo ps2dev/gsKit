@@ -11,6 +11,7 @@
 
 EE_BIN  = basic.elf
 EE_OBJS = basic.o
+EE_CFLAGS += -g
 
 all: $(EE_BIN)
 

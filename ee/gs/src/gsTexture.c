@@ -489,11 +489,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	if(remain > 0)
 		p_size += 2; 
 
-	// Make sure our chain will fit on the scratchpad
-	if((p_size * 16) > (16 * 1024))
-		p_store = p_data = malloc( p_size*16 );
-	else
-		p_store = p_data = dmaKit_spr_alloc( p_size*16 );
+	p_store = p_data = dmaKit_spr_alloc( p_size*16 );
 
 	FlushCache(0);
 
@@ -556,16 +552,13 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		*p_data++ = 0;
 	}
 	
-	if((p_size * 16) > (16 * 1024))
-		dmaKit_send_chain( DMA_CHANNEL_GIF, 0, p_store, p_size);
-	else
-		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
-
-	if(dmaKit_wait( DMA_CHANNEL_GIF, 0 ) == -1)
-		printf("FATAL: DMA WAIT TIMEOUT - THIS IS IMPOSSIBLE.\n");
-
-	if((p_size * 16) > (16 * 1024))
-		free(p_store);
+//        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+//        {
+                dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+//        }
+//        else
+//                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size );
 
 }
 
@@ -640,8 +633,11 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
 	if(Texture->VramClut == 0)
 	{
@@ -687,7 +683,13 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
@@ -729,8 +731,12 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -782,7 +788,13 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -816,8 +828,11 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -860,7 +875,13 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_XYZ2;
         }
 	
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -894,8 +915,11 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -938,7 +962,13 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
                 *p_data++ = GS_XYZ2;
         }
 	
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -972,8 +1002,11 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -1016,7 +1049,13 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_XYZ2;
         }
 	
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -1050,8 +1089,11 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -1094,7 +1136,13 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_XYZ2;
         }
 	
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
@@ -1145,8 +1193,11 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+        	*p_data++ = GIF_AD;
+	}
         
 	if(Texture->VramClut == 0)
 	{
@@ -1204,5 +1255,11 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
         *p_data++ = GS_XYZ2;
 	
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+                dmaKit_wait_fast( DMA_CHANNEL_GIF );
+        }
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }

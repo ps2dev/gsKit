@@ -43,11 +43,16 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		if(gsGlobal->Mode == GS_MODE_NTSC_I)
 		{
 			Mode = GS_MODE_NTSC;
-			fbHeight = gsGlobal->Height;
+			fbHeight = gsGlobal->Height / 2;
 		}
 		else if(gsGlobal->Mode == GS_MODE_PAL_I)
 		{
 			Mode = GS_MODE_PAL;
+			fbHeight = (gsGlobal->Height / 2);
+		}
+		else if(gsGlobal->Mode == GS_MODE_DTV_1080I_I)
+		{
+			Mode = GS_MODE_DTV_1080I;
 			fbHeight = (gsGlobal->Height / 2);
 		}
 		else
@@ -220,15 +225,33 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 GSGLOBAL *gsKit_init_global(u8 mode)
 {
+	u32 curElement;
 	
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
 	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
 	gsGlobal->Test = calloc(1,sizeof(GSTEST));
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
+	gsGlobal->Queue = calloc(1,sizeof(GSQUEUE));
 
 	/* Generic Values */
 	gsGlobal->Setup = 0;
 	gsGlobal->Aspect = GS_ASPECT_4_3;
+
+        gsGlobal->PSM = GS_PSM_CT24;
+        gsGlobal->PSMZ = GS_PSMZ_32;
+
+	gsGlobal->DoSubOffset = GS_SETTING_OFF;
+
+	gsGlobal->DrawMode = GS_IMMEDIATE;
+
+	for(curElement = 0; curElement < GS_RENDER_QUEUE_MAX; curElement++)
+	{
+		gsGlobal->Queue->Elements[curElement] = malloc(sizeof(GSELEMENT));
+		gsGlobal->Queue->Elements[curElement]->size = 0;
+		gsGlobal->Queue->Elements[curElement]->mode = GS_UNUSED;
+		gsGlobal->Queue->Elements[curElement]->data = memalign(64, 256);
+//		(u32)gsGlobal->Queue->Elements[curElement]->data = ((u32)gsGlobal->Queue->Elements[curElement]->data | 0x3000000);
+	}
 
 	/* Auto-detect signal if needed */
 	if(mode == GS_MODE_AUTO)
@@ -251,7 +274,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->Width = 640;	
 		gsGlobal->Height = 448;
 		gsGlobal->StartX = 632;
-		gsGlobal->StartY = 20;
+		gsGlobal->StartY = 40;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
 	}
@@ -268,6 +291,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartY = 30;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
+		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}
 	else if(mode == GS_MODE_PAL)
 	{
@@ -296,6 +320,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartY = 50;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
+		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}
 	else if(mode == GS_MODE_VGA_640_60 || mode == GS_MODE_VGA_640_72 ||
 			mode == GS_MODE_VGA_640_75 || mode == GS_MODE_VGA_640_85)
@@ -414,7 +439,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1280;
 		gsGlobal->Height = 720;
-		gsGlobal->StartX = 355;
+		gsGlobal->StartX = 420;
 		gsGlobal->StartY = 40;
 		gsGlobal->MagX = 0;
 		gsGlobal->MagY = 0;
@@ -423,16 +448,32 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	{
 		gsGlobal->Interlace = GS_INTERLACED;
 		gsGlobal->Field = GS_FIELD;
+	        gsGlobal->PSM = GS_PSM_CT16;
 		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
 		gsGlobal->ZBuffering = GS_SETTING_OFF;
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 1920;
 		gsGlobal->Height = 1080;
 		gsGlobal->StartX = 300;
-		gsGlobal->StartY = 60;
+		gsGlobal->StartY = 120;
 		gsGlobal->MagX = 0;
 		gsGlobal->MagY = 0;
 	}
+        else if(mode == GS_MODE_DTV_1080I_I)
+        {
+                gsGlobal->Interlace = GS_INTERLACED;
+                gsGlobal->Field = GS_FRAME;
+	        gsGlobal->PSM = GS_PSM_CT16;
+                gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+                gsGlobal->ZBuffering = GS_SETTING_OFF;
+                gsGlobal->Mode = mode;
+                gsGlobal->Width = 1920;
+                gsGlobal->Height = 1080;
+                gsGlobal->StartX = 300;
+                gsGlobal->StartY = 60;
+                gsGlobal->MagX = 0;
+                gsGlobal->MagY = 1;
+        }
 	else 
 	{
 		printf("Invalid Mode Selected, Defaulting to NTSC.\n");
@@ -444,11 +485,10 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->StartY = 50;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
+		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}		
 	gsGlobal->OffsetX = 2048;
 	gsGlobal->OffsetY = 2048;
-	gsGlobal->PSM = GS_PSM_CT24;
-	gsGlobal->PSMZ = GS_PSMZ_32;
 	gsGlobal->ActiveBuffer = 1;
 	gsGlobal->PrimFogEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_OFF;

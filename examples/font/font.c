@@ -20,11 +20,13 @@ int main(void)
 
 	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "host:arial.fnt");
 
-	dmaKit_init(D_CTRL_RELE_ON,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
+	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8);
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
+	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
+	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 	
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);

@@ -28,8 +28,11 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color)
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+	if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -49,7 +52,13 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color)
         *p_data++ = GS_SETREG_XYZ2( ix, iy, iz );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, float x2, float y2, float z2, u64 color)
@@ -71,8 +80,11 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, float 
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -95,7 +107,13 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, float 
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, float z, u64 color)
@@ -118,8 +136,11 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, f
         
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -142,7 +163,13 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, f
 	        *p_data++ = GS_XYZ2;
 	}
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments, u64 color)
@@ -165,8 +192,11 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
         
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
         
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -189,7 +219,13 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 	        *p_data++ = GS_XYZ2;
 	}
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, float z, u64 color)
@@ -209,8 +245,11 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -233,7 +272,13 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
 	*p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+	if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+	        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+	else
+		gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, 
@@ -261,8 +306,11 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -289,7 +337,13 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
         *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, float z, u64 color)
@@ -313,8 +367,11 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -337,7 +394,13 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
                 *p_data++ = GS_XYZ2;
         }
         
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segments, u64 color)
@@ -360,8 +423,11 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -384,7 +450,13 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
                 *p_data++ = GS_XYZ2;
         }
         
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, float z, u64 color)
@@ -408,8 +480,11 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, f
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -432,7 +507,13 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, f
                 *p_data++ = GS_XYZ2;
         }
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies, u64 color)
@@ -455,8 +536,11 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -479,7 +563,13 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
                 *p_data++ = GS_XYZ2;
         }
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 
@@ -509,8 +599,11 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, floa
 
 	p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	*p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+		*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+		*p_data++ = GIF_AD;
+	}
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	{
@@ -542,7 +635,13 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, floa
         *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
         *p_data++ = GS_XYZ2;
         
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
@@ -574,8 +673,11 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
 
         p_store = p_data = dmaKit_spr_alloc( size*16 );
 
-        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -604,7 +706,13 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
         *p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 
@@ -639,8 +747,11 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1
 
 	p_store = p_data = dmaKit_spr_alloc( size*16 );
          
-	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	*p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+		*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+		*p_data++ = GIF_AD;
+	}
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	{
@@ -678,7 +789,13 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 	*p_data++ = GS_XYZ2;
 
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1 );
 }
 
 void gsKit_zblank(GSGLOBAL *gsGlobal)
@@ -694,8 +811,11 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
 
         p_store = p_data = dmaKit_spr_alloc( 6*16 );
 
-        *p_data++ = GIF_TAG( 5, 1, 0, 0, 0, 1 );
-        *p_data++ = GIF_AD;
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        {
+	        *p_data++ = GIF_TAG( 5, 1, 0, 0, 0, 1 );
+	        *p_data++ = GIF_AD;
+	}
 
         *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, 0, 0,
                                     0, 0, gsGlobal->PrimContext, 0) ;
@@ -714,6 +834,12 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
         *p_data++ = GS_XYZ2;
 
-        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 6 );
+        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+	{
+                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 6 );
+		dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	}
+        else
+                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, 5 );
 }
 
