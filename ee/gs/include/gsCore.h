@@ -24,9 +24,9 @@
 #define GS_AXIS_Z 0x02
 
 /// UV Coordinate on Axis U (Used for gsKit_scale())
-#define GS_MAP_U 0x03
+#define GS_MAP_U 0x00
 /// UV Coordinate on Axis V (Used for gsKit_scale())
-#define GS_MAP_V 0x04
+#define GS_MAP_V 0x00
 
 #define GSKIT_ALLOC_SYSBUFFER 0x00
 #define GSKIT_ALLOC_USERBUFFER 0x01
@@ -142,7 +142,7 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
 /// UMSK (MINU), VMSK (MINV), UFIX (MAXU), and VFIX (MAXV)
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
-void gsKit_queue_add(GSGLOBAL *gsGlobal, unsigned int channel, void *data, unsigned int size);
+void gsKit_queue_add(GSGLOBAL *gsGlobal, u8 channel, void *data, u32 size);
 void gsKit_queue_exec(GSGLOBAL *gsGlobal);
 
 #ifdef __cplusplus

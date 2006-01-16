@@ -19,7 +19,8 @@ int main(void)
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_720P); // Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I); // HDTV 1080I Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I_I); // HDTV 1080I Half Buffers
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // Full Buffers
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // Half Buffers
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.

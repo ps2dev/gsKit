@@ -141,14 +141,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
-/*
-	*p_data++ = GS_SETREG_XYOFFSET_1( ((gsGlobal->OffsetX - (gsGlobal->Width / 2) ) << 4), 
-					  ((gsGlobal->OffsetY - (gsGlobal->Height / 2) ) << 4));
-					  
-	*p_data++ = GS_XYOFFSET_1;
-*/	
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, 
-					  gsGlobal->OffsetY << 4);
+
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+					  gsGlobal->OffsetY);
 	*p_data++ = GS_XYOFFSET_1;
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
@@ -183,13 +178,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
-/*
-	*p_data++ = GS_SETREG_XYOFFSET_1( ((gsGlobal->OffsetX - (gsGlobal->Width / 2) ) << 4), 
-					  ((gsGlobal->OffsetY - (gsGlobal->Height / 2) ) << 4));
-	*p_data++ = GS_XYOFFSET_2;
-*/
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX << 4, 
-					  gsGlobal->OffsetY << 4);
+
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+					  gsGlobal->OffsetY);
 	*p_data++ = GS_XYOFFSET_2;	
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
@@ -244,13 +235,14 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	gsGlobal->DrawMode = GS_IMMEDIATE;
 
+	gsGlobal->EvenOrOdd = 1;
+
 	for(curElement = 0; curElement < GS_RENDER_QUEUE_MAX; curElement++)
 	{
-		gsGlobal->Queue->Elements[curElement] = malloc(sizeof(GSELEMENT));
-		gsGlobal->Queue->Elements[curElement]->size = 0;
-		gsGlobal->Queue->Elements[curElement]->mode = GS_UNUSED;
-		gsGlobal->Queue->Elements[curElement]->data = memalign(64, 256);
-//		(u32)gsGlobal->Queue->Elements[curElement]->data = ((u32)gsGlobal->Queue->Elements[curElement]->data | 0x3000000);
+		gsGlobal->Queue->Elements[curElement].size = 0;
+		gsGlobal->Queue->Elements[curElement].mode = GS_UNUSED;
+		gsGlobal->Queue->Elements[curElement].data = memalign(64, 256);
+//		(u32)gsGlobal->Queue->Elements[curElement].data = ((u32)gsGlobal->Queue->Elements[curElement]->data | 0x3000000);
 	}
 
 	/* Auto-detect signal if needed */
@@ -487,8 +479,8 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->MagY = 0;
 		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}		
-	gsGlobal->OffsetX = 2048;
-	gsGlobal->OffsetY = 2048;
+	gsGlobal->OffsetX = 2048 << 4;
+	gsGlobal->OffsetY = 2048 << 4;
 	gsGlobal->ActiveBuffer = 1;
 	gsGlobal->PrimFogEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_OFF;

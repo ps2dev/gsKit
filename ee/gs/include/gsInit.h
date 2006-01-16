@@ -477,16 +477,16 @@ typedef struct gsClamp GSCLAMP;
 
 struct gsElement
 {
-	void *data;
-	u32 size;
-	u32 channel;
-	u8 mode;
+	u32 *data;
+	u16 size __attribute__ ((packed));
+	u8 channel __attribute__ ((packed));
+	u8 mode __attribute__ ((packed));
 };
 typedef struct gsElement GSELEMENT;
 
 struct gsQueue
 {
-	GSELEMENT *Elements[GS_RENDER_QUEUE_MAX];
+	GSELEMENT Elements[GS_RENDER_QUEUE_MAX] __attribute__ ((aligned (64)));
 
 	u32 size;
 	u32 numElements;

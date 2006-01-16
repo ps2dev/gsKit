@@ -13,32 +13,35 @@
 
 int gsKit_scale(GSGLOBAL *gsGlobal, u8 axis, float vertex)
 {
-	int result = 0;
+	int result;
 
-	if(axis == GS_AXIS_X || axis == GS_MAP_U || axis == GS_MAP_V)
-	{			
+	if(axis == GS_AXIS_X)
+	{
 		result = (int)(vertex * 16.0f);
-		result += gsGlobal->OffsetX << 4;
+		result += gsGlobal->OffsetX;
 	}
 	else if(axis == GS_AXIS_Y)
 	{
 		if(gsGlobal->Field == GS_FRAME)
 		{
-			vertex = vertex / 2;
-			if(!gsGlobal->EvenOrOdd && (gsGlobal->DoSubOffset == GS_SETTING_ON))
+			vertex /= 2;
+			if(!gsGlobal->EvenOrOdd)
 				vertex += 0.5;
 		}
 
 		result = (int)(vertex * 16.0f);
-		result += gsGlobal->OffsetY << 4;
+		result += gsGlobal->OffsetY;
 	}
 	else if(axis == GS_AXIS_Z)
 	{
 		result = (int)(vertex * 16.0f);
 	}
+	else
+	{
+		result = -1;
+	}
 
 	return result;
-
 }
 
 void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
