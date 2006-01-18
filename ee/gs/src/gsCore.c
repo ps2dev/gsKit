@@ -218,79 +218,96 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 
 void gsKit_queue_add(GSGLOBAL *gsGlobal, u8 channel, void *data, u32 size)
 {
-	GSELEMENT* Element = &gsGlobal->Queue->Elements[gsGlobal->Queue->lastElement];
-
-	if(Element->mode != GS_UNUSED)
-		for(Element++; Element->mode != GS_UNUSED; Element++);
-
-	Element->mode = gsGlobal->DrawMode;
-	Element->size = size;
-	Element->channel = channel;
-	dmaKit_get_spr(DMA_CHANNEL_FROMSPR, data, Element->data, size);
-
-	gsGlobal->Queue->size += size;
-	gsGlobal->Queue->numElements++;
-	gsGlobal->Queue->lastElement++;
-
-        if(gsGlobal->Queue->numElements >= (GS_RENDER_QUEUE_MAX - 1))
+	if(gsGlobal->DrawMode == GS_ONESHOT)
 	{
-		FlushCache(0);
-		GSKIT_PREFETCH(&gsGlobal->Queue->Elements[0]);
-                gsKit_queue_exec(gsGlobal);
-		return;
+                if((gsGlobal->Queue->os_size + size) > GS_RENDER_QUEUE_OS_POOLSIZE)
+                {
+                        printf("too much for renderbuffer, flushing.\n");
+                        // This is to handle worst case that we overflow the queue... slight performance hit but only for this prim.
+                        u32 *tmpdata = malloc(size * 16);
+                        dmaKit_get_spr(DMA_CHANNEL_FROMSPR, data, tmpdata,  size);
+                        gsKit_queue_exec_os(gsGlobal);
+                        memcpy(gsGlobal->Queue->os_pool_cur, tmpdata, size * 16);
+                }
+                else
+                {
+                        dmaKit_get_spr(DMA_CHANNEL_FROMSPR, data, gsGlobal->Queue->os_pool_cur, size);
+                }
+
+                gsGlobal->Queue->os_size += size;
+                (u32)gsGlobal->Queue->os_pool_cur += (size * 16);
+	}
+	else
+	{
+                GSELEMENT* Element = &gsGlobal->Queue->Per_Elements[gsGlobal->Queue->per_lastElement];
+
+                Element->size = size;
+
+                dmaKit_get_spr(DMA_CHANNEL_FROMSPR, data, Element->data, size);
+
+                gsGlobal->Queue->per_size += size;
+                gsGlobal->Queue->per_numElements++;
+                gsGlobal->Queue->per_lastElement++;
+
+                if(gsGlobal->Queue->per_numElements >= (GS_RENDER_QUEUE_PER_MAX - 1))
+                {
+                        gsKit_queue_exec_per(gsGlobal);
+                        return;
+                }
 	}
 	
-	GSKIT_PREFETCH(&gsGlobal->Queue->Elements[gsGlobal->Queue->lastElement]);
+//	GSKIT_PREFETCH(&gsGlobal->Queue->Elements[gsGlobal->Queue->lastElement]);
 }
 
-void gsKit_queue_exec(GSGLOBAL *gsGlobal)
+void gsKit_queue_exec_per(GSGLOBAL *gsGlobal)
 {
-	u64* p_store[3];
-	u64* p_data[2];
-	u32 p_limit[3];
-	GSELEMENT* Element;
-	u8 batch = 0;
-	u32 p_size = 0;
-	
-	s32 numpackets = gsGlobal->Queue->numElements;
+	if(gsGlobal->Queue->per_numElements == 0)
+		return;
 
-	(u32)p_store[0] = 0x70000000; // First 4k (RenderChain -> DMA)
-	(u32)p_store[1] = 0x70001000; // Second 4k (RenderChain -> DMA)
-	(u32)p_store[2] = 0x70002000; // Last 8k (Element Array -> SPR)
+        u64* p_store[3];
+        u64* p_data[2];
+        u32 p_limit[3];
+        GSELEMENT* Element;
+        u8 batch = 0;
+        u32 p_size = 0;
 
-	p_limit[0] = 0x70000FFF; // First Block's Limit
-	p_limit[1] = 0x70001FFF; // Second Block's Limit
-	p_limit[2] = 0x70003FFF; // Last Block's Limit
+        s32 numpackets = gsGlobal->Queue->per_numElements;
 
-	(u32)Element = p_store[2];
+        (u32)p_store[0] = 0x70000000; // First 4k (RenderChain -> DMA)
+        (u32)p_store[1] = 0x70001000; // Second 4k (RenderChain -> DMA)
+        (u32)p_store[2] = 0x70002000; // Last 8k (Element Array -> SPR)
+
+        p_limit[0] = 0x70000FFF; // First Block's Limit
+        p_limit[1] = 0x70001FFF; // Second Block's Limit
+        p_limit[2] = 0x70003FFF; // Last Block's Limit
+        (u32)Element = p_store[2];
+
+        dmaKit_get_spr(DMA_CHANNEL_TOSPR, Element, &gsGlobal->Queue->Per_Elements[0], numpackets * 4);
+        dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
 
 	FlushCache(0);
 
-	dmaKit_get_spr(DMA_CHANNEL_TOSPR, Element, &gsGlobal->Queue->Elements[0], 512);
-	dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
+        while(numpackets > 0)
+        {
+                (u32)p_data[batch] = (u32)p_store[batch] + 64;
 
-	while(numpackets > 0)
-	{
-		(u32)p_data[batch] = (u32)p_store[batch] + 64;
-
-		while(numpackets-- > 0)
-		{
+                while(numpackets-- > 0)
+                {
 			dmaKit_get_spr(DMA_CHANNEL_TOSPR, p_data[batch], Element->data, Element->size);
-			(u32)p_data[batch] += (Element->size * 16);
+                        dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
 
-			Element++;
+                        (u32)p_data[batch] += (Element->size * 16);
 
-			dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
-
+                        Element++;
 			if(((u32)p_data[batch] + (Element->size * 16))  > (u32)p_limit[batch])
                         {
-				break;
+                                break;
                         }
-		}
-	
-		p_size = ((u32)p_data[batch] - (u32)p_store[batch]) / 16;
+                }
 
-		p_data[batch] = p_store[batch];
+                p_size = ((u32)p_data[batch] - (u32)p_store[batch]) / 16;
+
+                p_data[batch] = p_store[batch];
 
                 *p_data[batch]++ = DMA_TAG(p_size - 1, 0, DMA_END, 0, 0, 0);
                 *p_data[batch]++ = 0;
@@ -298,26 +315,81 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
                 *p_data[batch]++ = GIF_TAG(p_size - 2, 0, 0, 0, 0, 1);
                 *p_data[batch]++ = GIF_AD;
 
-		dmaKit_wait_fast(DMA_CHANNEL_GIF);
+                dmaKit_wait_fast(DMA_CHANNEL_GIF);
 		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store[batch]);
 		batch ^= 1;
+        }
+
+	dmaKit_wait_fast(DMA_CHANNEL_GIF);
+
+}
+
+void gsKit_queue_exec_os(GSGLOBAL *gsGlobal)
+{
+	if(gsGlobal->Queue->os_size == 0)
+		return;
+
+        u64* p_store;
+        u64* p_data;
+
+	u32 numpackets = gsGlobal->Queue->os_size / 1022;
+	u32 remain = gsGlobal->Queue->os_size % 1022;
+
+        (u32)p_store = 0x70000000; // First 16k (RenderChain -> DMA)
+
+	gsGlobal->Queue->os_pool_cur = gsGlobal->Queue->os_pool;
+
+	p_data = p_store;
+
+	*p_data++ = DMA_TAG(1023, 0, DMA_END, 0, 0, 0);
+	*p_data++ = 0;
+
+	*p_data++ = GIF_TAG(1022, 0, 0, 0, 0, 1);
+	*p_data++ = GIF_AD;
+
+	while(numpackets > 0)
+	{
+		dmaKit_get_spr(DMA_CHANNEL_TOSPR, p_data, gsGlobal->Queue->os_pool_cur, 1022);
+                dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
+
+		(u32)gsGlobal->Queue->os_pool_cur += 16352;
+		
+		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+                dmaKit_wait_fast(DMA_CHANNEL_GIF);
+		numpackets--;
 	}
 
-	numpackets = gsGlobal->Queue->numElements;
+	if(remain > 0)
+	{
+		p_data = p_store;
 
-	Element = &gsGlobal->Queue->Elements[0];
+	        *p_data++ = DMA_TAG(remain + 1, 0, DMA_END, 0, 0, 0);
+	        *p_data++ = 0;
 
-        while(numpackets-- > 0)
-        {
-		if(Element->mode == GS_ONESHOT)
-		{
-			Element->mode = GS_UNUSED;
-			gsGlobal->Queue->size -= Element->size;
-			gsGlobal->Queue->numElements--;
-		}
-		Element++;
-        }
+	        *p_data++ = GIF_TAG(remain, 0, 0, 0, 0, 1);
+	        *p_data++ = GIF_AD;
+
+		dmaKit_get_spr(DMA_CHANNEL_TOSPR, p_data, gsGlobal->Queue->os_pool_cur, remain);
+                dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
+		
+		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+	}
 	
-	gsGlobal->Queue->lastElement = 0;
+	gsGlobal->Queue->os_pool_cur = gsGlobal->Queue->os_pool;
+	gsGlobal->Queue->os_size = 0;
+}
+
+void gsKit_queue_exec(GSGLOBAL *gsGlobal)
+{
+	if(gsGlobal->DrawOrder == GS_PER_OS)
+	{
+		gsKit_queue_exec_per(gsGlobal);
+		gsKit_queue_exec_os(gsGlobal);
+	}
+	else
+	{
+		gsKit_queue_exec_os(gsGlobal);
+		gsKit_queue_exec_per(gsGlobal);
+	}
 }
 

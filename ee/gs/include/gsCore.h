@@ -144,6 +144,8 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
 void gsKit_queue_add(GSGLOBAL *gsGlobal, u8 channel, void *data, u32 size);
 void gsKit_queue_exec(GSGLOBAL *gsGlobal);
+void gsKit_queue_exec_per(GSGLOBAL *gsGlobal);
+void gsKit_queue_exec_os(GSGLOBAL *gsGlobal);
 
 #ifdef __cplusplus
 }

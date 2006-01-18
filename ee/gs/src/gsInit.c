@@ -216,7 +216,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 GSGLOBAL *gsKit_init_global(u8 mode)
 {
-	u32 curElement;
+	u32 perElement;
 	
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
 	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
@@ -234,16 +234,20 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	gsGlobal->DoSubOffset = GS_SETTING_OFF;
 
 	gsGlobal->DrawMode = GS_IMMEDIATE;
+	gsGlobal->DrawOrder = GS_PER_OS;
 
 	gsGlobal->EvenOrOdd = 1;
 
-	for(curElement = 0; curElement < GS_RENDER_QUEUE_MAX; curElement++)
+	for(perElement = 0; perElement < GS_RENDER_QUEUE_PER_MAX; perElement++)
 	{
-		gsGlobal->Queue->Elements[curElement].size = 0;
-		gsGlobal->Queue->Elements[curElement].mode = GS_UNUSED;
-		gsGlobal->Queue->Elements[curElement].data = memalign(64, 256);
-//		(u32)gsGlobal->Queue->Elements[curElement].data = ((u32)gsGlobal->Queue->Elements[curElement]->data | 0x3000000);
+		gsGlobal->Queue->Per_Elements[perElement].inuse = GS_UNUSED;
+		gsGlobal->Queue->Per_Elements[perElement].data = memalign(64, 256);
 	}
+
+	gsGlobal->Queue->os_pool_cur = gsGlobal->Queue->os_pool = memalign(64, GS_RENDER_QUEUE_OS_POOLSIZE);
+	(u32)gsGlobal->Queue->os_pool_cur = ((u32)gsGlobal->Queue->os_pool_cur | 0x3000000);
+	gsGlobal->Queue->os_size = 0;
+
 
 	/* Auto-detect signal if needed */
 	if(mode == GS_MODE_AUTO)

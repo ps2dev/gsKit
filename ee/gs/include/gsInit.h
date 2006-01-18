@@ -24,8 +24,13 @@
 #define GS_ONESHOT 0x02
 /// This mode is used internally by the renderqueue manager to mark unused elements of the array.
 #define GS_UNUSED 0x03
-/// Maximum number of elements possible in a renderqueue before we flush
-#define GS_RENDER_QUEUE_MAX 1024
+/// Maximum number of persistent elements possible in a renderqueue before we flush
+#define GS_RENDER_QUEUE_PER_MAX 64
+/// Maximum size of oneshot data before we must flush
+#define GS_RENDER_QUEUE_OS_POOLSIZE 1024 * 1024 // 1MB of oneshot renderqueue
+
+#define GS_PER_OS 0x00 /// Draw Persistant objects first, before oneshot objects
+#define GS_OS_PER 0x01 /// Draw Persistant objects last, after oneshot objects
 
 /// Non-Interlaced Mode
 #define GS_NONINTERLACED 0x00
@@ -479,18 +484,23 @@ struct gsElement
 {
 	u32 *data;
 	u16 size __attribute__ ((packed));
-	u8 channel __attribute__ ((packed));
-	u8 mode __attribute__ ((packed));
+	u8 inuse __attribute__ ((packed));
+	u8 dummy __attribute__ ((packed));
 };
 typedef struct gsElement GSELEMENT;
 
 struct gsQueue
 {
-	GSELEMENT Elements[GS_RENDER_QUEUE_MAX] __attribute__ ((aligned (64)));
+	GSELEMENT Per_Elements[GS_RENDER_QUEUE_PER_MAX];
 
-	u32 size;
-	u32 numElements;
-	u32 lastElement;
+	u32 *os_pool __attribute__ ((aligned (64)));
+	u32 *os_pool_cur;	
+
+	u32 os_size;
+
+	u32 per_size;
+	u32 per_numElements;
+	u32 per_lastElement;
 };
 typedef struct gsQueue GSQUEUE;
 
@@ -525,6 +535,7 @@ struct gsGlobal
 	u8 DoSubOffset;		///< Do Subpixel Offset
 	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
 	u8 DrawMode;		///< Draw Mode (Immediate/Persistant/Oneshot)
+	u8 DrawOrder;		///< Drawing Order (GS_PER_OS/GS_OS_PER) (GS_PER_OS = Persitant objects always drawn first)
 	int ActiveBuffer;	///< Active Framebuffer
 	int Width;		///< Framebuffer Width
 	int Height;		///< Framebuffer Height

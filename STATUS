@@ -52,4 +52,4 @@ Contributors: Please do not modify this file without letting the others
 BUGS:
 	* Scaling for DVD modes untested.
 	* Reports of Mode StartX/StartY vaules off. Please e-mail me with ones that work for you.
-	* Occasional visual "freezing" during extremely intense usage. This is due to some kind of cache issue and is being investigated.
+
