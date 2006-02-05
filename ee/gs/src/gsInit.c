@@ -246,7 +246,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	(u32)gsGlobal->Os_Queue->maxsize = GS_RENDER_QUEUE_OS_POOLSIZE;
 	(u32)gsGlobal->Per_Queue->maxsize = GS_RENDER_QUEUE_PER_POOLSIZE;
 
-	gsGlobal->CurQueue = gsGlobal->Per_Queue;
+	gsGlobal->CurQueue = gsGlobal->Os_Queue;
 
 	/* Auto-detect signal if needed */
 	if(mode == GS_MODE_AUTO)

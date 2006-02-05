@@ -81,6 +81,8 @@
    They happen immediately upon calling, however this behavior will be changed so they
    are also queued into the drawbuffer in a future version.
 
+ - By default gsKit's active drawbuffer is Oneshot.
+
  Feedback & Questions
  -----------------------------------------------------------------------
 
