@@ -1,30 +1,38 @@
 gsKit ChangeLog:
 
--> 01/16/05 - Chris Gilbert (Neovanglist)
+-> 02/05/06 - Chris Gilbert (Neovanglist)
+   * Removed gsKit_scale for good.
+   * Overhauled the drawbuffer objects, and how persistant drawpipes are handled.
+   * Implimented custom SPR allocator and handler for gsKit.
+   * Fixed misc bugs along the way.
+   * Removed immediate mode.
+   * More misc optimizations.
+
+-> 01/16/06 - Chris Gilbert (Neovanglist)
    * More optimizations!
    * Now using the scratchpad more intensively duing renderlist building.
    * Packed the Element structure more tightly, and made it an aligned non-pointer array in the Queue.
    * NOTICE: Modified the GS_AXIS_ macros so that X, U, and V are the same value, so I only have to check on one in gsKit_scale. (Better performance)
 
--> 01/15/05 - Chris Gilbert (Neovanglist)
+-> 01/15/06 - Chris Gilbert (Neovanglist)
    * Tons of optimizations!
    * Now using toSPR as well as fromSPR.
    * Fixed some other misc bugs.
 
--> 01/14/05 - Chris Gilbert (Neovanglist)
+-> 01/14/06 - Chris Gilbert (Neovanglist)
    * Implimented the long awaited gsKit render queue!
    * Implimented DMA fromSPR into dmaKit.
    * Optimzied examples to take advantage of the rew render queue.
 
--> 01/12/05 - Chris Gilbert (Neovanglist)
+-> 01/12/06 - Chris Gilbert (Neovanglist)
    * Fixed large-size textures bug.
    * Modified texture_send to check the dma chain size and only use spr if room is avail.
 
--> 01/12/05 - Chris Gilbert (Neovanglist)
+-> 01/12/06 - Chris Gilbert (Neovanglist)
    * Fixed missing lines of texture bug.
    * Fixed some issues in regards to halfbuffers.
 
--> 01/12/05 - Chris Gilbert (Neovanglist)
+-> 01/12/06 - Chris Gilbert (Neovanglist)
    * Big commit - fixed many bugs!
    * HalfBuffers working now in PAL and NTSC
 
