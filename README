@@ -61,6 +61,26 @@
  gsKit/ee/dms/src	- dmaKit source files.
  gsKit/vu1		- VU1 assembly files.
 
+ Important Notes
+ -----------------------------------------------------------------------
+
+ There are several small notes that need to be made about gsKit operation.
+
+ - gsKit monopolizes the EE's SPR. (Scratchpad) It is used to offset prim packets
+   until they are flushed to the drawbuffer. Using it in your application may produce
+   quite fatal results.
+
+ - There is a fixed drawbuffer size of 1MB for oneshot, and 256KB for persistent.
+   If they are filled beyond capacity, it will force-flush the drawbuffer to the 
+   GS at time of the offending allocation. (THIS MAY MESS UP YOUR OUTPUT ORDER!)
+   You can tweak these values with the GS_RENDER_QUEUE_(OS/PER)_POOLSIZE macros.
+   (Look in ee/gs/include/gsInit.h)
+
+ - Most gsKit routines (prim pushing, TEST/CLAMP mode setting, etc) will queue their
+   execution into the drawbuffer. Texture data sends however, are the exception to this.
+   They happen immediately upon calling, however this behavior will be changed so they
+   are also queued into the drawbuffer in a future version.
+
  Feedback & Questions
  -----------------------------------------------------------------------
 

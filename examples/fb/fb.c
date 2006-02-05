@@ -149,6 +149,8 @@ int main(int argc, char *argv[])
 //	gsGlobal->DoubleBuffering = GS_SETTING_OFF; /* only one screen */
 	gsKit_init_screen(gsGlobal);
 
+	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
+
 	fb.Width = 320;
 	fb.Height = 200;
 	fb.PSM = GS_PSM_T8;
@@ -189,10 +191,9 @@ int main(int argc, char *argv[])
 #ifdef USEBMP
 	printf("VRAM - BMP Texture - Start Address Aligned: %d\n", backtex.Vram % GS_VRAM_BLOCKSIZE_256);
 #endif
+
 	/* clear buffer */
 	gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00));
-
-	gsGlobal->DrawMode = GS_PERSISTENT;
 
 	/* render frame buffer */
 	gsKit_prim_sprite_texture( gsGlobal,	&fb,
@@ -223,7 +224,6 @@ int main(int argc, char *argv[])
 						GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00) /* RGBAQ */
 						);
 #endif
-
 
 	while (1)
 	{

@@ -16,16 +16,13 @@
 
 #include "gsKit.h"
 
-/// Execute this command via DMA immediately
-#define GS_IMMEDIATE 0x00
-/// Place this command into the render queue and execute once per frame
-#define GS_PERSISTENT 0x01
-/// Place this command into the render queue and only execute once
-#define GS_ONESHOT 0x02
-/// This mode is used internally by the renderqueue manager to mark unused elements of the array.
-#define GS_UNUSED 0x03
+#define GS_PERSISTENT 0x00
+#define GS_ONESHOT 0x01
+
 /// Maximum number of persistent elements possible in a renderqueue before we flush
 #define GS_RENDER_QUEUE_PER_MAX 64
+/// Maximum size of persistent data before we must flush
+#define GS_RENDER_QUEUE_PER_POOLSIZE 1024 * 256 // 256K of persistent renderqueue
 /// Maximum size of oneshot data before we must flush
 #define GS_RENDER_QUEUE_OS_POOLSIZE 1024 * 1024 // 1MB of oneshot renderqueue
 
@@ -480,27 +477,17 @@ struct gsClamp
 };
 typedef struct gsClamp GSCLAMP;
 
-struct gsElement
-{
-	u32 *data;
-	u16 size __attribute__ ((packed));
-	u8 inuse __attribute__ ((packed));
-	u8 dummy __attribute__ ((packed));
-};
-typedef struct gsElement GSELEMENT;
-
 struct gsQueue
 {
-	GSELEMENT Per_Elements[GS_RENDER_QUEUE_PER_MAX];
+	void *pool __attribute__ ((aligned (64)));
+	void *pool_cur;	
 
-	u32 *os_pool __attribute__ ((aligned (64)));
-	u32 *os_pool_cur;	
+	void *spr_cur;
 
-	u32 os_size;
+	u32 size;
+	u32 maxsize;
 
-	u32 per_size;
-	u32 per_numElements;
-	u32 per_lastElement;
+	u8 mode;
 };
 typedef struct gsQueue GSQUEUE;
 
@@ -534,14 +521,12 @@ struct gsGlobal
 	u32 ZBuffer;		///< ZBuffer Pointer
 	u8 DoSubOffset;		///< Do Subpixel Offset
 	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
-	u8 DrawMode;		///< Draw Mode (Immediate/Persistant/Oneshot)
 	u8 DrawOrder;		///< Drawing Order (GS_PER_OS/GS_OS_PER) (GS_PER_OS = Persitant objects always drawn first)
 	int ActiveBuffer;	///< Active Framebuffer
 	int Width;		///< Framebuffer Width
 	int Height;		///< Framebuffer Height
 	int Aspect;		///< Framebuffer Aspect Ratio (Not Currently Used)
-	int OffsetX;		///< Window Offset X
-	int OffsetY;		///< Window Offset Y
+	int Offset;		///< Window Offset
 	int StartX;		///< X Starting Coordinate (Used for Placement Correction)
 	int StartY;		///< Y Starting Coordinate (Used for Placement Correction)
 	int MagX;		///< X Magnification Value
@@ -549,7 +534,9 @@ struct gsGlobal
 	GSBGCOLOR *BGColor;	///< Background Color Structure Pointer
 	GSTEST *Test;		///< TEST Register Value Structure Pointer
 	GSCLAMP *Clamp;		///< CLAMP Register Value Structure Pointer
-	GSQUEUE *Queue; 	///< Draw Queue 
+	GSQUEUE *CurQueue; 	///< Draw Queue (Current)
+	GSQUEUE *Per_Queue; 	///< Draw Queue (Persistent)
+	GSQUEUE *Os_Queue; 	///< Draw Queue (Oneshot)
 	int PSM;		///< Pixel Storage Method (Color Mode)
 	int PSMZ;		///< ZBuffer Pixel Storage Method
 	int PrimContext;	///< Primitive Context

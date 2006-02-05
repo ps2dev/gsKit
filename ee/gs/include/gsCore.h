@@ -73,6 +73,14 @@
 /// Use bilinear filter on texture
 #define GS_FILTER_LINEAR  0x01
 
+struct gsVertex
+{
+	s32 x __attribute__ ((packed));
+	s32 y __attribute__ ((packed));
+	s32 z __attribute__ ((packed));
+};
+typedef struct gsVertex GSVERTEX;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -142,10 +150,11 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
 /// UMSK (MINU), VMSK (MINV), UFIX (MAXU), and VFIX (MAXV)
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
-void gsKit_queue_add(GSGLOBAL *gsGlobal, u8 channel, void *data, u32 size);
+
+void gsKit_kick_spr(GSGLOBAL *gsGlobal, int size);
 void gsKit_queue_exec(GSGLOBAL *gsGlobal);
-void gsKit_queue_exec_per(GSGLOBAL *gsGlobal);
-void gsKit_queue_exec_os(GSGLOBAL *gsGlobal);
+void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode);
 
 #ifdef __cplusplus
 }

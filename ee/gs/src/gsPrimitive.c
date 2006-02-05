@@ -13,26 +13,50 @@
 
 #include "gsKit.h"
 
-void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color)
+static inline void *gsKit_spr_alloc(GSGLOBAL *gsGlobal, int qsize, int bsize)
+{
+        void *p_spr;
+                 
+        if( ((u32)gsGlobal->CurQueue->spr_cur + bsize ) >= 0x70004000)
+        {
+                gsKit_kick_spr(gsGlobal, qsize);
+        }
+
+        p_spr = gsGlobal->CurQueue->spr_cur;
+        gsGlobal->CurQueue->spr_cur += bsize;
+        gsGlobal->CurQueue->size += qsize;
+
+        return p_spr;
+}
+
+void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 4;
+        int qsize = 3;
+        int bsize = 48;
 	
-        int ix = gsKit_scale(gsGlobal, GS_AXIS_X, x);
-        int iy = gsKit_scale(gsGlobal, GS_AXIS_Y, y);
-        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
+        if(gsGlobal->Field == GS_FRAME)
+        {
+                y /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y += 0.5;
+                }
+#endif
+        }
+        
+        int ix = (int)(x * 16.0f) + gsGlobal->Offset;
+        int iy = (int)(y * 16.0f) + gsGlobal->Offset;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-	if(gsGlobal->DrawMode == GS_IMMEDIATE)
 	{
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+                qsize++;
+		bsize += 16;
 	}
+
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -52,39 +76,43 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, float z, u64 color)
         *p_data++ = GS_SETREG_XYZ2( ix, iy, iz );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, float x2, float y2, float z2, u64 color)
+void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x2, float y2, int iz2, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 5;
+        int qsize = 4;
+        int bsize = 64;
 
-        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-        
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-
-        if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        if(gsGlobal->Field == GS_FRAME)
         {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+                y1 /= 2;
+                y2 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5;
+                        y2 += 0.5;
+                }
+#endif
+        }
+        
+        
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+        
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+         
+        if( gsGlobal->PrimAlphaEnable == 1 )
+	{
+                qsize++;
+		bsize += 16;
 	}
+
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize);
+
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -107,41 +135,37 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, float 
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, float z, u64 color)
+void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + segments;
+        int qsize = 2 + segments;
 	int count;
 	int vertexdata[segments*2];
 
 	for(count = 0; count < (segments * 2); count+=2)
 	{
-	        vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *LineStrip++);
-	        vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *LineStrip++);
+	        vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		if(gsGlobal->Field == GS_FRAME)
+	        {
+			*(LineStrip) /= 2;
+		#ifdef GSKIT_ENABLE_HBOFFSET
+	                if(!gsGlobal->EvenOrOdd)
+	                {
+				*(LineStrip) += 0.5;
+	                }
+		#endif
+		}
+	        vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
 	}
-        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
         
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16));
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
                 *p_data++ = gsGlobal->PrimAlpha;
@@ -163,40 +187,37 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, f
 	        *p_data++ = GS_XYZ2;
 	}
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + segments;
+        int qsize = 2 + segments;
 	int count;
 	int vertexdata[segments*3];
 
 	for(count = 0; count < (segments * 3); count+=3)
 	{
-	        vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *LineStrip++);
-	        vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *LineStrip++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *LineStrip++);
+	        vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(LineStrip) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+	                        *(LineStrip) += 0.5;
+                        }
+                #endif
+                }
+	        vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+2] = (int)((*LineStrip++) * 16.0f);
 	}
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
         
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16));
         
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -219,37 +240,40 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 	        *p_data++ = GS_XYZ2;
 	}
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, float z, u64 color)
+void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, int iz, u64 color)
 {
 	u64* p_store;
 	u64* p_data;
-	int size = 5;
+	int qsize = 4;
+	int bsize = 64;	
 
-        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-        int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
+        if(gsGlobal->Field == GS_FRAME)
+        {
+                y1 /= 2;
+                y2 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5;
+                        y2 += 0.5;
+                }
+#endif
+	}
+
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+	{
+                qsize++;
+		bsize += 16;
 	}
+
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -272,45 +296,49 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
 	*p_data++ = GS_XYZ2;
 
-	if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-	        dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-	else
-		gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1, 
-			     float x2, float y2, float z2,
-			     float x3, float y3, float z3, u64 color)
+void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
+						float x2, float y2, int iz2,
+						float x3, float y3, int iz3, u64 color)
 {
 	u64* p_store;
 	u64* p_data;
-	int size = 6;
+	int qsize = 5;
+	int bsize = 80;
 
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
-
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
-
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
+        if(gsGlobal->Field == GS_FRAME)
+        {
+                y1 /= 2;
+                y2 /= 2;
+                y3 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5;
+                        y2 += 0.5;
+                        y3 += 0.5;
+                }
+#endif
+        }
+        
+        
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+        
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+         
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+	{
+                qsize++;
+		bsize += 16;
 	}
+
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -337,41 +365,36 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
         *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, float z, u64 color)
+void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + segments;
+        int qsize = 2 + segments;
         int count;
         int vertexdata[segments*2];
         
         for(count = 0; count < (segments * 2); count+=2)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
+                vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {   
+                        *(TriStrip) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+	                       *(TriStrip) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
         }
 
-	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
-
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16));
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -394,40 +417,37 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
                 *p_data++ = GS_XYZ2;
         }
         
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segments, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + segments;
+        int qsize = 2 + segments;
         int count;
         int vertexdata[segments*3];
         
         for(count = 0; count < (segments * 3); count+=3)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriStrip++);
+                vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {   
+                        *(TriStrip) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriStrip) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] = (int)((*TriStrip++) * 16.0f);
         }
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16) );
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -450,41 +470,36 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
                 *p_data++ = GS_XYZ2;
         }
         
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, float z, u64 color)
+void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + verticies;
+        int qsize = 2 + verticies;
         int count;
         int vertexdata[verticies*2];
 
         for(count = 0; count < (verticies * 2); count+=2)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
+                vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {   
+                        *(TriFan) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriFan) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
         }
 
-	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
-
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16) );
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -507,40 +522,37 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, f
                 *p_data++ = GS_XYZ2;
         }
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 3 + verticies;
+        int qsize = 2 + verticies;
         int count;
         int vertexdata[verticies*3];
 
         for(count = 0; count < (verticies * 3); count+=3)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriFan++);
+                vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(TriFan) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriFan) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] = (int)(*TriFan++ * 16.0f);
         }
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize * 16) );
 
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
@@ -563,47 +575,50 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
                 *p_data++ = GS_XYZ2;
         }
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 
-void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
-							float x2, float y2, float z2,
-							float x3, float y3, float z3, 
+void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
+							float x2, float y2, int iz2,
+							float x3, float y3, int iz3, 
 							u64 color1, u64 color2, u64 color3)
 {
 	u64* p_store;
 	u64* p_data;
-	int size = 8;
+	int qsize = 7;
+	int bsize = 112;
 
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
+	if(gsGlobal->Field == GS_FRAME)
+	{
+		y1 /= 2;
+		y2 /= 2;
+		y3 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+		if(!gsGlobal->EvenOrOdd)
+		{
+			y1 += 0.5;
+			y2 += 0.5;
+			y3 += 0.5;
+		}
+#endif
+	}
 
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
 
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
-		size++;
-
-	p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-		*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-		*p_data++ = GIF_AD;
+	{
+		qsize++;
+		bsize += 16;
 	}
+
+	p_store = p_data = gsKit_spr_alloc(gsGlobal, qsize, bsize);
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	{
@@ -620,69 +635,73 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, floa
         *p_data++ = color1;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );   
+        *p_data++ = GS_SETREG_XYZ2(ix1, iy1, iz1);
         *p_data++ = GS_XYZ2;
-  
+
         *p_data++ = color2;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
+        *p_data++ = GS_SETREG_XYZ2(ix2, iy2, iz2);
         *p_data++ = GS_XYZ2;
 
         *p_data++ = color3;
         *p_data++ = GS_RGBAQ;
 
-        *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
+        *p_data++ = GS_SETREG_XYZ2(ix3, iy3, iz3);
         *p_data++ = GS_XYZ2;
-        
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
-void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
-					    float x2, float y2, float z2,
-					    float x3, float y3, float z3,
-					    float x4, float y4, float z4, u64 color)
+void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
+					    float x2, float y2, int iz2,
+					    float x3, float y3, int iz3,
+					    float x4, float y4, int iz4, u64 color)
 {
 	u64* p_store;
 	u64* p_data;
-	int size = 7;
+	int qsize = 6;
+	int bsize = 96;
         
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
-	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
-                
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
-	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
-
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
-	int iz4 = gsKit_scale(gsGlobal, GS_AXIS_Z, z4);
-        
-        if( gsGlobal->PrimAlphaEnable == 1 )
-        size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        if(gsGlobal->Field == GS_FRAME)
         {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+                y1 /= 2;
+                y2 /= 2;
+                y3 /= 2;
+                y4 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5;
+                        y2 += 0.5;
+                        y3 += 0.5;
+                        y4 += 0.5;
+                }
+#endif
+        }
+
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+
+        int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
+        int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
+
+        if( gsGlobal->PrimAlphaEnable == 1 )
+	{
+        	qsize++;
+		bsize += 16;
 	}
 
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
+
         if( gsGlobal->PrimAlphaEnable == 1 )
         {
-        *p_data++ = gsGlobal->PrimAlpha;
-        *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+	        *p_data++ = gsGlobal->PrimAlpha;
+	        *p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
         }
 
         *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 0, gsGlobal->PrimFogEnable,
@@ -706,57 +725,62 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
         *p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 
-void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1,
-						 float x2, float y2, float z2,
-						 float x3, float y3, float z3,
-						 float x4, float y4, float z4, 
+void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
+						 float x2, float y2, int iz2,
+						 float x3, float y3, int iz3,
+						 float x4, float y4, int iz4, 
 						 u64 color1, u64 color2,
 						 u64 color3, u64 color4)
 {
 	u64* p_store;
 	u64* p_data;
-	int size = 10;
+	int qsize = 9;
+	int bsize = 144;
 
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
-	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
-
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
-	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
-
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
-	int iz4 = gsKit_scale(gsGlobal, GS_AXIS_Z, z4);
-
-	if( gsGlobal->PrimAlphaEnable == 1 )
-	size++;
-
-	p_store = p_data = dmaKit_spr_alloc( size*16 );
-         
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
+        if(gsGlobal->Field == GS_FRAME)
         {
-		*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-		*p_data++ = GIF_AD;
-	}
+                y1 /= 2;
+                y2 /= 2;
+                y3 /= 2;
+                y4 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5;
+                        y2 += 0.5;
+                        y3 += 0.5;
+                        y4 += 0.5;
+                }
+#endif
+        }
+
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+
+        int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
+        int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
 
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	{
-	*p_data++ = gsGlobal->PrimAlpha;
-	*p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+		qsize++;
+		bsize += 16;
+	}
+
+	p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
+         
+	if( gsGlobal->PrimAlphaEnable == 1 )
+	{
+		*p_data++ = gsGlobal->PrimAlpha;
+		*p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
 	}
         
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 1, 0, gsGlobal->PrimFogEnable, 
@@ -789,13 +813,6 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, float z1
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 	*p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1 );
 }
 
 void gsKit_zblank(GSGLOBAL *gsGlobal)
@@ -803,19 +820,15 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         u64* p_store;
         u64* p_data;
 
-        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, 0);
-        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, gsGlobal->Width);
-        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, 0);
-        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, gsGlobal->Height);
+        int ix1 = gsGlobal->Offset;
+        int iy1 = gsGlobal->Offset;
+        
+        int ix2 = (int)(gsGlobal->Width * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(gsGlobal->Height * 16.0f) + gsGlobal->Offset;
+
 	int iz = 0;	
 
-        p_store = p_data = dmaKit_spr_alloc( 6*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( 5, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, 5, 80 );
 
         *p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, 0, 0,
                                     0, 0, gsGlobal->PrimContext, 0) ;
@@ -834,12 +847,5 @@ void gsKit_zblank(GSGLOBAL *gsGlobal)
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-	{
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 6 );
-		dmaKit_wait_fast( DMA_CHANNEL_GIF );
-	}
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, 5 );
 }
 

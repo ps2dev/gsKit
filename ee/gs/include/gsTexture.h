@@ -167,32 +167,32 @@ u32  gsKit_texture_size(int width, int height, int psm);
 void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
-void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, float z1, float u1, float v1,
-                                                                       float x2, float y2, float z2, float u2, float v2,
+void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, float x1, float y1, int iz1, float u1, float v1,
+                                                                       float x2, float y2, int iz2, float u2, float v2,
                                                                        u64 color);
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
-				float x1, float y1, float z1, float u1, float v1,
-				float x2, float y2, float z2, float u2, float v2,
-				float x3, float y3, float z3, float u3, float v3, u64 color);
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2,
+				float x3, float y3, int iz3, float u3, float v3, u64 color);
 				
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
-					float *TriStrip, int segments, float z, u64 color);
+					float *TriStrip, int segments, int iz, u64 color);
 				
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, u64 color);
 					
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
-					float *TriFan, int verticies, float z, u64 color);
+					float *TriFan, int verticies, int iz, u64 color);
 					
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, u64 color);
 								       
 void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
-				float x1, float y1, float z1, float u1, float v1,
-				float x2, float y2, float z2, float u2, float v2,
-				float x3, float y3, float z3, float u3, float v3,
-				float x4, float y4, float z4, float u4, float v4, u64 color);
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2,
+				float x3, float y3, int iz3, float u3, float v3,
+				float x4, float y4, int iz4, float u4, float v4, u64 color);
 								       
 							
 #define gsKit_prim_sprite_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\

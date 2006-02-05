@@ -34,6 +34,9 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 	
 	gsKit_init_screen(gsGlobal);
+
+	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
+
 	gsKit_clear(gsGlobal, White);
 	
 	Tex1.Width = 256;
@@ -61,8 +64,6 @@ int main(void)
 	#endif
 
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
-
-	gsGlobal->DrawMode = GS_PERSISTENT;
 
 	gsKit_clear(gsGlobal, White);
 

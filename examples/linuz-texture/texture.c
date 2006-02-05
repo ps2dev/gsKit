@@ -41,6 +41,8 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 
+	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
+
 	tex.Width = 256;
 	tex.Height = 256;
 	tex.PSM = GS_PSM_CT24;
@@ -60,7 +62,6 @@ int main(void)
 	tex8.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
 	
-	gsGlobal->DrawMode = GS_PERSISTENT;
 	gsKit_clear(gsGlobal, White);
 	gsKit_prim_sprite_texture(gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
 	gsKit_prim_sprite_texture(gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);

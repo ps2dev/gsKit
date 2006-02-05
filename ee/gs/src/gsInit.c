@@ -142,8 +142,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
-					  gsGlobal->OffsetY);
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->Offset, 
+					  gsGlobal->Offset);
 	*p_data++ = GS_XYOFFSET_1;
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
@@ -179,8 +179,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
-					  gsGlobal->OffsetY);
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->Offset, 
+					  gsGlobal->Offset);
 	*p_data++ = GS_XYOFFSET_2;	
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
@@ -216,13 +216,12 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 GSGLOBAL *gsKit_init_global(u8 mode)
 {
-	u32 perElement;
-	
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
 	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
 	gsGlobal->Test = calloc(1,sizeof(GSTEST));
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
-	gsGlobal->Queue = calloc(1,sizeof(GSQUEUE));
+	gsGlobal->Os_Queue = calloc(1,sizeof(GSQUEUE));
+	gsGlobal->Per_Queue = calloc(1,sizeof(GSQUEUE));
 
 	/* Generic Values */
 	gsGlobal->Setup = 0;
@@ -233,21 +232,21 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	gsGlobal->DoSubOffset = GS_SETTING_OFF;
 
-	gsGlobal->DrawMode = GS_IMMEDIATE;
 	gsGlobal->DrawOrder = GS_PER_OS;
 
 	gsGlobal->EvenOrOdd = 1;
 
-	for(perElement = 0; perElement < GS_RENDER_QUEUE_PER_MAX; perElement++)
-	{
-		gsGlobal->Queue->Per_Elements[perElement].inuse = GS_UNUSED;
-		gsGlobal->Queue->Per_Elements[perElement].data = memalign(64, 256);
-	}
+	gsGlobal->Os_Queue->pool_cur = gsGlobal->Os_Queue->pool = memalign(64, GS_RENDER_QUEUE_OS_POOLSIZE);
+	gsGlobal->Os_Queue->mode = GS_ONESHOT;
+	gsGlobal->Per_Queue->pool_cur = gsGlobal->Per_Queue->pool = memalign(64, GS_RENDER_QUEUE_PER_POOLSIZE);
+	gsGlobal->Per_Queue->mode = GS_PERSISTENT;
+	(u32)gsGlobal->Os_Queue->spr_cur = 0x70000000;
+	(u32)gsGlobal->Per_Queue->spr_cur = 0x70000000;
 
-	gsGlobal->Queue->os_pool_cur = gsGlobal->Queue->os_pool = memalign(64, GS_RENDER_QUEUE_OS_POOLSIZE);
-	(u32)gsGlobal->Queue->os_pool_cur = ((u32)gsGlobal->Queue->os_pool_cur | 0x3000000);
-	gsGlobal->Queue->os_size = 0;
+	(u32)gsGlobal->Os_Queue->maxsize = GS_RENDER_QUEUE_OS_POOLSIZE;
+	(u32)gsGlobal->Per_Queue->maxsize = GS_RENDER_QUEUE_PER_POOLSIZE;
 
+	gsGlobal->CurQueue = gsGlobal->Per_Queue;
 
 	/* Auto-detect signal if needed */
 	if(mode == GS_MODE_AUTO)
@@ -483,8 +482,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 		gsGlobal->MagY = 0;
 		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}		
-	gsGlobal->OffsetX = 2048 << 4;
-	gsGlobal->OffsetY = 2048 << 4;
+	gsGlobal->Offset = 2048 << 4;
 	gsGlobal->ActiveBuffer = 1;
 	gsGlobal->PrimFogEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_OFF;

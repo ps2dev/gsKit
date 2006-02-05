@@ -117,7 +117,7 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 
-	gsGlobal->DrawMode = GS_PERSISTENT;
+	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	gsKit_clear(gsGlobal, White);
 
@@ -158,10 +158,10 @@ int main(void)
 
 	gsKit_prim_sprite(gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
 
+	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
+
 	while(1)
 	{
-		gsGlobal->DrawMode = GS_ONESHOT;
-
 		if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
 			x+=10;
 		else if( (y + height)  <  (VHeight - 10) && (x + width) >= (gsGlobal->Width - 10) )

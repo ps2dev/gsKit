@@ -45,29 +45,32 @@ int main(void)
 	gsGlobal->PrimAlpha = GS_BLEND_FRONT2BACK;
 
 	gsKit_init_screen(gsGlobal);
-	gsKit_clear(gsGlobal, Black);
+
+        gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	gsKit_font_upload(gsGlobal, gsFont);
 	
-	while(1){
-		gsKit_clear(gsGlobal, Black);
+	gsKit_clear(gsGlobal, Black);
 
-		gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, WhiteFont, "Hello World!");
+	gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, WhiteFont, "Hello World!");
 
-		gsKit_font_print(gsGlobal, gsFont, 50, 80, 1, RedFont, "red");
-		gsKit_font_print(gsGlobal, gsFont, 50, 110, 1, GreenFont, "green");
-		gsKit_font_print(gsGlobal, gsFont, 50, 140, 1, BlueFont, "blue");
+	gsKit_font_print(gsGlobal, gsFont, 50, 80, 1, RedFont, "red");
+	gsKit_font_print(gsGlobal, gsFont, 50, 110, 1, GreenFont, "green");
+	gsKit_font_print(gsGlobal, gsFont, 50, 140, 1, BlueFont, "blue");
 
-		gsKit_font_print(gsGlobal, gsFont, 100, 200, 2, WhiteFont, "Testing 1\n"\
-								       "Testing 2\n"\
-								       "Testing 3\n"\
-								       "Testing 4\n"\
-								       "Testing 5\n"\
-								       "Testing 6\n"\
-								       "Testing 7\n"\
-								       "Testing 8\n"\
-								       "Testing 9\n"\
-								       "Testing 10\n");
+	gsKit_font_print(gsGlobal, gsFont, 100, 200, 2, WhiteFont, "Testing 1\n"\
+							       "Testing 2\n"\
+							       "Testing 3\n"\
+							       "Testing 4\n"\
+							       "Testing 5\n"\
+							       "Testing 6\n"\
+							       "Testing 7\n"\
+							       "Testing 8\n"\
+							       "Testing 9\n"\
+							       "Testing 10\n");
+	while(1)
+	{
+		gsKit_queue_exec(gsGlobal);
 
 		gsKit_sync_flip(gsGlobal);
 	}

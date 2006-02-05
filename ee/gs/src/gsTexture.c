@@ -20,7 +20,23 @@
 #include <libjpg.h>
 #endif
 
-static u32 lzw(u32 val)
+static inline void *gsKit_spr_alloc(GSGLOBAL *gsGlobal, int qsize, int bsize)
+{
+        void *p_spr;
+
+        if( ((u32)gsGlobal->CurQueue->spr_cur + bsize ) >= 0x70004000)
+        {
+                gsKit_kick_spr(gsGlobal, qsize);
+        }
+
+        p_spr = gsGlobal->CurQueue->spr_cur;
+        gsGlobal->CurQueue->spr_cur += bsize;
+        gsGlobal->CurQueue->size += qsize;
+
+        return p_spr;
+}
+
+static inline u32 lzw(u32 val)
 {
 	u32 res;
 	__asm__ __volatile__ ("   plzcw   %0, %1    " : "=r" (res) : "r" (val));
@@ -489,7 +505,8 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	if(remain > 0)
 		p_size += 2; 
 
-	p_store = p_data = dmaKit_spr_alloc( p_size*16 );
+//	p_store = p_data = dmaKit_spr_alloc( p_size*16 );
+	p_store = p_data = memalign(64, (p_size * 16));
 
 	FlushCache(0);
 
@@ -554,8 +571,9 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	
 //        if(gsGlobal->DrawMode == GS_IMMEDIATE)
 //        {
-                dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, p_store);
+                dmaKit_send_chain( DMA_CHANNEL_GIF, 0, p_store, p_size);
                 dmaKit_wait_fast( DMA_CHANNEL_GIF );
+		free(p_store);
 //        }
 //        else
 //                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size );
@@ -600,26 +618,27 @@ void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 	}
 }
 
+
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
-				float x1, float y1, float z1, float u1, float v1,
-				float x2, float y2, float z2, float u2, float v2, u64 color)
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 9;
+        int qsize = 8;
+        int bsize = 128;
 
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+
+	int iu1 = (int)(u1 * 16.0f);
+	int iu2 = (int)(u2 * 16.0f);
+	int iv1 = (int)(v1 * 16.0f);
+	int iv2 = (int)(v2 * 16.0f);
+
 	
-	int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
-	int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
-	int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
-	int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
-
 	int tw = 31 - (lzw(Texture->Width) + 1);
 	if(Texture->Width > (1<<tw))
 		tw++;
@@ -629,15 +648,12 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		th++;
 
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
+	{
+                qsize++;
+		bsize += 16;
 	}
+
+        p_store = p_data = gsKit_spr_alloc(gsGlobal, qsize, bsize);
 
 	if(Texture->VramClut == 0)
 	{
@@ -682,24 +698,17 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         *p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
         *p_data++ = GS_XYZ2;
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
-				float x1, float y1, float z1, float u1, float v1,
-				float x2, float y2, float z2, float u2, float v2,
-				float x3, float y3, float z3, float u3, float v3, u64 color)
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2,
+				float x3, float y3, int iz3, float u3, float v3, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 11;
+        int qsize = 10;
+        int bsize = 160;
 
 	int tw = 31 - (lzw(Texture->Width) + 1);
 	if(Texture->Width > (1<<tw))
@@ -709,35 +718,25 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	if(Texture->Height > (1<<th))
 		th++;
 
-	int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-	int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
-	int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-	int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
-	
-	int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
-	int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
-	int iu3 = gsKit_scale(gsGlobal, GS_MAP_U, u3);
-	int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
-	int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
-	int iv3 = gsKit_scale(gsGlobal, GS_MAP_V, v3);
- 
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+
+        int iu1 = (int)(u1 * 16.0f);
+        int iu2 = (int)(u2 * 16.0f);
+        int iu3 = (int)(u3 * 16.0f);
+        int iv1 = (int)(v1 * 16.0f);
+        int iv2 = (int)(v2 * 16.0f);
+        int iv3 = (int)(v3 * 16.0f);
+
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
 
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -788,21 +787,14 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         *p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
         *p_data++ = GS_XYZ2;
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
-					float *TriStrip, int segments, float z, u64 color)
+					float *TriStrip, int segments, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 5 + (segments * 2);
+        int qsize = 4 + (segments * 2);
         int count;
         int vertexdata[segments*4];
 
@@ -816,24 +808,27 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
  
         for(count = 0; count < (segments * 4); count+=4)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_MAP_U, *TriStrip++);
-		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_V, *TriStrip++);
+                vertexdata[count] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(TriStrip) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriStrip) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] =  (int)((*TriStrip++) * 16.0f);
+                vertexdata[count+3] =  (int)((*TriStrip++) * 16.0f);
         }
-	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 	
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize*16) );
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -875,13 +870,6 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_XYZ2;
         }
 	
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -889,7 +877,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 {
         u64* p_store;
         u64* p_data;
-        int size = 5 + (segments * 2);
+        int qsize = 4 + (segments * 2);
         int count;
         int vertexdata[segments*5];
 
@@ -903,24 +891,28 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
  
         for(count = 0; count < (segments * 5); count+=5)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriStrip++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriStrip++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriStrip++);
-		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_U, *TriStrip++);
-		vertexdata[count+4] = gsKit_scale(gsGlobal, GS_MAP_V, *TriStrip++);
+                vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(TriStrip) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+	                        *(TriStrip) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] = (int)((*TriStrip++) * 16.0f);
+                vertexdata[count+3] = (int)((*TriStrip++) * 16.0f);
+                vertexdata[count+4] = (int)((*TriStrip++) * 16.0f);
         }
 	
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+		qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize*16) );
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -960,23 +952,15 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 	
                 *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], vertexdata[count+2] );
                 *p_data++ = GS_XYZ2;
-        }
-	
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
+        }	
 }
 
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
-					float *TriFan, int verticies, float z, u64 color)
+					float *TriFan, int verticies, int iz, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 5 + (verticies * 2);
+        int qsize = 4 + (verticies * 2);
         int count;
         int vertexdata[verticies*4];
 
@@ -990,24 +974,27 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
  
         for(count = 0; count < (verticies * 4); count+=4)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_MAP_U, *TriFan++);
-		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_V, *TriFan++);
+                vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(TriFan) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriFan) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
+                vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
         }
-	int iz = gsKit_scale(gsGlobal, GS_AXIS_Z, z);
 	
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+                qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize*16) );
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -1048,14 +1035,6 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], iz );
                 *p_data++ = GS_XYZ2;
         }
-	
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -1063,7 +1042,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 {
         u64* p_store;
         u64* p_data;
-        int size = 5 + (verticies * 2);
+        int qsize = 4 + (verticies * 2);
         int count;
         int vertexdata[verticies*5];
 
@@ -1077,24 +1056,28 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
  
         for(count = 0; count < (verticies * 5); count+=5)
         {
-                vertexdata[count] = gsKit_scale(gsGlobal, GS_AXIS_X, *TriFan++);
-                vertexdata[count+1] = gsKit_scale(gsGlobal, GS_AXIS_Y, *TriFan++);
-		vertexdata[count+2] = gsKit_scale(gsGlobal, GS_AXIS_Z, *TriFan++);
-		vertexdata[count+3] = gsKit_scale(gsGlobal, GS_MAP_U, *TriFan++);
-		vertexdata[count+4] = gsKit_scale(gsGlobal, GS_MAP_V, *TriFan++);
+                vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                if(gsGlobal->Field == GS_FRAME)
+                {
+                        *(TriFan) /= 2;
+                #ifdef GSKIT_ENABLE_HBOFFSET
+                        if(!gsGlobal->EvenOrOdd)
+                        {
+                        *(TriFan) += 0.5;
+                        }
+                #endif
+                }
+                vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+                vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
+                vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
+                vertexdata[count+4] =  (int)((*TriFan++) * 16.0f);
         }
 	
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
+		qsize++;
 
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, (qsize*16) );
 
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-	        *p_data++ = GIF_AD;
-	}
-        
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -1135,25 +1118,18 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 *p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], vertexdata[count+2] );
                 *p_data++ = GS_XYZ2;
         }
-	
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
 
 void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
-				float x1, float y1, float z1, float u1, float v1,
-				float x2, float y2, float z2, float u2, float v2,
-				float x3, float y3, float z3, float u3, float v3,
-				float x4, float y4, float z4, float u4, float v4, u64 color)
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2,
+				float x3, float y3, int iz3, float u3, float v3,
+				float x4, float y4, int iz4, float u4, float v4, u64 color)
 {
         u64* p_store;
         u64* p_data;
-        int size = 13;
+        int qsize = 12;
+        int bsize = 192;
 
 	int tw = 31 - (lzw(Texture->Width) + 1);
 	if(Texture->Width > (1<<tw))
@@ -1163,42 +1139,34 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	if(Texture->Height > (1<<th))
 		th++;
 
-        int ix1 = gsKit_scale(gsGlobal, GS_AXIS_X, x1);
-        int ix2 = gsKit_scale(gsGlobal, GS_AXIS_X, x2);
-	int ix3 = gsKit_scale(gsGlobal, GS_AXIS_X, x3);
-	int ix4 = gsKit_scale(gsGlobal, GS_AXIS_X, x4);
-	
-        int iy1 = gsKit_scale(gsGlobal, GS_AXIS_Y, y1);
-        int iy2 = gsKit_scale(gsGlobal, GS_AXIS_Y, y2);
-	int iy3 = gsKit_scale(gsGlobal, GS_AXIS_Y, y3);
-	int iy4 = gsKit_scale(gsGlobal, GS_AXIS_Y, y4);
+        int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
+        int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
+        int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
+        int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
 
-	int iz1 = gsKit_scale(gsGlobal, GS_AXIS_Z, z1);
-	int iz2 = gsKit_scale(gsGlobal, GS_AXIS_Z, z2);
-	int iz3 = gsKit_scale(gsGlobal, GS_AXIS_Z, z3);
-	int iz4 = gsKit_scale(gsGlobal, GS_AXIS_Z, z4);
-	
-        int iu1 = gsKit_scale(gsGlobal, GS_MAP_U, u1);
-        int iu2 = gsKit_scale(gsGlobal, GS_MAP_U, u2);
-	int iu3 = gsKit_scale(gsGlobal, GS_MAP_U, u3);
-	int iu4 = gsKit_scale(gsGlobal, GS_MAP_U, u4);
-	
-        int iv1 = gsKit_scale(gsGlobal, GS_MAP_V, v1);
-        int iv2 = gsKit_scale(gsGlobal, GS_MAP_V, v2);
-	int iv3 = gsKit_scale(gsGlobal, GS_MAP_V, v3);
-	int iv4 = gsKit_scale(gsGlobal, GS_MAP_V, v4);
- 
+        int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+        int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+        int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+        int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
+
+        int iu1 = (int)(u1 * 16.0f);
+        int iu2 = (int)(u2 * 16.0f);
+        int iu3 = (int)(u3 * 16.0f);
+        int iu4 = (int)(u4 * 16.0f);
+
+        int iv1 = (int)(v1 * 16.0f);
+        int iv2 = (int)(v2 * 16.0f);
+        int iv3 = (int)(v3 * 16.0f);
+        int iv4 = (int)(v4 * 16.0f);
+
         if( gsGlobal->PrimAlphaEnable == 1 )
-                size++;
-
-        p_store = p_data = dmaKit_spr_alloc( size*16 );
-
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-	        *p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
-        	*p_data++ = GIF_AD;
+	{
+                qsize++;
+		bsize += 16;
 	}
-        
+
+        p_store = p_data = gsKit_spr_alloc( gsGlobal, qsize, bsize );
+
 	if(Texture->VramClut == 0)
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -1254,12 +1222,5 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
         *p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
         *p_data++ = GS_XYZ2;
-	
-        if(gsGlobal->DrawMode == GS_IMMEDIATE)
-        {
-                dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-                dmaKit_wait_fast( DMA_CHANNEL_GIF );
-        }
-        else
-                gsKit_queue_add( gsGlobal, DMA_CHANNEL_GIF, p_store, size - 1);
 }
+
