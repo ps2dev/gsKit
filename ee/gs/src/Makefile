@@ -17,7 +17,6 @@ EE_OBJS = 	gsCore.o \
 		gsTexture.o \
 		gsVU1.o
 
-EE_CFLAGS += -g
 EE_CFLAGS += -O2
 
 all: $(EE_OBJS)

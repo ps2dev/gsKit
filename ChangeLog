@@ -1,5 +1,9 @@
 gsKit ChangeLog:
 
+-> 02/06/06 - Chris Gilbert (Neovanglist)
+   * Fixed some bugs in relation to SPR/drawpipe management
+   * Some small optimizations
+
 -> 02/05/06 - Chris Gilbert (Neovanglist)
    * Removed gsKit_scale for good.
    * Overhauled the drawbuffer objects, and how persistant drawpipes are handled.

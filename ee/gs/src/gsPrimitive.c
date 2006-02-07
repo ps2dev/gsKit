@@ -620,6 +620,7 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 
 	p_store = p_data = gsKit_spr_alloc(gsGlobal, qsize, bsize);
 
+
 	if( gsGlobal->PrimAlphaEnable == 1 )
 	{
 		*p_data++ = gsGlobal->PrimAlpha;

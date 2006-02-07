@@ -51,7 +51,7 @@ void dmaKit_wait_fast(unsigned int channel)
 			 "0:");
 }
 
-int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
+void dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -77,10 +77,10 @@ int dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned
 	printf("Sent to DMA Channel\n");
 	#endif
 
-	return 0;
+	return;
 }
 
-int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
+void dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel w/ SPR %i - %s\n",channel, DMA_NAME[channel]);
@@ -105,10 +105,10 @@ int dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsi
 	printf("Sent to DMA Channel w/ SPR\n");
 	#endif
 
-	return 0;
+	return;
 }
 
-int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
+void dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
 		      unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
@@ -134,10 +134,10 @@ int dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
 	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel in Chain Mode\n");
 	#endif
-        return 0;
+        return;
 }
 
-int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data)
+void dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode w/Scratchpad %i - %s\n",channel, DMA_NAME[channel]);
@@ -160,10 +160,10 @@ int dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data
 	#ifdef GSKIT_DEBUG
 	printf("Sent to DMA Channel in Chain Mode w/Scratchpad\n");
 	#endif
-	return 0;
+	return;
 }
 
-int dmaKit_get_spr(unsigned int channel, void *data, void *dest, unsigned int size)
+void dmaKit_get_spr(unsigned int channel, void *data, void *dest, unsigned int size)
 {
         #ifdef GSKIT_DEBUG
         printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -189,6 +189,6 @@ int dmaKit_get_spr(unsigned int channel, void *data, void *dest, unsigned int si
         printf("Sent to DMA Channel\n");
         #endif
 
-        return 0;
+        return;
 }
 
