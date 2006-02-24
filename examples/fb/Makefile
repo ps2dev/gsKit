@@ -11,7 +11,7 @@
 
 EE_BIN  = fb.elf
 EE_OBJS = fb.o
-EE_LIBS = -lmf
+EE_LIBS = -lm
 
 all: $(EE_BIN)
 
