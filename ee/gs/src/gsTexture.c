@@ -628,6 +628,19 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
         int qsize = 8;
         int bsize = 128;
 
+        if(gsGlobal->Field == GS_FRAME)
+        {
+		y1 /= 2;
+		y2 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                }
+#endif
+	}
+
 	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
 	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
 	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
@@ -717,6 +730,21 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int th = 31 - (lzw(Texture->Height) + 1);
 	if(Texture->Height > (1<<th))
 		th++;
+
+        if(gsGlobal->Field == GS_FRAME)
+        {
+                y1 /= 2;
+                y2 /= 2;
+                y3 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                        y3 += 0.5f;
+                }
+#endif
+        }
 
         int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
         int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
@@ -1138,6 +1166,25 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int th = 31 - (lzw(Texture->Height) + 1);
 	if(Texture->Height > (1<<th))
 		th++;
+
+        if(gsGlobal->Field == GS_FRAME)
+        {
+                y1 /= 2;
+                y2 /= 2;
+                y3 /= 2;
+                y4 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+                if(!gsGlobal->EvenOrOdd)
+                {
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                        y3 += 0.5f;
+                        y4 += 0.5f;
+                }
+#endif
+        }
+
+
 
         int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
         int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
