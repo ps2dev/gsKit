@@ -331,8 +331,23 @@
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
 
-/// GS PCRTC (Merge Circuit) Register
-#define GS_PMODE           ((volatile u64 *)(0x12000000))
+/// GS PCRTC (Merge Circuit) Registers
+#define GS_PMODE	((volatile u64 *)(0x12000000))
+#define GS_SMODE1	((volatile u64 *)(0x12000010))
+#define GS_SMODE2	((volatile u64 *)(0x12000020))
+#define GS_SRFSH	((volatile u64 *)(0x12000030))
+#define GS_SYNCH1	((volatile u64 *)(0x12000040))
+#define GS_SYNCH2	((volatile u64 *)(0x12000050))
+#define GS_SYNCV	((volatile u64 *)(0x12000060))
+#define GS_EXTBUF	((volatile u64 *)(0x120000B0))
+#define GS_EXTDATA	((volatile u64 *)(0x120000C0))
+#define GS_EXTWRITE	((volatile u64 *)(0x120000D0))
+
+/// GS Framebuffer Register (Output Circuit 1)
+#define GS_DISPFB1	((volatile u64 *)(0x12000070))
+
+/// GS Framebuffer Register (Output Circuit 2)
+#define GS_DISPFB2	((volatile u64 *)(0x12000090))
 
 /// GS PCRTC (Merge Circuit) Register Access Macro
 #define GS_SET_PMODE(EN1,EN2,MMOD,AMOD,SLBG,ALP) \
@@ -341,12 +356,47 @@
         ((u64)(EN2)     << 1)   | \
         ((u64)(001)     << 2)   | \
         ((u64)(MMOD)    << 5)   | \
-        ((u64)(AMOD) << 6)      | \
-        ((u64)(SLBG) << 7)      | \
+        ((u64)(AMOD)	<< 6)	| \
+        ((u64)(SLBG)	<< 7)	| \
         ((u64)(ALP)     << 8)
 
-/// GS Framebuffer Register (Output Circuit 1)
-#define GS_DISPFB1 ((volatile u64 *)(0x12000070))
+#define GS_SET_PMODE_EXT(EN1,EN2,CRTMD,MMOD,AMOD,SLBG,ALP, NFLD, EXVWINS, EXVWINE, EVSYNCMD) \
+        *GS_PMODE = \
+        ((u64)(EN1)     << 0)   | \
+        ((u64)(EN2)     << 1)   | \
+        ((u64)(CRTMD)   << 2)   | \
+        ((u64)(MMOD)    << 5)   | \
+        ((u64)(AMOD)	<< 6)	| \
+        ((u64)(SLBG)	<< 7)	| \
+        ((u64)(ALP)     << 8)	| \
+        ((u64)(NFLD)	<< 16)	| \
+        ((u64)(EXVWINS)	<< 32)	| \
+        ((u64)(EXVWINE)	<< 42)	| \
+        ((u64)(EVSYNCMD) << 52)
+
+#define GS_SET_EXTBUF(EXBP,EXBW,FBIN,WFFMD,EMODA,EMODC,WDX,WDY) \
+        *GS_EXTBUF = \
+	((u64)(EXBP)	<< 0)	| \
+	((u64)(EXBW)	<< 14)	| \
+	((u64)(FBIN)	<< 20)	| \
+	((u64)(WFFMD)	<< 22)	| \
+	((u64)(EMODA)	<< 23)	| \
+	((u64)(EMODC)	<< 25)	| \
+	((u64)(WDX)	<< 32)	| \
+	((u64)(WDY)	<< 43)
+
+#define GS_SET_EXTDATA(SX,SY,SMPH,SMPV,WW,WH) \
+        *GS_EXTDATA = \
+	((u64)(SX)	<< 0)	| \
+	((u64)(SY)	<< 12)	| \
+	((u64)(SMPH)	<< 23)	| \
+	((u64)(SMPV)	<< 27)	| \
+	((u64)(WW)	<< 32)	| \
+	((u64)(WH)	<< 44)
+
+#define GS_SET_EXTWRITE(WRITE) \
+        *GS_EXTWRITE = \
+	((u64)(WRITE)	<< 0)
 
 /// GS Framebuffer Register Access Macro (Output Circuit 1)
 #define GS_SET_DISPFB1(FBP,FBW,PSM,DBX,DBY) \
@@ -356,9 +406,6 @@
         ((u64)(PSM)     << 15)  | \
         ((u64)(DBX)     << 32)  | \
         ((u64)(DBY)     << 43)
-
-/// GS Framebuffer Register (Output Circuit 2)
-#define GS_DISPFB2         ((volatile u64 *)(0x12000090))
 
 /// GS Framebuffer Register Access Macro (Output Circuit 2)
 #define GS_SET_DISPFB2(FBP,FBW,PSM,DBX,DBY) \
