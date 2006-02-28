@@ -843,7 +843,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriStrip) += 0.5;
+                        *(TriStrip) += 0.5f;
                         }
                 #endif
                 }
@@ -926,7 +926,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-	                        *(TriStrip) += 0.5;
+	                        *(TriStrip) += 0.5f;
                         }
                 #endif
                 }
@@ -1009,7 +1009,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriFan) += 0.5;
+	                        *(TriFan) += 0.5f;
                         }
                 #endif
                 }
@@ -1091,7 +1091,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriFan) += 0.5;
+	                        *(TriFan) += 0.5f;
                         }
                 #endif
                 }

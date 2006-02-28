@@ -42,7 +42,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y += 0.5;
+                        y += 0.5f;
                 }
 #endif
         }
@@ -92,8 +92,8 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y1 += 0.5;
-                        y2 += 0.5;
+                        y1 += 0.5f;
+                        y2 += 0.5f;
                 }
 #endif
         }
@@ -154,7 +154,7 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 		#ifdef GSKIT_ENABLE_HBOFFSET
 	                if(!gsGlobal->EvenOrOdd)
 	                {
-				*(LineStrip) += 0.5;
+				*(LineStrip) += 0.5f;
 	                }
 		#endif
 		}
@@ -206,7 +206,7 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-	                        *(LineStrip) += 0.5;
+	                        *(LineStrip) += 0.5f;
                         }
                 #endif
                 }
@@ -256,8 +256,8 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y1 += 0.5;
-                        y2 += 0.5;
+                        y1 += 0.5f;
+                        y2 += 0.5f;
                 }
 #endif
 	}
@@ -315,9 +315,9 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y1 += 0.5;
-                        y2 += 0.5;
-                        y3 += 0.5;
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                        y3 += 0.5f;
                 }
 #endif
         }
@@ -384,7 +384,7 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-	                       *(TriStrip) += 0.5;
+	                       *(TriStrip) += 0.5f;
                         }
                 #endif
                 }
@@ -436,7 +436,7 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriStrip) += 0.5;
+                        *(TriStrip) += 0.5f;
                         }
                 #endif
                 }
@@ -489,7 +489,7 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriFan) += 0.5;
+                        *(TriFan) += 0.5f;
                         }
                 #endif
                 }
@@ -541,7 +541,7 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
                 #ifdef GSKIT_ENABLE_HBOFFSET
                         if(!gsGlobal->EvenOrOdd)
                         {
-                        *(TriFan) += 0.5;
+                        *(TriFan) += 0.5f;
                         }
                 #endif
                 }
@@ -596,9 +596,9 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 #ifdef GSKIT_ENABLE_HBOFFSET
 		if(!gsGlobal->EvenOrOdd)
 		{
-			y1 += 0.5;
-			y2 += 0.5;
-			y3 += 0.5;
+			y1 += 0.5f;
+			y2 += 0.5f;
+			y3 += 0.5f;
 		}
 #endif
 	}
@@ -637,6 +637,7 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
         *p_data++ = GS_RGBAQ;
 
         *p_data++ = GS_SETREG_XYZ2(ix1, iy1, iz1);
+
         *p_data++ = GS_XYZ2;
 
         *p_data++ = color2;
@@ -671,10 +672,10 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y1 += 0.5;
-                        y2 += 0.5;
-                        y3 += 0.5;
-                        y4 += 0.5;
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                        y3 += 0.5f;
+                        y4 += 0.5f;
                 }
 #endif
         }
@@ -750,10 +751,10 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 #ifdef GSKIT_ENABLE_HBOFFSET
                 if(!gsGlobal->EvenOrOdd)
                 {
-                        y1 += 0.5;
-                        y2 += 0.5;
-                        y3 += 0.5;
-                        y4 += 0.5;
+                        y1 += 0.5f;
+                        y2 += 0.5f;
+                        y3 += 0.5f;
+                        y4 += 0.5f;
                 }
 #endif
         }
