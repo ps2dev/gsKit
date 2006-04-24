@@ -16,12 +16,18 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_720P); // Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60); // VGA 640x480@60Hz
+
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_480P); // HTDV 480P
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_720P); // HTDV 720P
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I); // HDTV 1080I Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I_I); // HDTV 1080I Half Buffers
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // Full Buffers
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // Half Buffers
+
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL_I); // NTSC Half Buffers
+
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // NTSC Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // NTSC Half Buffers
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.
 	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
@@ -122,7 +128,7 @@ int main(void)
 	gsKit_clear(gsGlobal, White);
 
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
-	
+
 	gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1.0, Black);
 
 	gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1.0, Red);
@@ -178,7 +184,9 @@ int main(void)
 
 		gsKit_queue_exec(gsGlobal);
 
+		// Flip before exec to take advantage of DMA execution double buffering.
 		gsKit_sync_flip(gsGlobal);
+
 	}
 	
 	return 0;

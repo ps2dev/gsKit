@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
 	/* initialize screen */
 	gsGlobal->PSM = GS_PSM_CT24;
-//	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
+	gsGlobal->ZBuffering = GS_SETTING_OFF; /* spare some vram */
 //	If we disable double buffering, we can't fill the frame fast enough.
 //	When this happens, we get a line through the top texture about 20% up
 //	from the bottom of the screen.
@@ -233,11 +233,11 @@ int main(int argc, char *argv[])
 		/* upload new frame buffer */
 		gsKit_texture_upload(gsGlobal, &fb);
 
+                /* vsync and flip buffer */
+                gsKit_sync_flip(gsGlobal);
+
 		/* execute render queue */
 		gsKit_queue_exec(gsGlobal);
-
-		/* vsync and flip buffer */
-		gsKit_sync_flip(gsGlobal);
 	}
 
 	/* keep compilers happy (tm) */

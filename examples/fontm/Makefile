@@ -6,10 +6,24 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/Makefile - gsKit examples root makefile.
+# examples/fontm/Makefile - Makefile for "fontm" example.
 #
 
-SUBDIRS = basic textures linuz-texture font fb alpha fontm
+EE_BIN  = fontm.elf
+EE_OBJS = fontm.o
 
-include ../Rules.make
+all: $(EE_BIN)
 
+test: all
+	ps2client -h $(PS2_IP) -t 1 execee host:fontm.elf
+
+reset: clean
+	ps2client -h $(PS2_IP) reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+install:
+
+include ../../Makefile.pref
+include ../../Makefile.global

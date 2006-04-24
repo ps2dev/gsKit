@@ -51,7 +51,7 @@ void dmaKit_wait_fast(unsigned int channel)
 			 "0:");
 }
 
-void dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
+void dmaKit_send(unsigned int channel, void *data, unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -80,7 +80,34 @@ void dmaKit_send(unsigned int channel, unsigned int timeout, void *data, unsigne
 	return;
 }
 
-void dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, unsigned int size)
+void dmaKit_send_ucab(unsigned int channel, void *data, unsigned int size)
+{
+        #ifdef GSKIT_DEBUG
+        printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
+        #endif
+
+        DMA_SET_PCR(0x01, channel);
+        DMA_SET_STAT(0x01, channel);
+
+        if(DMA_QWC[channel])
+                *(volatile u32 *)DMA_QWC[channel] = size;
+        *(volatile u32 *)DMA_MADR[channel] = DMA_SET_MADR((u32)data - 0x30000000, 0); 
+        *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,    // Direction
+                                                          0,    // ChainMode
+                                                          0,    // Address Stack Pointer
+                                                          DMA_TAG_ENABLE[channel], // Transfer DMA Tag
+                                                          0,    // No Interrupts
+                                                          1,    // Start DMA
+                                                          0 );  // Priority Control Enable??
+
+        #ifdef GSKIT_DEBUG
+        printf("Sent to DMA Channel\n");
+        #endif
+
+        return;
+}
+
+void dmaKit_send_spr(unsigned int channel, void *data, unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel w/ SPR %i - %s\n",channel, DMA_NAME[channel]);
@@ -88,8 +115,6 @@ void dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, uns
 
         DMA_SET_PCR(0x01, channel);
         DMA_SET_STAT(0x01, channel);
-
-	SyncDCache(data, data+size*16);
 
 	if(DMA_QWC[channel])
 		*(volatile u32 *)DMA_QWC[channel] = size;
@@ -108,8 +133,7 @@ void dmaKit_send_spr(unsigned int channel, unsigned int timeout, void *data, uns
 	return;
 }
 
-void dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
-		      unsigned int size)
+void dmaKit_send_chain(unsigned int channel, void *data, unsigned int size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode %i - %s\n",channel, DMA_NAME[channel]);
@@ -118,10 +142,11 @@ void dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
         DMA_SET_PCR(0x01, channel);
         DMA_SET_STAT(0x01, channel);
 
-        SyncDCache(data, data+size*16);
+	SyncDCache(data, data+size*16);
 
 	if(DMA_QWC[channel])
 	       	*(volatile u32 *)DMA_QWC[channel] = 0;
+
 	*(volatile u32 *)DMA_TADR[channel] = DMA_SET_TADR((u32)data, 0);
         *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,	// Direction
 							  1,	// ChainMode
@@ -137,7 +162,34 @@ void dmaKit_send_chain(unsigned int channel, unsigned int timeout, void *data,
         return;
 }
 
-void dmaKit_send_chain_spr(unsigned int channel, unsigned int timeout, void *data)
+void dmaKit_send_chain_ucab(unsigned int channel, void *data)
+{
+        #ifdef GSKIT_DEBUG
+        printf("Sending to DMA Channel in Chain Mode from UCAB %i - %s\n",channel, DMA_NAME[channel]);
+        #endif
+
+        DMA_SET_PCR(0x01, channel);
+        DMA_SET_STAT(0x01, channel);
+
+        if(DMA_QWC[channel])
+                *(volatile u32 *)DMA_QWC[channel] = 0;
+
+        *(volatile u32 *)DMA_TADR[channel] = DMA_SET_TADR((u32)data - 0x30000000, 0);
+        *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,    // Direction
+                                                          1,    // ChainMode
+                                                          0,    // Address Stack Pointer
+                                                          DMA_TAG_ENABLE[channel], // Transfer DMA Tag
+                                                          0,    // No Interrupts
+                                                          1,    // Start DMA
+                                                          0 );  // Priority Control Enable??
+
+        #ifdef GSKIT_DEBUG
+        printf("Sent to DMA Channel in Chain Mode from UCAB\n");
+        #endif
+        return;
+}
+
+void dmaKit_send_chain_spr(unsigned int channel, void *data)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode w/Scratchpad %i - %s\n",channel, DMA_NAME[channel]);

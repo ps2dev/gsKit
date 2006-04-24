@@ -16,19 +16,9 @@
 
 #include "gsKit.h"
 
-/// Vertex on Axis X (Used for gsKit_scale())
-#define GS_AXIS_X 0x00
-/// Vertex on Axis Y (Used for gsKit_scale())
-#define GS_AXIS_Y 0x01
-/// Vertex on Axis Z (Used for gsKit_scale())
-#define GS_AXIS_Z 0x02
-
-/// UV Coordinate on Axis U (Used for gsKit_scale())
-#define GS_MAP_U 0x00
-/// UV Coordinate on Axis V (Used for gsKit_scale())
-#define GS_MAP_V 0x00
-
+/// GS VRAM "System" Allocation (Framebuffer, ZBuffer, etc)
 #define GSKIT_ALLOC_SYSBUFFER 0x00
+/// GS VRAM "User" Allocation (Texture, CLUT, etc)
 #define GSKIT_ALLOC_USERBUFFER 0x01
 
 /// Return this is VRAM allocation fails.
@@ -54,6 +44,8 @@
 #define GS_CMODE_REGION_CLAMP 0x02
 /// Repeats a Portion of the Texture Defined by UMSK (MINU), VMSK (MINV), UFIX (MAXU), and VFIX (MAXV)
 #define GS_CMODE_REGION_REPEAT 0x03
+/// Resets CLAMP vales to whatever is in gsGlobal->Clamp
+#define GS_CMODE_RESET 0xFF
 
 /// Turns off Z Testing
 #define GS_ZTEST_OFF 0x01
@@ -73,6 +65,7 @@
 /// Use bilinear filter on texture
 #define GS_FILTER_LINEAR  0x01
 
+/// Basic X/Y/Z Vertex Structure
 struct gsVertex
 {
 	s32 x __attribute__ ((packed));
@@ -150,10 +143,22 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset);
 /// UMSK (MINU), VMSK (MINV), UFIX (MAXU), and VFIX (MAXV)
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset);
 
+/// Sets the Alpha Blending Parameters
+void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel);
 
-void gsKit_kick_spr(GSGLOBAL *gsGlobal, int size);
+/// Sets the Texture Filtering Parameters
+void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode);
+
+/// Reset specified drawqueue to it's initial state (Useful for clearing the Persistent Queue)
+void gsKit_queue_reset(GSQUEUE *Queue);
+
+/// Normal User Draw Queue "Execution" (Kicks Oneshot and Persistent Queues)
 void gsKit_queue_exec(GSGLOBAL *gsGlobal);
+
+/// Specific Draw Queue "Execution" (Kicks the Queue passed for the second argument)
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+
+/// Switch Current Draw Queue (Between GS_ONESHOT and GS_PERSISTENT)
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode);
 
 #ifdef __cplusplus

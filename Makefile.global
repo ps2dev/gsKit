@@ -11,16 +11,25 @@
 
 include $(GSKITSRC)/ee/Rules.make
 
+EE_LIBS = -Xlinker --start-group
+
 ifdef LIBJPG
 	EE_INCS += -I$(LIBJPG)/include
 	EE_CFLAGS += -DHAVE_LIBJPG
-	EE_LIB_DIRS = -L$(LIBJPG)/lib
-	# link with following libraries (libs need to be defined multiple times in order for linking to work!!)
-	EE_LIBS += -lgcc -lgskit -ldmakit -ljpg -lc -lkernel -lc -lsyscall  -ldebug -lsyscall -lkernel
-else
-	# link with following libraries (libs need to be defined multiple times in order for linking to work!!)
-	EE_LIBS += -lgcc -lgskit -ldmakit -lc -lkernel -lc -lsyscall  -ldebug -lsyscall -lkernel
+	EE_LIB_DIRS += -L$(LIBJPG)/lib
+	EE_LIBS += -ljpg
 endif
+
+ifdef LIBTIFF
+        EE_INCS += -I$(LIBTIFF)
+        EE_CFLAGS += -DHAVE_LIBTIFF
+        EE_LIB_DIRS += -L$(LIBTIFF)
+        EE_LIBS += -ltiff
+endif
+
+EE_LIBS += -lgcc -lm -lgskit -ldmakit -lkernel -lc -lsyscall -ldebug
+
+EE_LIBS += -Xlinker --end-group
 
 # include dir
 EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include -I$(GCCLIB)/include -I$(PS2GDB)/ee

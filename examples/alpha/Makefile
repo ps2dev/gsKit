@@ -6,10 +6,24 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/Makefile - gsKit examples root makefile.
+# examples/alpha/Makefile - Makefile for "alpha" example.
 #
 
-SUBDIRS = basic textures linuz-texture font fb alpha fontm
+EE_BIN  = alpha.elf
+EE_OBJS = alpha.o
 
-include ../Rules.make
+all: $(EE_BIN)
 
+test: all
+	ps2client -h $(PS2_IP) -t 1 execee host:alpha.elf
+
+reset: clean
+	ps2client -h $(PS2_IP) reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+install:
+
+include ../../Makefile.pref
+include ../../Makefile.global

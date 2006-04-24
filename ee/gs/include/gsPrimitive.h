@@ -118,8 +118,6 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						color1, color2, color3, color4);					 
 					 
 
-void gsKit_zblank(GSGLOBAL *gsGlobal);
-
 #ifdef __cplusplus
 }
 #endif

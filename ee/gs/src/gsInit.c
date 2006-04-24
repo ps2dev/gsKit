@@ -35,7 +35,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	int	fbHeight = 0;
 	int	size;
 
-	size = 15;
+	size = 17;
 
 	if(!gsGlobal->Setup)
 	{
@@ -131,7 +131,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	if(gsGlobal->ZBuffering == GS_SETTING_ON)
 		gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSMZ), GSKIT_ALLOC_SYSBUFFER ); // Z Buffer
 
-	p_data = p_store  = dmaKit_spr_alloc( size * 16 );
+	(u32)p_data = (u32)p_store  = gsGlobal->dma_misc;
 
 	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
@@ -150,7 +150,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SCISSOR_1;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL,
 				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
 				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
@@ -187,7 +187,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SCISSOR_2;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
-				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
+				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL,
 				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
 				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 	
@@ -209,12 +209,18 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 		*p_data++ = GS_SETREG_ZBUF_1( NULL, gsGlobal->PSM, 1 );
 		*p_data++ = GS_ZBUF_2;
 	}
-	
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, size );
-	
+
+	*p_data++ = GS_BLEND_BACK2FRONT;
+	*p_data++ = GS_ALPHA_1;
+
+	*p_data++ = GS_BLEND_BACK2FRONT;
+	*p_data++ = GS_ALPHA_2;
+
+	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, size);
+	dmaKit_wait_fast(DMA_CHANNEL_GIF);
 }
 
-GSGLOBAL *gsKit_init_global(u8 mode)
+GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 {
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
 	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
@@ -222,6 +228,7 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 	gsGlobal->Os_Queue = calloc(1,sizeof(GSQUEUE));
 	gsGlobal->Per_Queue = calloc(1,sizeof(GSQUEUE));
+	(u32)gsGlobal->dma_misc = ((u32)memalign(64, 512) | 0x30000000);
 
 	/* Generic Values */
 	gsGlobal->Setup = 0;
@@ -236,15 +243,26 @@ GSGLOBAL *gsKit_init_global(u8 mode)
 
 	gsGlobal->EvenOrOdd = 1;
 
-	gsGlobal->Os_Queue->pool_cur = gsGlobal->Os_Queue->pool = memalign(64, GS_RENDER_QUEUE_OS_POOLSIZE);
+	gsGlobal->Os_AllocSize = Os_AllocSize;
+	(u32)gsGlobal->Os_Queue->dma_tag = (u32)gsGlobal->Os_Queue->pool[0] = ((u32)memalign(64, Os_AllocSize) | 0x30000000);
+	(u32)gsGlobal->Os_Queue->pool[1] = ((u32)memalign(64, Os_AllocSize) | 0x30000000);
+	(u32)gsGlobal->Os_Queue->pool_cur = ((u32)gsGlobal->Os_Queue->pool[0] + 16);
+	(u32)gsGlobal->Os_Queue->pool_max[0] = ((u32)gsGlobal->Os_Queue->pool[0] + Os_AllocSize);
+	(u32)gsGlobal->Os_Queue->pool_max[1] = ((u32)gsGlobal->Os_Queue->pool[1] + Os_AllocSize);
+	gsGlobal->Os_Queue->dbuf = 0;
+	gsGlobal->Os_Queue->tag_size = 0;
+	gsGlobal->Os_Queue->last_tag = gsGlobal->Os_Queue->pool_cur;
+	gsGlobal->Os_Queue->last_type = GIF_RESERVED;
 	gsGlobal->Os_Queue->mode = GS_ONESHOT;
-	gsGlobal->Per_Queue->pool_cur = gsGlobal->Per_Queue->pool = memalign(64, GS_RENDER_QUEUE_PER_POOLSIZE);
+	gsGlobal->Per_AllocSize = Per_AllocSize;
+	(u32)gsGlobal->Per_Queue->dma_tag = (u32)gsGlobal->Per_Queue->pool[0] = ((u32)memalign(64, Per_AllocSize) | 0x30000000);
+	(u32)gsGlobal->Per_Queue->pool_cur = ((u32)gsGlobal->Per_Queue->pool[0] + 16);
+	(u32)gsGlobal->Per_Queue->pool_max[0] = ((u32)gsGlobal->Per_Queue->pool[0] + Per_AllocSize);
+	gsGlobal->Per_Queue->dbuf = 0;
+	gsGlobal->Per_Queue->tag_size = 0;
+	gsGlobal->Per_Queue->last_tag = gsGlobal->Per_Queue->pool_cur;
+	gsGlobal->Per_Queue->last_type = GIF_RESERVED;
 	gsGlobal->Per_Queue->mode = GS_PERSISTENT;
-	(u32)gsGlobal->Os_Queue->spr_cur = 0x70000000;
-	(u32)gsGlobal->Per_Queue->spr_cur = 0x70000000;
-
-	(u32)gsGlobal->Os_Queue->maxsize = GS_RENDER_QUEUE_OS_POOLSIZE;
-	(u32)gsGlobal->Per_Queue->maxsize = GS_RENDER_QUEUE_PER_POOLSIZE;
 
 	gsGlobal->CurQueue = gsGlobal->Os_Queue;
 
@@ -520,11 +538,12 @@ GSFONT *gsKit_init_font(u8 type, char *path)
 	
 	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
 	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
-	gsFont->Path = calloc(1,strlen(path));
-	strcpy(gsFont->Path, path);
+	if(path)
+	{
+		gsFont->Path = calloc(1,strlen(path));
+		strcpy(gsFont->Path, path);
+	}
 	gsFont->Type = type;
-	if(type != GSKIT_FTYPE_BMP_DAT)
-		printf("gsFont->Path = %s\n",gsFont->Path);
 		
 	return gsFont;
 }

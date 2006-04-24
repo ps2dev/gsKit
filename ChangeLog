@@ -1,5 +1,46 @@
 gsKit ChangeLog:
 
+-> 04/22/06 - Chris Gilbert (Neovanglist)
+   * Fully implimented FONTM support.
+   * Added a hack on 4bit BMP textures to swap nibbles so it displays
+     correctly.
+   * Added a gsKit_texture_send_inline routine, this allows you to schedule
+     a texture upload via your drawbuffer.
+     *WARNING* You MUST make ensure that when the time comes to send, the
+     cache is in sync since it won't FlushCache() for you. The best way
+     to do this is to write the texture to be uploaded in memory using UCAB.
+   * Added a gsKit_heap_alloc_dma routine. This allows you to allocate things
+     with their own DMA_TAGs into the drawbuffer. (Like textures)
+
+-> 04/15/06 - Chris Gilbert (Neovanglist)
+   * Added 4bit BMP image support.
+   * Started on FONTM support - added fontm example
+
+-> 04/14/06 - Chris Gilbert (Neovanglist)
+   * More big changes to the drawbuffer system...
+   * gsKit is now working 100% as far as I know, please report bugs ASAP.
+   * gsKit is now the fastest library according to Shazz's "newlibtest" - 27800 tri/frame!
+   * NOTICE: Made some dmaKit changes, cleaned up the API a bit and added a new
+     specialized routine. If you use dmaKit, you will need to make some trivial
+     changes to get it compiling. (Just remove the timeout argument from your call.)
+   * Added TIFF texture support to gsKit (and ported libtiff, will be in svn soon)
+   * Added full (and fixed) Alpha blending support, check the alpha example.
+   * Other small stuff here and there.
+   * gsKit 0.3 release is on it's way very soon, please let me know of any bugs
+     and/or last minute features ASAP so I can get them into the release.
+   * Added a 512 byte dma_misc buffer to gsGlobal. This is for small/trivial
+     DMA packets so you don't have to memalign() for them.
+     NOTE: It's UCAB, so be careful how you work with it.
+
+-> 04/09/06 - Chris Gilbert (Neovanglist)
+   * Totally overhauled the drawbuffer system... (again)
+   * gsKit now uses REGLIST mode and GIFTAG sharing on same-type prims!
+   * Major speedups.
+   * Got all known bugs back out... last commit was a real mess.
+   * NOTICE: I made new routines in gsCore for setting tex1 and blend modes. 
+     Right now they get setup "Automagically" but this is a performance issue
+     and will be changed *after* gsKit 0.3.
+
 -> 02/06/06 - Chris Gilbert (Neovanglist)
    * Fixed some bugs in relation to SPR/drawpipe management
    * Some small optimizations

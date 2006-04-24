@@ -45,4 +45,8 @@ gawd^ - Using gsKit a lot, getting my butt in gear to fix bugs, and the fb demo!
 
 jbit - Tons of help tracking down some really nasty texture bugs, plus lending me some code :)
 
+Shazz - His libtest app has been TONS of help stress/performance testing gsKit.
+        I've fixed a lot of bugs I would have never otherwise found as a result of it.
+        (Strange things happen when you start slamming 20k+ tri into a frame!)
+
 And everyone else from the PS2 Dev community! Thanks!

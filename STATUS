@@ -36,7 +36,7 @@ dmaInit - DMA Initilization routines.
 |--------------------------------------------------------------|
 | gsTexture   | Completed.                              | 100% |
 |--------------------------------------------------------------|
-| gsFont      | BMP and FNT Font Support Implimented.   | 50%  |
+| gsFont      | BMP, FNT, and FONTM Implimented.        | 80%  |
 |--------------------------------------------------------------|
 | gsVU1       | Not Started.                            | 0%   |
 |--------------------------------------------------------------|
@@ -52,4 +52,5 @@ Contributors: Please do not modify this file without letting the others
 BUGS:
 	* Scaling for DVD modes untested.
 	* Reports of Mode StartX/StartY vaules off. Please e-mail me with ones that work for you.
+	* FONTM occasionally has some light "flickering" when there are many glyphs onscreen.
 

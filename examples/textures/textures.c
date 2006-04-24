@@ -121,9 +121,8 @@ int main(void)
 
 	while(1)
 	{
-		gsKit_queue_exec(gsGlobal);
-		
 		gsKit_sync_flip(gsGlobal);
+		gsKit_queue_exec(gsGlobal);
 	}
 	
 	return 0;

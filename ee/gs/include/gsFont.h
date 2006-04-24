@@ -29,13 +29,29 @@
 #define ALPHA_BLEND_ADD_NOALPHA    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_FIX,ALPHA_DST,0x80))
 #define ALPHA_BLEND_ADD    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_SRC,ALPHA_DST,0x00))
 
+struct gsKit_fontm_unpack
+{
+	unsigned int	size;
+	unsigned int	data;
+	unsigned int	and;
+	unsigned int	dif;
+	unsigned int	shft;
+	unsigned char	*ptr;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
-void gsKit_font_print(GSGLOBAL *gsGlobal, GSFONT *gsFont, int X, int Y, int Z, 
-		      unsigned long color, char *String);
+int gsKit_fontm_unpack(GSFONT *gsFont);
+void gsKit_fontm_unpack_raw(unsigned char *base, struct gsKit_fontm_unpack *oke);
+void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke);
+void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, float Z,
+		      float scale, unsigned long color, char *String);
+
+#define gsKit_font_print(gsGlobal, gsFont, X, Y, Z, color, String) \
+	gsKit_font_print_scaled(gsGlobal, gsFont, X, Y, Z, 1.0f, color, String);
 
 #ifdef __cplusplus
 }

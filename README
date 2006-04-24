@@ -24,14 +24,14 @@
  - Multi format GS initialization. (NTSC, PAL, DTV, VESA)
  - HalfBuffer Support (NTSC_I and PAL_I modes)
  - VSync, Double Buffering, Anti Aliasing, and Z Depth Test.
- - Dynamic Render Queue Support, with different drawing modes. (GS_IMMEDIATE, GS_ONESHOT, and GS_PERSISTANT)
+ - Render Queue Support, with different drawing modes. (GS_ONESHOT, and GS_PERSISTANT)
  - Overlay and multi-context support utilizing the "Merge Circuit".
  - Basic primitives as per the Sony documentation. (Line, Tri, TriStrip, ...)
  - Extended primitives support. (Quads and GL Style Vertex Lists)
  - Simple texture loading and handling.
  - Font and printing support for FNT and TrueType formats.
  - GS debugging and diagnostic functionality.
- - C accessibility of all documented GS instructions.
+ - C accessibility of all documented GS functions.
 
  gsKit also includes a library named dmaKit. dmaKit provides C 
  routines for DMAC usage by gsKit. The aim of this library is also
@@ -66,13 +66,12 @@
 
  There are several small notes that need to be made about gsKit operation.
 
- - gsKit monopolizes the EE's SPR. (Scratchpad) It is used to offset prim packets
-   until they are flushed to the drawbuffer. Using it in your application may produce
-   quite fatal results.
+ - As of version 0.3, gsKit no longer uses the scratchpad, so you are free to
+   use it in your application.
 
- - There is a fixed drawbuffer size of 1MB for oneshot, and 256KB for persistent.
-   If they are filled beyond capacity, it will force-flush the drawbuffer to the 
-   GS at time of the offending allocation. (THIS MAY MESS UP YOUR OUTPUT ORDER!)
+ - There is a default drawbuffer size of 2MB for oneshot, and 256KB for persistent.
+   If they are filled beyond capacity, bad things will start to happen.
+   (Compile with -DGSKIT_DEBUG to get warnings about it at the expense of performance)
    You can tweak these values with the GS_RENDER_QUEUE_(OS/PER)_POOLSIZE macros.
    (Look in ee/gs/include/gsInit.h)
 

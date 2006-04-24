@@ -66,12 +66,11 @@ int main(void)
 	gsKit_prim_sprite_texture(gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
 	gsKit_prim_sprite_texture(gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);
 
-	do
+	while(1)
 	{
-		gsKit_queue_exec(gsGlobal);			
-
 		gsKit_sync_flip(gsGlobal);
-	}while(1);
+		gsKit_queue_exec(gsGlobal);			
+	}
 	
 	return 0;
 }

@@ -6,31 +6,18 @@
 // Licenced under Academic Free License version 2.0
 // Review gsKit README & LICENSE files for further details.
 //
-// gsCore.c - C/Assembler implimentation of all GS instructions.
+// gsCore.c - Core functionality implimentations. (Allocators, RenderStates, etc)
 //
 // Parts taken from emoon's BreakPoint Demo Library
 //
 
 #include "gsKit.h"
-
-static inline void *gsKit_spr_alloc(GSGLOBAL *gsGlobal, int qsize, int bsize)
-{
-        if( ((u32)gsGlobal->CurQueue->spr_cur + bsize ) >= 0x70004000)
-        {
-                gsKit_kick_spr(gsGlobal, qsize);
-        }
-
-	void *p_spr = gsGlobal->CurQueue->spr_cur;
-        gsGlobal->CurQueue->spr_cur += bsize;
-        gsGlobal->CurQueue->size += qsize;
-
-        return p_spr;
-}
+#include "gsInline.h"
 
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 {
 	u32 CurrentPointer = gsGlobal->CurrentPointer;
-	#ifdef DEBUG
+	#ifdef GSKIT_DEBUG
 		printf("CurrentPointer Before:\t0x%08X\n", gsGlobal->CurrentPointer);
 	#endif
 
@@ -47,7 +34,7 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 	else
 	{
 		gsGlobal->CurrentPointer += size;
-		#ifdef DEBUG
+		#ifdef GSKIT_DEBUG
 		printf("CurrentPointer After:\t0x%08X\n", gsGlobal->CurrentPointer);
 		#endif
 		return CurrentPointer;
@@ -75,7 +62,7 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 	u64 *p_data;
 	u64 *p_store;
 
-	p_data = p_store = dmaKit_spr_alloc( 5*16 );
+	(u32)p_data = (u32)p_store = gsGlobal->dma_misc;
 
 	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
@@ -98,8 +85,8 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
                                  gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 5 );
-	dmaKit_wait_fast( DMA_CHANNEL_GIF );
+	dmaKit_wait(DMA_CHANNEL_GIF, 0);
+	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 5);
 }
 
 void gsKit_vsync(void)
@@ -126,16 +113,13 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 	{
 		gsKit_prim_sprite(gsGlobal, pos, 0, remain + pos, gsGlobal->Height, 0, color);
 	}
-
+	
 	gsGlobal->Test->ZTST = PrevZState;
 	gsKit_set_test(gsGlobal, 0);
 }
 
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 {
-	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
-		return;
-
 	u64 *p_data;
 	u64 *p_store;
 
@@ -152,7 +136,10 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 	else if (Preset == GS_D_ATEST_ON)
 		gsGlobal->Test->DATE = 1;
 
-	p_data = p_store = gsKit_spr_alloc(gsGlobal, 1, 16);
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST,
 				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
@@ -175,109 +162,113 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 	}
 	else if(Preset == GS_CMODE_CLAMP)
 	{
-                gsGlobal->Clamp->WMS = GS_CMODE_CLAMP;
-                gsGlobal->Clamp->WMT = GS_CMODE_CLAMP;
+		gsGlobal->Clamp->WMS = GS_CMODE_CLAMP;
+		gsGlobal->Clamp->WMT = GS_CMODE_CLAMP;
 	}
 	else if(Preset == GS_CMODE_REGION_CLAMP)
 	{
-                gsGlobal->Clamp->WMS = GS_CMODE_REGION_CLAMP;
-                gsGlobal->Clamp->WMT = GS_CMODE_REGION_CLAMP;
+		gsGlobal->Clamp->WMS = GS_CMODE_REGION_CLAMP;
+		gsGlobal->Clamp->WMT = GS_CMODE_REGION_CLAMP;
 	}
 	else if(Preset == GS_CMODE_REGION_REPEAT)
 	{
-                gsGlobal->Clamp->WMS = GS_CMODE_REGION_REPEAT;
-                gsGlobal->Clamp->WMT = GS_CMODE_REGION_REPEAT;
+		gsGlobal->Clamp->WMS = GS_CMODE_REGION_REPEAT;
+		gsGlobal->Clamp->WMT = GS_CMODE_REGION_REPEAT;
 	}
 
-	p_data = p_store = gsKit_spr_alloc(gsGlobal, 1, 16);
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
 
 	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
 				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
 				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
 	*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
-
 }
 
-void gsKit_kick_spr(GSGLOBAL *gsGlobal, int size)
+void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel)
 {
-	        if(size > 1024)
-        	        return;
+	u64 *p_data;
+	u64 *p_store;
 
-                if((gsGlobal->CurQueue->size + size) > gsGlobal->CurQueue->maxsize)
-		{
-                        gsKit_queue_exec_real(gsGlobal, gsGlobal->CurQueue);
-		}
+	gsGlobal->PrimAlpha = AlphaMode;
+	gsGlobal->PABE = PerPixel;
 
-                u32 offset = (u32)gsGlobal->CurQueue->spr_cur - 0x70000000;
-                (u32)gsGlobal->CurQueue->spr_cur = 0x70000000;
-                dmaKit_get_spr(DMA_CHANNEL_FROMSPR, (void *)0x70000000, gsGlobal->CurQueue->pool_cur, offset / 16);
-                dmaKit_wait_fast(DMA_CHANNEL_FROMSPR);
-                gsGlobal->CurQueue->pool_cur += offset;
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 2, 32, GIF_AD);
+	
+	*p_data++ = GIF_TAG_AD(2);
+	*p_data++ = GIF_AD;
+	
+	*p_data++ = gsGlobal->PABE;
+	*p_data++ = GS_PABE;
+	
+	*p_data++ = gsGlobal->PrimAlpha;
+	*p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
+}
+
+void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
+{
+	u64 *p_data;
+	u64 *p_store;
+	
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
+
+	*p_data++ = GS_SETREG_TEX1(0, 0, FilterMode, FilterMode, 0, 0, 0);
+	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 }
 
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
-	if(Queue->size == 0)
+	if(Queue->tag_size == 0)
 		return;
 
-        if((u32)gsGlobal->CurQueue->spr_cur > 0x70000000)
-        {
-                        u32 offset = (u32)gsGlobal->CurQueue->spr_cur - 0x70000000;
-                        (u32)gsGlobal->CurQueue->spr_cur = 0x70000000;                
-			dmaKit_get_spr(DMA_CHANNEL_FROMSPR, (void *)0x70000000, gsGlobal->CurQueue->pool_cur, offset / 16);
-                        dmaKit_wait_fast(DMA_CHANNEL_FROMSPR);
-                        gsGlobal->CurQueue->size += (offset / 16);
-                        gsGlobal->CurQueue->pool_cur += offset;
-        }
+	*(u64 *)Queue->dma_tag = DMA_TAG(Queue->tag_size, 0, DMA_END, 0, 0, 0);
 
-        u64* p_data;
-
-	u32 numpackets = Queue->size / 1022;
-	u32 remain = Queue->size % 1022;
-
-        (u32)p_data = 0x70000000; // First 16k (RenderChain -> DMA)
-
-	Queue->pool_cur = Queue->pool;
-
-	*p_data++ = DMA_TAG(1023, 0, DMA_END, 0, 0, 0);
-	*p_data++;
-
-	*p_data++ = GIF_TAG(1022, 0, 0, 0, 0, 1);
-	*p_data++ = GIF_AD;
-
-	
-	while(numpackets-- > 0)
+	if(Queue->last_type != GIF_AD)
 	{
-		dmaKit_get_spr(DMA_CHANNEL_TOSPR, (void *)0x70000020, Queue->pool_cur, 1022);
-		dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
-	
-		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, (void *)0x70000000);
-                dmaKit_wait_fast(DMA_CHANNEL_GIF);
-
-		(u32)Queue->pool_cur += 16352;
+		*(u64 *)Queue->last_tag = ((u64)Queue->same_obj | *(u64 *)Queue->last_tag);
 	}
 
-	if(remain > 0)
- 	{
-	        *p_data++ = DMA_TAG(remain + 1, 0, DMA_END, 0, 0, 0);
-	        *p_data++;
+	// I don't think it's safe to use wait_fast because what if someone else does a DMA transfer on another channel?
+	// The way the wait_fast works is on the bc0f/bc0t instructions which branch depending on cop0's condition signal.
+	// This condition signal is a DMA transfer termination signal. (See the EE Core Instruction Set Manual for more info)
+	// Therefore, unless we use it _JUST_ after the transfer execution... there is a chance that another unrelated transfer
+	// may change the status of this flag, giving us a false positive.
+	dmaKit_wait(DMA_CHANNEL_GIF, 0);
+	dmaKit_send_chain_ucab(DMA_CHANNEL_GIF, Queue->pool[Queue->dbuf]);
 
-	        *p_data++ = GIF_TAG(remain, 0, 0, 0, 0, 1);
-	        *p_data++ = GIF_AD;
-
-		dmaKit_get_spr(DMA_CHANNEL_TOSPR, (void *)0x70000020, Queue->pool_cur, remain);
-		dmaKit_wait_fast(DMA_CHANNEL_TOSPR);
-		
-		dmaKit_send_chain_spr( DMA_CHANNEL_GIF, 0, (void *)0x70000000);
-                dmaKit_wait_fast(DMA_CHANNEL_GIF);
-	}
-
-	Queue->pool_cur = Queue->pool;
-	(u32)Queue->spr_cur = 0x70000000;
-	
 	if(Queue->mode == GS_ONESHOT)
-		Queue->size = 0;
+	{
+		Queue->dbuf  ^= 1;
+		Queue->dma_tag = Queue->pool[Queue->dbuf];
+		Queue->pool_cur = Queue->dma_tag + 16;
+		Queue->last_type = GIF_RESERVED;
+		Queue->last_tag = Queue->pool_cur;
+		Queue->tag_size = 0;
+	}
+	else
+	{
+		dmaKit_wait_fast(DMA_CHANNEL_GIF);
+	}
+}
+
+void gsKit_queue_reset(GSQUEUE *Queue)
+{
+		if(Queue->mode == GS_ONESHOT)
+		{
+			Queue->dbuf  ^= 1;
+			Queue->dma_tag = Queue->pool[Queue->dbuf];
+		}
+
+		Queue->pool_cur = Queue->dma_tag + 16;
+		Queue->last_type = GIF_RESERVED;
+		Queue->last_tag = Queue->pool_cur;
+		Queue->tag_size = 0;
 }
 
 void gsKit_queue_exec(GSGLOBAL *gsGlobal)
@@ -298,31 +289,12 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode)
 {
-	u32 offset;
 	if(mode == GS_PERSISTENT)
 	{
-	        if((u32)gsGlobal->Os_Queue->spr_cur > 0x70000000)
-	        {
-                        offset = (u32)gsGlobal->Os_Queue->spr_cur - 0x70000000;
-                        (u32)gsGlobal->Os_Queue->spr_cur = 0x70000000;
-                        dmaKit_get_spr(DMA_CHANNEL_FROMSPR, (void *)0x70000000, gsGlobal->Os_Queue->pool_cur, offset / 16);
-                        dmaKit_wait_fast(DMA_CHANNEL_FROMSPR);
-                        gsGlobal->Os_Queue->size += (offset / 16);
-                        gsGlobal->Os_Queue->pool_cur += offset;
-	        }
 		gsGlobal->CurQueue = gsGlobal->Per_Queue;
 	}
 	else
 	{
-                if((u32)gsGlobal->Per_Queue->spr_cur > 0x70000000)
-                {
-                        offset = (u32)gsGlobal->Per_Queue->spr_cur - 0x70000000;
-                        (u32)gsGlobal->Per_Queue->spr_cur = 0x70000000;
-	                dmaKit_get_spr(DMA_CHANNEL_FROMSPR, (void *)0x70000000, gsGlobal->Per_Queue->pool_cur, offset / 16);
-                        dmaKit_wait_fast(DMA_CHANNEL_FROMSPR);
-                        gsGlobal->Per_Queue->size += (offset / 16);
-                        gsGlobal->Per_Queue->pool_cur += offset;
-                }
 		gsGlobal->CurQueue = gsGlobal->Os_Queue;
 	}
 }
