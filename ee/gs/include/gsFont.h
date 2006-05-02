@@ -33,7 +33,7 @@ struct gsKit_fontm_unpack
 {
 	unsigned int	size;
 	unsigned int	data;
-	unsigned int	and;
+	unsigned int	ande;
 	unsigned int	dif;
 	unsigned int	shft;
 	unsigned char	*ptr;

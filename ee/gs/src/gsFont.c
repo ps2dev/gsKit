@@ -346,7 +346,7 @@ void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 	oke->data =  oke->data | *oke->ptr++;
 	oke->shft=0x3FFF >> (oke->data & 3);
 	oke->dif=14 - (oke->data & 3);
-	oke->and=oke->data & 3;
+	oke->ande=oke->data & 3;
 }
 
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, float Z,
