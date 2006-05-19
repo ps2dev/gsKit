@@ -286,8 +286,8 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 		gsGlobal->Mode = mode;
 		gsGlobal->Width = 640;	
 		gsGlobal->Height = 448;
-		gsGlobal->StartX = 652;
-		gsGlobal->StartY = 50;
+		gsGlobal->StartX = 632;
+		gsGlobal->StartY = 40;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
 	}
@@ -301,7 +301,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 448; // really 224 per frame
 		gsGlobal->StartX = 652;
-		gsGlobal->StartY = 50;
+		gsGlobal->StartY = 30;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
 		gsGlobal->DoSubOffset = GS_SETTING_ON;
@@ -316,7 +316,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 		gsGlobal->Width = 640;
 		gsGlobal->Height = 512;
 		gsGlobal->StartX = 680;
-		gsGlobal->StartY = 72;
+		gsGlobal->StartY = 50;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
 	}
@@ -330,7 +330,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 		gsGlobal->Width = 640;		
 		gsGlobal->Height = 512; // really 256 per frame
 		gsGlobal->StartX = 680;
-		gsGlobal->StartY = 72;
+		gsGlobal->StartY = 50;
 		gsGlobal->MagX = 3;
 		gsGlobal->MagY = 0;
 		gsGlobal->DoSubOffset = GS_SETTING_ON;
@@ -507,6 +507,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAlpha = GS_BLEND_BACK2FRONT;
 	gsGlobal->PrimContext = 0;
+	gsGlobal->FirstFrame = GS_SETTING_ON;
 
 	/* BGColor Register Values */
 	gsGlobal->BGColor->Red = 0x00;
@@ -529,7 +530,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Clamp->MAXU = 0;
 	gsGlobal->Clamp->MINV = 0;
 	gsGlobal->Clamp->MAXV = 0;
-	
+
 	return gsGlobal;
 }
 

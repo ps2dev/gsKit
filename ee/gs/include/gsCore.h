@@ -96,6 +96,9 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal);
 /// Sets Your Active Framebuffer
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 
+/// Blocks until FINISH is triggered
+void gsKit_finish(void);
+
 /// Blocks Until a VSync
 void gsKit_vsync(void);
 
@@ -148,6 +151,9 @@ void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel);
 
 /// Sets the Texture Filtering Parameters
 void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode);
+
+/// Append the Current Queue with a GS_FINISH Register
+GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal);
 
 /// Reset specified drawqueue to it's initial state (Useful for clearing the Persistent Queue)
 void gsKit_queue_reset(GSQUEUE *Queue);

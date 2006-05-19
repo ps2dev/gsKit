@@ -212,7 +212,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		image = memalign(128, FTexSize);
 		if (image == NULL) return -1;
 		fioRead(File, image, FTexSize);
-		p = (void *)Texture->Mem;
+		p = (void *)((u32)Texture->Mem | 0x30000000);
 		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
 			for (x=0; x<Texture->Width; x++) {
 				p[(y*Texture->Width+x)*3+2] = image[(cy*Texture->Width+x)*3+0];
@@ -228,7 +228,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	}
 	else if(Bitmap.InfoHeader.BitCount == 8 || Bitmap.InfoHeader.BitCount == 4 )
 	{
-		char *tex = memalign(128,FTexSize);
+		char *tex = (char *)((u32)Texture->Mem | 0x30000000);
 		image = memalign(128,FTexSize);
 		if(fioRead(File, image, FTexSize) != FTexSize)
 		{
@@ -265,15 +265,18 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	fioClose(File);
 
-	Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-	if(Texture->Vram == GSKIT_ALLOC_ERROR)
+	if(!Texture->Delayed)
 	{
-		printf("VRAM Allocation Failed. Will not upload texture.\n");
-		return -1;
-	}
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
 
-	gsKit_texture_upload(gsGlobal, Texture);
-	free(Texture->Mem);
+		gsKit_texture_upload(gsGlobal, Texture);
+		free(Texture->Mem);
+	}
 
 	return 0;
 }
@@ -309,16 +312,20 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Mem = memalign(128,TextureSize);
 	jpgReadImage(jpg, (void *)Texture->Mem);
 	jpgClose(jpg);
-	
-	Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-	if(Texture->Vram == GSKIT_ALLOC_ERROR)
+
+
+	if(!Texture->Delayed)
 	{
-		printf("VRAM Allocation Failed. Will not upload texture.\n");
-		return -1;
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
+		gsKit_texture_upload(gsGlobal, Texture);
+		
+		free(Texture->Mem);
 	}
-	gsKit_texture_upload(gsGlobal, Texture);
-	
-	free(Texture->Mem);	
 	
 	return 0;
 	
@@ -361,21 +368,13 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, Texture->Mem, 0))
 	{
+		printf("Error Reading TIFF Data\n");
 		TIFFClose(tif);
 		free(Texture->Mem);
-		printf("Error Reading TIFF Data\n");
 		return -1;
 	}
 
 	TIFFClose(tif);
-
-	Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-	if(Texture->Vram == GSKIT_ALLOC_ERROR)
-	{
-		printf("VRAM Allocation Failed. Will not upload texture.\n");
-		return -1;
-	}
-	gsKit_texture_upload(gsGlobal, Texture);
 
 /*
 	// To dump+debug the RBGA data from tiff
@@ -385,7 +384,18 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	fioClose(File);
 */
-	free(Texture->Mem);
+	if(!Texture->Delayed)
+	{
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
+		gsKit_texture_upload(gsGlobal, Texture);
+
+		free(Texture->Mem);
+	}
 	
 	return 0;
 	
@@ -409,7 +419,6 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	int FileSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
 	int VramFileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	Texture->Mem = memalign(128, FileSize);
-	Texture->Vram = gsKit_vram_alloc(gsGlobal, VramFileSize, GSKIT_ALLOC_USERBUFFER);
 
 	if(Texture->PSM != GS_PSM_T8 && Texture->PSM != GS_PSM_T4)
 	{
@@ -417,20 +426,26 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		Texture->Clut = NULL;
 	}
 
-	if(Texture->Vram == GSKIT_ALLOC_ERROR)
-	{
-		printf("VRAM Allocation Failed. Will not upload texture.\n");
-		return -1;
-	}
-	
 	if(fioRead(File, Texture->Mem, FileSize) <= 0)
 	{
 		printf("Could not load texture: %s\n", Path);
 		return -1;
 	}
 	fioClose(File);
-	gsKit_texture_upload(gsGlobal, Texture);
-	free(Texture->Mem);
+
+	if(!Texture->Delayed)
+	{
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramFileSize, GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
+		gsKit_texture_upload(gsGlobal, Texture);
+	
+		free(Texture->Mem);
+	}
+
 	return 0;
 }
 
@@ -867,6 +882,168 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	*p_data++ = GS_SETREG_UV( iu2, iv2 );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
+}
+
+void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
+				float x1, float y1, int iz1, float u1, float v1,
+				float x2, float y2, int iz2, float u2, float v2, u64 color)
+{
+	// If you do bilinear on this the results will be a disaster because of bleeding.
+	gsKit_set_texfilter(gsGlobal, GS_FILTER_NEAREST);
+
+	u64* p_store;
+	u64* p_data;
+	int qsize = 4;
+	int bsize = 64;
+
+	if(gsGlobal->Field == GS_FRAME)
+	{
+		y1 /= 2;
+		y2 /= 2;
+#ifdef GSKIT_ENABLE_HBOFFSET
+		if(!gsGlobal->EvenOrOdd)
+		{
+			y1 += 0.5f;
+			y2 += 0.5f;
+		}
+#endif
+	}
+
+	int ix1 = x1;
+	int ix2 = x2;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+
+	int iv1 = (int)(v1 * 16.0f);
+	int iv2 = (int)(v2 * 16.0f);
+
+	int tw = 31 - (lzw(Texture->Width) + 1);
+	if(Texture->Width > (1<<tw))
+		tw++;
+
+	int th = 31 - (lzw(Texture->Height) + 1);
+	if(Texture->Height > (1<<th))
+		th++;
+
+	u64 Tex0;
+	if(!Texture->VramClut)
+	{
+		Tex0 = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+	}
+	else
+	{
+		Tex0 = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+	}
+	
+	u64 Prim = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				1, gsGlobal->PrimContext, 0);
+
+	ix1 = ((ix1 >> 6) << 6);
+	ix2 = ((ix2 >> 6) << 6);
+
+	int extracount = 0;
+	if(((int)x1) % 64)
+	{
+		ix1 += 64;
+		extracount++;
+	}
+	if(((int)x2) % 64)
+	{
+		extracount++;
+	}
+
+	int stripcount = ((ix2 - ix1) / 64);
+
+	if(!(stripcount + extracount))
+	{
+		return;
+	}
+
+	float leftwidth = ix1 - (float)x1;
+	float rightwidth = (float)x2 - ix2;
+
+	float ustripwidth;
+
+	float leftuwidth = ((leftwidth / (x2-x1)) * (u2 - u1));
+
+	float rightuwidth = ((rightwidth / (x2-x1)) * (u2 - u1));
+
+	ustripwidth = ((((u2 - u1) - leftuwidth) - rightuwidth) / stripcount);
+
+	float fu1 = 0.0f;
+
+	// This is a lie btw... it's not really A+D mode, but I lie to my allocator so it doesn't screw up the NLOOP arg of the GIFTAG.
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize * (stripcount + extracount), bsize * (stripcount + extracount), GIF_AD);
+	
+	*p_data++ = GIF_TAG_SPRITE_TEXTURED((stripcount + extracount));
+	*p_data++ = GIF_TAG_SPRITE_TEXTURED_REGS(gsGlobal->PrimContext);
+
+	//printf("stripcount = %d | extracount = %d | ustripwidth = %f | rightwidth = %f\n", stripcount, extracount, ustripwidth, rightwidth);
+
+	if(leftwidth >= 1.0f)
+	{
+		*p_data++ = Tex0;
+		*p_data++ = Prim;
+	
+		*p_data++ = color;
+
+		*p_data++ = GS_SETREG_UV( ((int)(u1 * 16.0f)), iv1 );
+		*p_data++ = GS_SETREG_XYZ2( ((int)(x1 * 16.0f) + gsGlobal->Offset), iy1, iz1 );
+
+		fu1 = leftuwidth;
+
+		*p_data++ = GS_SETREG_UV( ((int)(fu1 * 16.0f)), iv2 );
+		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->Offset, iy2, iz2 );
+
+		*p_data++ = 0;
+	}
+
+	while(stripcount--)
+	{
+		*p_data++ = Tex0;
+		*p_data++ = Prim;
+	
+		*p_data++ = color;
+
+		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy1, iz1 );
+
+		fu1 += ustripwidth;
+		ix1 += 64;
+
+		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy2, iz2 );
+
+		*p_data++ = 0;
+	}
+
+
+	if(rightwidth > 0.0f)
+	{
+	
+		*p_data++ = Tex0;
+		*p_data++ = Prim;
+	
+		*p_data++ = color;
+
+		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy1, iz1 );
+
+		fu1 += rightuwidth;
+		rightwidth += ix1;
+
+		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
+		*p_data++ = GS_SETREG_XYZ2(((int)(rightwidth * 16.0f) + gsGlobal->Offset), iy2, iz2 );
+
+		*p_data++ = 0;
+	
+	}
+
 }
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	

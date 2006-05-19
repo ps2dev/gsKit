@@ -1,5 +1,16 @@
 gsKit ChangeLog:
 
+-> 05/19/06 - Chris Gilbert (Neovanglist)
+   * Added gsKit_prim_sprite_striped_texture. This routine autostrips
+     sprites for a big performance boost. This is most useful on large
+     sprites which would otherwise result in many GS pagemisses.
+     NOTE: This ONLY works with textures that have NEAREST filtering.
+   * Reworked drawbuffers so that it waits on the FINISH signal from the GS
+     before pushing new DMA to it.
+   * Added "bigtex" example.
+   * Added option to delay texture uploading. This allows you to do it manually
+     using the gsKit_texture_send_inline in usercode.
+
 -> 04/22/06 - Chris Gilbert (Neovanglist)
    * Fully implimented FONTM support.
    * Added a hack on 4bit BMP textures to swap nibbles so it displays

@@ -43,18 +43,25 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 {
-	gsKit_vsync();
-  
-	GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
-		gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
-  
-	gsGlobal->ActiveBuffer ^= 1;
-	gsGlobal->PrimContext ^= 1;
+	if(!gsGlobal->FirstFrame)
+	{
+		gsKit_vsync();
 
+		if(gsGlobal->DoubleBuffering == GS_SETTING_ON)
+		{
+			GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
+				gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
+	  
+			gsGlobal->ActiveBuffer ^= 1;
+			gsGlobal->PrimContext ^= 1;
+	
+			gsKit_setactive(gsGlobal);
+		}
+
+	}
 	if(gsGlobal->DoSubOffset == GS_SETTING_ON)
 		gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
 
-	gsKit_setactive(gsGlobal);
 }
 
 void gsKit_setactive(GSGLOBAL *gsGlobal)
@@ -89,6 +96,11 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 5);
 }
 
+void gsKit_finish(void)
+{
+	while(!(GS_CSR_FINISH));
+}
+
 void gsKit_vsync(void)
 {
 	*GS_CSR = *GS_CSR & 8;
@@ -99,15 +111,15 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 {
 	u8 PrevZState = gsGlobal->Test->ZTST;
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
-	u8 strips = gsGlobal->Width / 32;
-	u8 remain = gsGlobal->Width % 32;
+	u8 strips = gsGlobal->Width / 64;
+	u8 remain = gsGlobal->Width % 64;
 	u32 pos = 0;
 	
 	strips++;
 	while(strips-- > 0)
 	{
-		gsKit_prim_sprite(gsGlobal, pos, 0, pos + 32, gsGlobal->Height, 0, color);
-		pos += 32;
+		gsKit_prim_sprite(gsGlobal, pos, 0, pos + 64, gsGlobal->Height, 0, color);
+		pos += 64;
 	}
 	if(remain > 0)
 	{
@@ -222,10 +234,33 @@ void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 }
 
+GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal)
+{
+	u64 *p_data;
+	u64 *p_store;
+
+	GSQUEUE oldQueue = *gsGlobal->CurQueue;
+
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
+
+	*p_data++ = 0;
+	*p_data++ = GS_FINISH;
+
+	return oldQueue;
+}
+
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
 	if(Queue->tag_size == 0)
 		return;
+
+	// This superstrange oldQueue crap is because Persistent drawbuffers need to be "backed up"
+	// or else they will balloon in size due to appending the finish token.
+	// So we back up the current *state* (NOT DATA) of them here and restore it afterward.
+	GSQUEUE oldQueue = gsKit_set_finish(gsGlobal);
 
 	*(u64 *)Queue->dma_tag = DMA_TAG(Queue->tag_size, 0, DMA_END, 0, 0, 0);
 
@@ -239,10 +274,15 @@ void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 	// This condition signal is a DMA transfer termination signal. (See the EE Core Instruction Set Manual for more info)
 	// Therefore, unless we use it _JUST_ after the transfer execution... there is a chance that another unrelated transfer
 	// may change the status of this flag, giving us a false positive.
+	if(!gsGlobal->FirstFrame)
+		gsKit_finish();
+
+	GS_SETREG_CSR_FINISH(1);
+
 	dmaKit_wait(DMA_CHANNEL_GIF, 0);
 	dmaKit_send_chain_ucab(DMA_CHANNEL_GIF, Queue->pool[Queue->dbuf]);
 
-	if(Queue->mode == GS_ONESHOT)
+	if(Queue->mode != GS_PERSISTENT)
 	{
 		Queue->dbuf  ^= 1;
 		Queue->dma_tag = Queue->pool[Queue->dbuf];
@@ -253,6 +293,7 @@ void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 	}
 	else
 	{
+		*Queue = oldQueue;
 		dmaKit_wait_fast(DMA_CHANNEL_GIF);
 	}
 }
@@ -276,15 +317,20 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 	GSQUEUE *CurQueue = gsGlobal->CurQueue;
 	if(gsGlobal->DrawOrder == GS_PER_OS)
 	{
+		gsGlobal->CurQueue = gsGlobal->Per_Queue;
 		gsKit_queue_exec_real(gsGlobal, gsGlobal->Per_Queue);
+		gsGlobal->CurQueue = gsGlobal->Os_Queue;
 		gsKit_queue_exec_real(gsGlobal, gsGlobal->Os_Queue);
 	}
 	else
 	{
+		gsGlobal->CurQueue = gsGlobal->Os_Queue;
 		gsKit_queue_exec_real(gsGlobal, gsGlobal->Os_Queue);
+		gsGlobal->CurQueue = gsGlobal->Per_Queue;
 		gsKit_queue_exec_real(gsGlobal, gsGlobal->Per_Queue);
 	}
 	gsGlobal->CurQueue = CurQueue;
+	gsGlobal->FirstFrame = GS_SETTING_OFF;
 }
 
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode)

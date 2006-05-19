@@ -197,10 +197,10 @@ int main(int argc, char *argv[])
 
 	/* render frame buffer */
 	gsKit_prim_sprite_texture( gsGlobal,	&fb,
-						0, /* X1 */
-						0, /* Y1 */
-						0, /* U1 */
-						0, /* V1 */
+						0.0f, /* X1 */
+						0.0f, /* Y1 */
+						0.0f, /* U1 */
+						0.0f, /* V1 */
 						gsGlobal->Width, /* X2 */
 						gsGlobal->Height, /* Y2 */
 						fb.Width, /* U2 */
@@ -213,9 +213,9 @@ int main(int argc, char *argv[])
 #ifdef USEBMP
 	gsKit_prim_sprite_texture(gsGlobal,	&backtex,
 						(gsGlobal->Width /2) - (backtex.Width / 2), /* X1 */
-						0, /* Y1 */
-						0, /* U1 */
-						0, /* V1 */
+						0.0f, /* Y1 */
+						0.0f, /* U1 */
+						0.0f, /* V1 */
 						backtex.Width + ((gsGlobal->Width /2) - (backtex.Width / 2)), /* X2 */
 						backtex.Height, /* Y2 */
 						backtex.Width, /* U2 */

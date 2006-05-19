@@ -47,7 +47,7 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 int gsKit_fontm_unpack(GSFONT *gsFont);
 void gsKit_fontm_unpack_raw(unsigned char *base, struct gsKit_fontm_unpack *oke);
 void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke);
-void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, float Z,
+void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
 		      float scale, unsigned long color, char *String);
 
 #define gsKit_font_print(gsGlobal, gsFont, X, Y, Z, color, String) \

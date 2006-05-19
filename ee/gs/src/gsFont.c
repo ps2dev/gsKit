@@ -349,7 +349,7 @@ void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 	oke->ande=oke->data & 3;
 }
 
-void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, float Z,
+void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
                       float scale, unsigned long color, char *String)
 {
 	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||

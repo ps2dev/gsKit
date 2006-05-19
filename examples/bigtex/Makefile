@@ -6,10 +6,24 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/Makefile - gsKit examples root makefile.
+# examples/bigtex/Makefile - Makefile for "textures" example.
 #
 
-SUBDIRS = basic bigtex textures linuz-texture font fb alpha fontm
+EE_BIN  = bigtex.elf
+EE_OBJS = bigtex.o
 
-include ../Rules.make
+all: $(EE_BIN)
 
+test: all
+	ps2client -h $(PS2_IP) -t 1 execee host:bigtex.elf
+
+reset: clean
+	ps2client -h $(PS2_IP) reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+install:
+
+include ../../Makefile.pref
+include ../../Makefile.global

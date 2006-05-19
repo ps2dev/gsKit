@@ -67,55 +67,53 @@ int main(void)
 
 	gsKit_clear(gsGlobal, White);
 
-	gsKit_prim_quad_texture_3d(gsGlobal, &Tex1,	20.0,  // X1
-							50.0,  // Y1
-							1.0, // Z1
-							0.0,  // U1
-							0.0,  // V1
+	gsKit_prim_quad_texture_3d(gsGlobal, &Tex1,	20.0f,  // X1
+							50.0f,  // Y1
+							1, // Z1
+							0.0f,  // U1
+							0.0f,  // V1
 
-							20.0, // X2
-							50.0 + Tex1.Height, // Y2
-							1.0, // Z2
-							0, // U2
+							20.0f, // X2
+							50.0f + Tex1.Height, // Y2
+							1, // Z2
+							0.0f, // U2
 							Tex1.Height, // V2
 
-							20.0 + Tex1.Width, // X3
-							50.0, // Y3
-							1.0, // Z3
+							20.0f + Tex1.Width, // X3
+							50.0f, // Y3
+							1, // Z3
 							Tex1.Width, // U3
-							0, // V3
+							0.0f, // V3
 
-							Tex1.Width + 20.0, // X4
-							Tex1.Height + 50.0, // Y4
-							1.0, // Z4
+							Tex1.Width + 20.0f, // X4
+							Tex1.Height + 50.0f, // Y4
+							1, // Z4
 							Tex1.Width, // U4
 							Tex1.Height, // V4
 							TexCol);
 
-
-
-	gsKit_prim_sprite_texture(gsGlobal, &Tex2,	310.0,  // X1
-							50.0,  // Y2
-							0.0,  // U1
-							0.0,  // V1
-							Tex2.Width + 310, // X2
-							Tex2.Height +  50.0, // Y2
+	gsKit_prim_sprite_texture(gsGlobal, &Tex2,	310.0f,  // X1
+							50.0f,  // Y2
+							0.0f,  // U1
+							0.0f,  // V1
+							Tex2.Width + 310.0f, // X2
+							Tex2.Height +  50.0f, // Y2
 							Tex2.Width, // U2
 							Tex2.Height, // V2
-							2.0,
+							2,
 							TexCol);
 
 
 #ifdef HAVE_LIBJPG
-	gsKit_prim_sprite_texture(gsGlobal, &Tex3,	40.0,  // X1
-							386.0,  // Y2
-							0.0,  // U1
-							0.0,  // V1
-							Tex3.Width + 40, // X2
-							Tex3.Height +  386.0, // Y2
+	gsKit_prim_sprite_texture(gsGlobal, &Tex3,	40.0f,  // X1
+							386.0f,  // Y2
+							0.0f,  // U1
+							0.0f,  // V1
+							Tex3.Width + 40.0f, // X2
+							Tex3.Height +  386.0f, // Y2
 							Tex3.Width, // U2
 							Tex3.Height, // V2
-							3.0,
+							3,
 							TexCol);
 #endif
 

@@ -12,7 +12,6 @@
 #include "gsKit.h"
 #include "dmaKit.h"
 #include "malloc.h"
-#include "tiffio.h"
 
 int main(void)
 {
@@ -50,12 +49,12 @@ int main(void)
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 	
 	gsKit_init_screen(gsGlobal);
-
+#ifdef HAVE_LIBTIFF
 	if(gsKit_texture_tiff(gsGlobal, &Sprite, "host:alpha.tiff") < 0)
 	{
 		printf("Loading Failed!\n");
 	}
-
+#endif
 	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	while(1)
@@ -71,26 +70,26 @@ int main(void)
 
 		gsKit_clear(gsGlobal, White);
 		
-		gsKit_prim_quad_gouraud(gsGlobal, 250, 50, 250, 400,
-						  400, 50, 400, 400,
-						  1.0, Red, Green, Blue, White);
+		gsKit_prim_quad_gouraud(gsGlobal, 250.0f, 50.0f, 250.0f, 400.0f,
+						  400.0f, 50.0f, 400.0f, 400.0f,
+						  1, Red, Green, Blue, White);
 
-		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 2.0, BlueTrans);
+		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 2, BlueTrans);
 
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
-			
-		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0,  // X1
-								50.0,  // Y2
-								0.0,  // U1
-								0.0,  // V1
-								Sprite.Width + 310, // X2
-								Sprite.Height +  50.0, // Y2
+#ifdef HAVE_LIBTIFF			
+		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
+								50.0f,  // Y2
+								0.0f,  // U1
+								0.0f,  // V1
+								Sprite.Width + 310.0f, // X2
+								Sprite.Height +  50.0f, // Y2
 								Sprite.Width, // U2
 								Sprite.Height, // V2
-								3.0,
+								3,
 								TexCol);
-
+#endif
 		gsKit_set_test(gsGlobal, GS_ATEST_ON);
 		gsKit_set_primalpha(gsGlobal, GS_BLEND_BACK2FRONT, 0);
 

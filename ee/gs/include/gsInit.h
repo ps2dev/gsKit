@@ -550,7 +550,7 @@
 #define GS_CSR (volatile u64 *)0x12001000
 
 /// CSR FINISH Register Access Routine
-#define GS_CSR_FINISH *GS_CSR >> 1
+#define GS_CSR_FINISH ((*GS_CSR) >> 1)&1
 
 /// CSR FINISH Register Writing Routine
 #define GS_SETREG_CSR_FINISH(A) *GS_CSR = ((u64)(A) << 1)
@@ -894,6 +894,7 @@ struct gsGlobal
 	u8 DoSubOffset;		///< Do Subpixel Offset
 	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
 	u8 DrawOrder;		///< Drawing Order (GS_PER_OS/GS_OS_PER) (GS_PER_OS = Persitant objects always drawn first)
+	u8 FirstFrame;		///< Have we executed a frame yet?
 	int ActiveBuffer;	///< Active Framebuffer
 	int Width;		///< Framebuffer Width
 	int Height;		///< Framebuffer Height
@@ -938,6 +939,7 @@ struct gsTexture
 	u32     Vram;		///< GS VRAM Memory Pointer
 	u32     VramClut;	///< GS VRAM CLUT Memory Pointer
 	u32     Filter;		///< NEAREST or LINEAR
+	u8	Delayed;	///< Delay Texture Upload To VRAM
 };
 typedef struct gsTexture GSTEXTURE;
 

@@ -23,10 +23,10 @@ int main(void)
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I); // HDTV 1080I Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I_I); // HDTV 1080I Half Buffers
 
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL_I); // NTSC Half Buffers
 
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // NTSC Full Buffers
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // NTSC Full Buffers
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // NTSC Half Buffers
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.
@@ -129,40 +129,40 @@ int main(void)
 
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
 
-	gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1.0, Black);
+	gsKit_prim_line_strip(gsGlobal, LineStripPtr, 6, 1, Black);
 
-	gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1.0, Red);
+	gsKit_prim_triangle_strip(gsGlobal, TriStripPtr, 6, 1, Red);
 
-	gsKit_prim_line(gsGlobal, 525.0, 125.0, 575.0, 125.0, 1.0, Black);
-	gsKit_prim_line(gsGlobal, 550.0, 150.0, 600.0, 100.0, 1.0, Black);
+	gsKit_prim_line(gsGlobal, 525.0f, 125.0f, 575.0f, 125.0f, 1, Black);
+	gsKit_prim_line(gsGlobal, 550.0f, 150.0f, 600.0f, 100.0f, 1, Black);
 
-	gsKit_prim_point(gsGlobal, 575.0, 75.0, 1.0, Black);
-	gsKit_prim_point(gsGlobal, 600.0, 100.0, 1.0, Black);
-	gsKit_prim_point(gsGlobal, 625.0, 125.0, 1.0, Black);
+	gsKit_prim_point(gsGlobal, 575.0f, 75.0f, 1, Black);
+	gsKit_prim_point(gsGlobal, 600.0f, 100.0f, 1, Black);
+	gsKit_prim_point(gsGlobal, 625.0f, 125.0f, 1, Black);
 
-	gsKit_prim_quad(gsGlobal, 150.0, 150.0, 
-				   150.0, 400.0,
-				   450.0, 150.0,
-				   450.0, 400.0, 2.0, Green);
+	gsKit_prim_quad(gsGlobal, 150.0f, 150.0f, 
+				   150.0f, 400.0f,
+				   450.0f, 150.0f,
+				   450.0f, 400.0f, 2, Green);
 
 	gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 
-	gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5.0, Black);
+	gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5, Black);
 
-	gsKit_prim_quad_gouraud(gsGlobal, 500.0, 250.0, 
-					   500.0, 350.0, 
-					   600.0, 250.0,
-					   600.0, 350.0, 2.0,
+	gsKit_prim_quad_gouraud(gsGlobal, 500.0f, 250.0f, 
+					   500.0f, 350.0f, 
+					   600.0f, 250.0f,
+					   600.0f, 350.0f, 2,
 					   Red, Green, Blue, Black);
 
-	gsKit_prim_triangle_gouraud(gsGlobal, 280.0, 200.0,
-					       280.0, 350.0,
-					       180.0, 350.0, 5.0, 
+	gsKit_prim_triangle_gouraud(gsGlobal, 280.0f, 200.0f,
+					       280.0f, 350.0f,
+					       180.0f, 350.0f, 5, 
 					       Blue, Red, White);
 
-	gsKit_prim_triangle(gsGlobal, 300.0, 200.0, 300.0, 350.0, 400.0, 350.0, 3.0, Red);
+	gsKit_prim_triangle(gsGlobal, 300.0f, 200.0f, 300.0f, 350.0f, 400.0f, 350.0f, 3, Red);
 
-	gsKit_prim_sprite(gsGlobal, 400.0, 100.0, 500.0, 200.0, 5.0, Red);
+	gsKit_prim_sprite(gsGlobal, 400.0f, 100.0f, 500.0f, 200.0f, 5, Red);
 
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 
@@ -177,10 +177,10 @@ int main(void)
 		else if( y > 10 && x <= 10 )
 			y-=10;
 
-		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4.0, BlueTrans);
+		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
 
 		// RedTrans must be a oneshot for proper blending!
-		gsKit_prim_sprite(gsGlobal, 100.0, 100.0, 200.0, 200.0, 5.0, RedTrans);
+		gsKit_prim_sprite(gsGlobal, 100.0f, 100.0f, 200.0f, 200.0f, 5, RedTrans);
 
 		gsKit_queue_exec(gsGlobal);
 

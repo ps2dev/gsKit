@@ -16,7 +16,8 @@
 int main(void)
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I);
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL);
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60);
 	GSTEXTURE test;
 
@@ -94,14 +95,14 @@ int main(void)
 		gsKit_clear(gsGlobal, White);
 
 	        gsKit_prim_sprite_texture(      gsGlobal, &test,
-                                                50, 50, 0, 0,
-                                                gsGlobal->Width - 50, gsGlobal->Height - 50,
+                                                50.0f, 50.0f, 0.0f, 0.0f,
+                                                gsGlobal->Width - 50.0f, gsGlobal->Height - 50.0f,
                                                 test.Width, test.Height,
-                                                1.0f, TexCol);
+                                                1, TexCol);
 
-		gsKit_prim_sprite(gsGlobal, x2, y2, x2 + width, y2 + height, 2.0f, RedTrans);
+		gsKit_prim_sprite(gsGlobal, x2, y2, x2 + width, y2 + height, 2, RedTrans);
 
-		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 50, 3.0f, 0.85f, TexCol, 
+		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 50, 3, 0.85f, TexCol, 
 			"1: ABCDEFGHIJKLM\n"
 			"2: NOPQRSTUVWXYZ\n"
 			"3: abcdefghijklm\n"
@@ -117,11 +118,11 @@ int main(void)
 
 		sprintf(tempstr, "X =%d\t| Y =%d\nX2=%d\t| Y2=%d", (int)x, (int)y, (int)x2, (int)y2);
 
-		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 370, 3.0f, 0.5f, TexCol, tempstr);
+		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 370, 3, 0.5f, TexCol, tempstr);
 
 //		gsKit_font_print(gsGlobal, gsFont, 50, 50, 2.0f, TexCol, "\f0000");
 
-		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4.0f, BlueTrans);
+		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
 
 		gsKit_sync_flip(gsGlobal);
 
