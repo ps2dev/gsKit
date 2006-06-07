@@ -51,16 +51,27 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 		{
 			GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
 				gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
-	  
+	 
 			gsGlobal->ActiveBuffer ^= 1;
 			gsGlobal->PrimContext ^= 1;
-	
-			gsKit_setactive(gsGlobal);
 		}
 
 	}
+
 	if(gsGlobal->DoSubOffset == GS_SETTING_ON)
+	{
+
+		// This is an experimental pixel offset feature for halfbuffered modes.
+		/*
+			if(((GSREG*)GS_CSR)->FIELD)
+				gsGlobal->OffsetY = (int)(2048.0f * 16.0f);
+			else
+				gsGlobal->OffsetY = (int)(2048.5f * 16.0f);
+		*/
 		gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
+	}
+
+	gsKit_setactive(gsGlobal);
 
 }
 

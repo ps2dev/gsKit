@@ -18,6 +18,9 @@
 extern "C" {
 #endif
 
+void gsKit_setup_tbw(GSTEXTURE *Texture);
+void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr);
+
 #ifdef __cplusplus
 }
 #endif

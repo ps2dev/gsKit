@@ -1,5 +1,11 @@
 gsKit ChangeLog:
 
+-> 06/07/06 - Chris Gilbert (Neovanglist)
+   * Added preliminary (and buggy) libpng support.
+   * Added gsKit_setup_tbw routine to find TBW value for textures.
+   * Added FONTM print alignment support.
+   * Added some experimental but disabled lineoffset tweaks for halfbuffer modes.
+
 -> 05/19/06 - Chris Gilbert (Neovanglist)
    * Added gsKit_prim_sprite_striped_texture. This routine autostrips
      sprites for a big performance boost. This is most useful on large

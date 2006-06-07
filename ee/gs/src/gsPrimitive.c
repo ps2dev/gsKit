@@ -32,8 +32,8 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 #endif
 	}
 	
-	int ix = (int)(x * 16.0f) + gsGlobal->Offset;
-	int iy = (int)(y * 16.0f) + gsGlobal->Offset;
+	int ix = (int)(x * 16.0f) + gsGlobal->OffsetX;
+	int iy = (int)(y * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_POINT);
 
@@ -73,11 +73,11 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x
 	}
 	
 	
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
 	
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 	
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_LINE);
@@ -107,7 +107,7 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 
 	for(count = 0; count < (segments * 2); count+=2)
 	{
-		vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(LineStrip) /= 2;
@@ -118,7 +118,7 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->OffsetY;
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -152,7 +152,7 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 
 	for(count = 0; count < (segments * 3); count+=3)
 	{
-		vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*LineStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(LineStrip) /= 2;
@@ -163,7 +163,7 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*LineStrip++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] = (int)((*LineStrip++) * 16.0f);
 	}
 
@@ -209,10 +209,10 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_SPRITE);
 
@@ -257,14 +257,14 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	}
 	
 	
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
 	
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 	
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE);
 
@@ -292,7 +292,7 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 	
 	for(count = 0; count < (segments * 2); count+=2)
 	{
-		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriStrip) /= 2;
@@ -303,7 +303,7 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -338,7 +338,7 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 	
 	for(count = 0; count < (segments * 3); count+=3)
 	{
-		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriStrip) /= 2;
@@ -349,7 +349,7 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] = (int)((*TriStrip++) * 16.0f);
 	}
 
@@ -385,7 +385,7 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
 
 	for(count = 0; count < (verticies * 2); count+=2)
 	{
-		vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriFan) /= 2;
@@ -396,7 +396,7 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -431,7 +431,7 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
 
 	for(count = 0; count < (verticies * 3); count+=3)
 	{
-		vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriFan) /= 2;
@@ -442,7 +442,7 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] = (int)(*TriFan++ * 16.0f);
 	}
 
@@ -494,14 +494,14 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_GOURAUD);
 
@@ -552,17 +552,17 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
-	int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
+	int ix4 = (int)(x4 * 16.0f) + gsGlobal->OffsetX;
+	int iy4 = (int)(y4 * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc( gsGlobal, qsize, bsize, GIF_PRIM_QUAD);
 
@@ -614,17 +614,17 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
 
-	int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
-	int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
+	int ix4 = (int)(x4 * 16.0f) + gsGlobal->OffsetX;
+	int iy4 = (int)(y4 * 16.0f) + gsGlobal->OffsetY;
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_GOURAUD);
 

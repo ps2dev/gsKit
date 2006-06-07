@@ -11,6 +11,40 @@
 
 #include "gsKit.h"
 
+#ifdef HAVE_LIBPNG
+
+#include <png.h>
+
+void gsKit_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+	if(fioRead(*((int *)png_ptr->io_ptr), data, length) <= 0)
+	{
+		png_error(png_ptr, "Error reading via fioRead\n");
+		return;
+	}
+}
+#endif
+
+void gsKit_setup_tbw(GSTEXTURE *Texture)
+{
+	if(Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4)
+	{
+		Texture->TBW = (-GS_VRAM_TBWALIGN_CLUT)&(Texture->Width+GS_VRAM_TBWALIGN_CLUT-1);
+		if(Texture->TBW / 64 > 0)
+			Texture->TBW = (Texture->TBW / 64);
+		else
+			Texture->TBW = 1;
+	}
+	else
+	{
+		Texture->TBW = (-GS_VRAM_TBWALIGN)&(Texture->Width+GS_VRAM_TBWALIGN-1);
+		if(Texture->TBW / 64 > 0)
+			Texture->TBW = (Texture->TBW / 64);
+		else
+			Texture->TBW = 1;
+	}
+}
+
 void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 {
 #if 0

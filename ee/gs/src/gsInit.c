@@ -142,8 +142,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->Offset, 
-					  gsGlobal->Offset);
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+					  gsGlobal->OffsetY);
 	*p_data++ = GS_XYOFFSET_1;
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
@@ -179,8 +179,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->Offset, 
-					  gsGlobal->Offset);
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+					  gsGlobal->OffsetY);
 	*p_data++ = GS_XYOFFSET_2;	
 					  
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
@@ -500,7 +500,8 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 		gsGlobal->MagY = 0;
 		gsGlobal->DoSubOffset = GS_SETTING_ON;
 	}		
-	gsGlobal->Offset = 2048 << 4;
+	gsGlobal->OffsetX = (int)(2048.0f * 16.0f);
+	gsGlobal->OffsetY = (int)(2048.0f * 16.0f);
 	gsGlobal->ActiveBuffer = 1;
 	gsGlobal->PrimFogEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_OFF;

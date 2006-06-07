@@ -899,7 +899,8 @@ struct gsGlobal
 	int Width;		///< Framebuffer Width
 	int Height;		///< Framebuffer Height
 	int Aspect;		///< Framebuffer Aspect Ratio (Not Currently Used)
-	int Offset;		///< Window Offset
+	int OffsetX;		///< X Window Offset
+	int OffsetY;		///< Y Window Offset
 	int StartX;		///< X Starting Coordinate (Used for Placement Correction)
 	int StartY;		///< Y Starting Coordinate (Used for Placement Correction)
 	int MagX;		///< X Magnification Value
@@ -973,6 +974,7 @@ struct gsFont
 	u32 FontM_Vram[2];	///< FONTM VRAM Allocation (Double Buffered)
 	u32 FontM_VramIdx;	///< FONTM Current Double Buffer Index
 	u32 FontM_LastPage;	///< FONTM Last Uploaded Texture Page
+	u8 FontM_Align;		///< FONTM Line Alignment
 	float FontM_Spacing;	///< FONTM Glyph Spacing
 	void *TexBase;		///< Glyphs Texture Base
 	u32 CharWidth;		///< Character Width

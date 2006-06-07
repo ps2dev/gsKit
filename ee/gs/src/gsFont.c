@@ -154,6 +154,7 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 		gsFont->Texture->Vram = gsFont->FontM_Vram[0];
 		gsFont->FontM_VramIdx = 0;
 		gsFont->FontM_Spacing = 1.0f;
+		gsFont->FontM_Align = GSKIT_FALIGN_LEFT;
 
 		gsFont->Texture->Clut = memalign(128, 64);
 		memcpy(gsFont->Texture->Clut, gsKit_fontm_clut, 64);
@@ -406,35 +407,75 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 
 		int length = strlen(String);
 		int pos;
-		float posx = X, posy = Y;
+
+		u32 linechars[GSKIT_FONTM_MAXLINES];
+
+		float posx[GSKIT_FONTM_MAXLINES], posy = Y;
+ 
 		char cur;
 
 		u32 aligned, idxoffset, idxremain;
 		u32 voffset = 0;
 		u32 uoffset = 0;
 		u8 uploaded = 0;
+		u8 numlines = 0;
+		u8 curline = 0;
+		linechars[0] = 0;
+
 		int tabscale = (104.0f * scale);
-	
+
+		for(pos = 0; pos < length; pos++)
+		{
+			cur = String[pos];
+			if(cur != '\n' && cur != '\t')
+			{
+				linechars[numlines]++;
+			}
+			else if(cur == '\n')
+			{
+				numlines++;
+				linechars[numlines] = 0;
+			}
+			else if(cur == '\t' && gsFont->FontM_Align != GSKIT_FALIGN_LEFT)
+			{
+				printf("WARNING: Tabs not supported in GSKIT_FALIGN_CENTER/RIGHT\n");
+				break;
+			}
+		}
+		numlines++;
+
+		for(curline = 0; curline < numlines; curline++)
+		{
+			if(gsFont->FontM_Align == GSKIT_FALIGN_LEFT)
+				posx[curline] = X;
+			else if(gsFont->FontM_Align == GSKIT_FALIGN_CENTER)
+				posx[curline] = X - (((26.0f * linechars[curline]) * gsFont->FontM_Spacing * scale) / 2.0f);
+			else if(gsFont->FontM_Align == GSKIT_FALIGN_RIGHT)
+				posx[curline] = X - ((26.0f * linechars[curline]) * gsFont->FontM_Spacing * scale);
+		}
+
+		curline = 0;
+
 		for(pos = 0; pos < length; pos++)
 		{
 			cur = String[pos];
 
 			if(cur == '\n')
 			{
-				posx = X;
+				curline++;
 				posy += 26.0f;
 			}
 			else if(cur == '\t')
 			{
 				
-				u8 tab = (posx / tabscale);
+				u8 tab = (posx[curline] / tabscale);
 				if((int)posx % tabscale)
 					tab++;
-				posx = (tab * tabscale);
+				posx[curline] = (tab * tabscale);
 			}
 			else if(cur == ' ')
 			{
-				posx += (26.0f * gsFont->FontM_Spacing * scale);
+				posx[curline] += (26.0f * gsFont->FontM_Spacing * scale);
 			}
 			else
 			{
@@ -566,10 +607,10 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 					gsFont->FontM_VramIdx ^= 1;
 				}
 
-				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, posx, posy, uoffset, voffset,
-					(float)posx + (26.0f * scale), (float)posy + (26.0f * scale), uoffset + 26, voffset + 26, Z, color);
+				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, posx[curline], posy, uoffset, voffset,
+					(float)posx[curline] + (26.0f * scale), (float)posy + (26.0f * scale), uoffset + 26, voffset + 27, Z, color);
 
-				posx += (26.0f * gsFont->FontM_Spacing * scale);
+				posx[curline] += (26.0f * gsFont->FontM_Spacing * scale);
 			}
 		}
 

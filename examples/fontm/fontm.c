@@ -16,8 +16,8 @@
 int main(void)
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I);
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL);
+	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL_I);
 //	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60);
 	GSTEXTURE test;
 
@@ -113,14 +113,22 @@ int main(void)
 			"8: \ele \ege \einf \emale \efemale \edegc \eyen \ecent \epound\n"
 			"9: \eleft \eright \eup \edown \efleft \efright \efup \efdown\n"
 			"10:\ehleft \ehright \ehup \ehdown \ems \eus \ens \edegf\n"
-			"11:\embit \ehz \ekb \emb \egb \etb \f0855 \f0850\n"
-			"Hello FONTM World!");
+			"11:\embit \ehz \ekb \emb \egb \etb \f0855 \f0850");
 
 		sprintf(tempstr, "X =%d\t| Y =%d\nX2=%d\t| Y2=%d", (int)x, (int)y, (int)x2, (int)y2);
 
-		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 370, 3, 0.5f, TexCol, tempstr);
+		gsKit_font_print_scaled(gsGlobal, gsFont, 50, 340, 3, 0.6f, TexCol, tempstr);
 
 //		gsKit_font_print(gsGlobal, gsFont, 50, 50, 2.0f, TexCol, "\f0000");
+
+		gsKit_prim_sprite(gsGlobal, 418, 335, 422, 425, 3, Black);
+
+		gsKit_font_print_scaled(gsGlobal, gsFont, 420, 340, 4, 0.6f, TexCol, "Left Aligned");
+		gsFont->FontM_Align = GSKIT_FALIGN_CENTER;
+		gsKit_font_print_scaled(gsGlobal, gsFont, 420, 370, 4, 0.6f, TexCol, "Center Aligned");
+		gsFont->FontM_Align = GSKIT_FALIGN_RIGHT;
+		gsKit_font_print_scaled(gsGlobal, gsFont, 420, 400, 4, 0.60f, TexCol, "Right Aligned");
+		gsFont->FontM_Align = GSKIT_FALIGN_LEFT;
 
 		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
 

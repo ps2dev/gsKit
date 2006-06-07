@@ -26,6 +26,12 @@
 #include <tiffio.h>
 #endif
 
+#ifdef HAVE_LIBPNG
+#include <png.h>
+
+void gsKit_png_read(png_structp png_ptr, png_bytep data, png_size_t length);
+#endif
+
 static inline u32 lzw(u32 val)
 {
 	u32 res;
@@ -82,8 +88,115 @@ u32  gsKit_texture_size(int width, int height, int psm)
 
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
+#ifdef HAVE_LIBPNG
+	printf("WARNING: PNG Support is currently BROKEN!\n");
+	int File = fioOpen(Path, O_RDONLY);
+	char sig[8];
+	png_structp png_ptr;
+	png_infop info_ptr;
+
+	if(fioRead(File, sig, 8) != 8)
+	{
+		printf("Failed loading PNG: %s\n", Path);
+		fioClose(File);
+		return -1;
+	}
+
+	if(png_sig_cmp(sig, 0, 8) != 0)
+	{
+		printf("PNG Failed Sig Check: %s\n", Path);
+		fioClose(File);
+		return -1;
+	}
+
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if(!png_ptr)
+	{
+		printf("PNG Read Struct Init Failed\n");
+		fioClose(File);
+		return -1;
+	}
+	
+	info_ptr = png_create_info_struct(png_ptr);
+
+	if(!info_ptr)
+	{
+		printf("PNG Info Struct Init Failed\n");
+		fioClose(File);
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		return -1;
+	}
+
+	if(setjmp(png_ptr->jmpbuf))
+	{
+		printf("Got PNG Error!\n");
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		fioClose(File);
+		return -1;
+	}
+
+	png_set_read_fn(png_ptr, &File, gsKit_png_read);
+
+	png_set_sig_bytes(png_ptr, 8);
+
+	png_read_info(png_ptr, info_ptr);
+
+	png_read_update_info(png_ptr, info_ptr);
+
+	Texture->Width = (int)png_ptr->width;
+	Texture->Height = (int)png_ptr->height;
+
+	if(png_ptr->pixel_depth == 32)
+	{
+		Texture->PSM = GS_PSM_CT32;
+		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, GS_PSM_CT32));
+		printf("Reading Image: ptr = %p, ref = %p\n", Texture->Mem, (png_bytep *)Texture->Mem);
+		u32 Row;
+		u32 *image = (u32*)Texture->Mem;
+		for(Row = 0; Row < Texture->Height; Row++)
+		{
+			png_read_row(png_ptr, (png_bytep *)image, NULL);
+			image += (Texture->Width * 4);
+		}
+		printf("Finished Reading Image\n");
+		png_read_end(png_ptr, NULL);
+		printf("Finished png_read_end\n");
+
+		printf("Do png_destroy_read_struct\n");
+		png_destroy_read_struct(png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		printf("Finished png_destroy_read_struct\n");
+	}
+	else
+	{
+		printf("This texture depth is not supported yet!");
+	}
+
+	fioClose(File);
+
+	if(!Texture->Delayed)
+	{
+		u32 VramTextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
+
+		gsKit_texture_upload(gsGlobal, Texture);
+		free(Texture->Mem);
+	}
+	else
+	{
+		gsKit_setup_tbw(Texture);
+	}
+
+	return 0;
+#else
 	printf("ERROR: gsKit_texture_png unimplimented.\n");
 	return -1;
+#endif
 }
 
 int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
@@ -277,6 +390,10 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		gsKit_texture_upload(gsGlobal, Texture);
 		free(Texture->Mem);
 	}
+	else
+	{
+		gsKit_setup_tbw(Texture);
+	}
 
 	return 0;
 }
@@ -326,7 +443,11 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		
 		free(Texture->Mem);
 	}
-	
+	else
+	{
+		gsKit_setup_tbw(Texture);
+	}
+
 	return 0;
 	
 #else
@@ -396,6 +517,10 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 		free(Texture->Mem);
 	}
+	else
+	{
+		gsKit_setup_tbw(Texture);
+	}
 	
 	return 0;
 	
@@ -444,6 +569,10 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		gsKit_texture_upload(gsGlobal, Texture);
 	
 		free(Texture->Mem);
+	}
+	else
+	{
+		gsKit_setup_tbw(Texture);
 	}
 
 	return 0;
@@ -776,22 +905,7 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 {
-	if(Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4)
-	{
-		Texture->TBW = (-GS_VRAM_TBWALIGN_CLUT)&(Texture->Width+GS_VRAM_TBWALIGN_CLUT-1);
-		if(Texture->TBW / 64 > 0)
-			Texture->TBW = (Texture->TBW / 64);
-		else
-			Texture->TBW = 1;
-	}
-	else
-	{
-		Texture->TBW = (-GS_VRAM_TBWALIGN)&(Texture->Width+GS_VRAM_TBWALIGN-1);
-		if(Texture->TBW / 64 > 0)
-			Texture->TBW = (Texture->TBW / 64);
-		else
-			Texture->TBW = 1;
-	}
+	gsKit_setup_tbw(Texture);
 
 	if (Texture->PSM == GS_PSM_T8)
 	{
@@ -834,10 +948,10 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
 	int iu1 = (int)(u1 * 16.0f);
 	int iu2 = (int)(u2 * 16.0f);
@@ -911,8 +1025,8 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 
 	int ix1 = x1;
 	int ix2 = x2;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
 	int iv1 = (int)(v1 * 16.0f);
 	int iv2 = (int)(v2 * 16.0f);
@@ -993,12 +1107,12 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 		*p_data++ = color;
 
 		*p_data++ = GS_SETREG_UV( ((int)(u1 * 16.0f)), iv1 );
-		*p_data++ = GS_SETREG_XYZ2( ((int)(x1 * 16.0f) + gsGlobal->Offset), iy1, iz1 );
+		*p_data++ = GS_SETREG_XYZ2( ((int)(x1 * 16.0f) + gsGlobal->OffsetX), iy1, iz1 );
 
 		fu1 = leftuwidth;
 
 		*p_data++ = GS_SETREG_UV( ((int)(fu1 * 16.0f)), iv2 );
-		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->Offset, iy2, iz2 );
+		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->OffsetX, iy2, iz2 );
 
 		*p_data++ = 0;
 	}
@@ -1011,13 +1125,13 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 		*p_data++ = color;
 
 		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy1, iz1 );
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
 
 		fu1 += ustripwidth;
 		ix1 += 64;
 
 		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy2, iz2 );
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy2, iz2 );
 
 		*p_data++ = 0;
 	}
@@ -1032,13 +1146,13 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 		*p_data++ = color;
 
 		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->Offset, iy1, iz1 );
+		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
 
 		fu1 += rightuwidth;
 		rightwidth += ix1;
 
 		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
-		*p_data++ = GS_SETREG_XYZ2(((int)(rightwidth * 16.0f) + gsGlobal->Offset), iy2, iz2 );
+		*p_data++ = GS_SETREG_XYZ2(((int)(rightwidth * 16.0f) + gsGlobal->OffsetX), iy2, iz2 );
 
 		*p_data++ = 0;
 	
@@ -1080,12 +1194,12 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 #endif
 	}
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
 
 	int iu1 = (int)(u1 * 16.0f);
 	int iu2 = (int)(u2 * 16.0f);
@@ -1149,7 +1263,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	for(count = 0; count < (segments * 4); count+=4)
 	{
-		vertexdata[count] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriStrip) /= 2;
@@ -1160,7 +1274,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 			}
 		#endif
 		}
-		vertexdata[count+1] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] =  (int)((*TriStrip++) * 16.0f);
 		vertexdata[count+3] =  (int)((*TriStrip++) * 16.0f);
 	}
@@ -1224,7 +1338,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 
 	for(count = 0; count < (segments * 5); count+=5)
 	{
-		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriStrip) /= 2;
@@ -1235,7 +1349,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 			}
 		#endif
 		}
-		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] = (int)((*TriStrip++) * 16.0f);
 		vertexdata[count+3] = (int)((*TriStrip++) * 16.0f);
 		vertexdata[count+4] = (int)((*TriStrip++) * 16.0f);
@@ -1299,7 +1413,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	for(count = 0; count < (verticies * 4); count+=4)
 	{
-		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriFan) /= 2;
@@ -1310,7 +1424,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 			}
 		#endif
 		}
-		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
 		vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
 	}
@@ -1373,7 +1487,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	for(count = 0; count < (verticies * 5); count+=5)
 	{
-		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
 			*(TriFan) /= 2;
@@ -1384,7 +1498,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 			}
 		#endif
 		}
-		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->Offset;
+		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
 		vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
 		vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
 		vertexdata[count+4] =  (int)((*TriFan++) * 16.0f);
@@ -1468,15 +1582,15 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->Offset;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->Offset;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->Offset;
-	int ix4 = (int)(x4 * 16.0f) + gsGlobal->Offset;
+	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
+	int ix4 = (int)(x4 * 16.0f) + gsGlobal->OffsetX;
 
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->Offset;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->Offset;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->Offset;
-	int iy4 = (int)(y4 * 16.0f) + gsGlobal->Offset;
+	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
+	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
+	int iy4 = (int)(y4 * 16.0f) + gsGlobal->OffsetY;
 
 	int iu1 = (int)(u1 * 16.0f);
 	int iu2 = (int)(u2 * 16.0f);
