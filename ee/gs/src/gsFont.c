@@ -603,7 +603,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 					gsFont->Texture->Vram = gsFont->FontM_Vram[gsFont->FontM_VramIdx];
 					gsKit_texture_send_inline(gsGlobal, (void *)aligned, gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->Vram, GS_PSM_T4, gsFont->Texture->TBW, GS_CLUT_NONE);
 					gsFont->FontM_LastPage = aligned;
-					uploaded = 1;
+					uploaded = 0;
 					gsFont->FontM_VramIdx ^= 1;
 				}
 

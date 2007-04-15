@@ -131,7 +131,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	if(gsGlobal->ZBuffering == GS_SETTING_ON)
 		gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSMZ), GSKIT_ALLOC_SYSBUFFER ); // Z Buffer
 
-	(u32)p_data = (u32)p_store  = gsGlobal->dma_misc;
+	(u32)p_data = (u32)p_store = gsGlobal->dma_misc;
 
 	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
@@ -217,7 +217,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_ALPHA_2;
 
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, size);
-	dmaKit_wait_fast(DMA_CHANNEL_GIF);
+	dmaKit_wait_fast();
 }
 
 GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)

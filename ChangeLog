@@ -1,5 +1,10 @@
 gsKit ChangeLog:
 
+-> 04/15/07 - Chris Gilbert (Neovanglist)
+   * Fixed up dmaKit to properly support fast cop0 waits.
+   * Removed some unneeded printf
+   * Fixed some things to make sure they were floats.
+
 -> 06/07/06 - Chris Gilbert (Neovanglist)
    * Added preliminary (and buggy) libpng support.
    * Added gsKit_setup_tbw routine to find TBW value for textures.

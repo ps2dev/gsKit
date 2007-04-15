@@ -14,7 +14,7 @@
 #include "dmaArrays.h"
 
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
-		unsigned int STD, unsigned int RCYC)
+		unsigned int STD, unsigned int RCYC, u16 fastwaitchannels)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Initializing the DMAC: RELE=%i MFD=%i STS=%i STD=%i RCYC=%i\n",
@@ -22,13 +22,14 @@ int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
 	#endif
 	
 	*DMA_REG_CTRL = 0x00000000;
-	*DMA_REG_STAT = 0x00000000;
 	*DMA_REG_PCR  = 0x00000000;
 	*DMA_REG_SQWC = 0x00000000;
 	*DMA_REG_RBSR = 0x00000000;
 	*DMA_REG_RBOR = 0x00000000;
 
 	*DMA_REG_CTRL = DMA_SET_CTRL(1, RELE, MFD, STS, STD, RCYC);
+
+	DMA_SET_CPCOND(fastwaitchannels);
 
 	#ifdef GSKIT_DEBUG
 	printf("DMAC Initialized.\n");	

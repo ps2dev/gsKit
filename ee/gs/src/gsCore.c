@@ -103,7 +103,7 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
                                  gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	dmaKit_wait(DMA_CHANNEL_GIF, 0);
+	dmaKit_wait_fast();
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 5);
 }
 
@@ -280,17 +280,13 @@ void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 		*(u64 *)Queue->last_tag = ((u64)Queue->same_obj | *(u64 *)Queue->last_tag);
 	}
 
-	// I don't think it's safe to use wait_fast because what if someone else does a DMA transfer on another channel?
-	// The way the wait_fast works is on the bc0f/bc0t instructions which branch depending on cop0's condition signal.
-	// This condition signal is a DMA transfer termination signal. (See the EE Core Instruction Set Manual for more info)
-	// Therefore, unless we use it _JUST_ after the transfer execution... there is a chance that another unrelated transfer
-	// may change the status of this flag, giving us a false positive.
 	if(!gsGlobal->FirstFrame)
 		gsKit_finish();
 
 	GS_SETREG_CSR_FINISH(1);
 
-	dmaKit_wait(DMA_CHANNEL_GIF, 0);
+	dmaKit_wait_fast();
+
 	dmaKit_send_chain_ucab(DMA_CHANNEL_GIF, Queue->pool[Queue->dbuf]);
 
 	if(Queue->mode != GS_PERSISTENT)
@@ -305,7 +301,7 @@ void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 	else
 	{
 		*Queue = oldQueue;
-		dmaKit_wait_fast(DMA_CHANNEL_GIF);
+		dmaKit_wait_fast();
 	}
 }
 

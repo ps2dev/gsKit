@@ -67,41 +67,42 @@ extern "C" {
 /// This routine checks and waits for the DMAC to become free.
 /// The other routines in dmaKit use this to know when it's clear
 /// to send data over the DMAC.
-int dmaKit_wait(unsigned int channel, unsigned int timeout);
+int dmaKit_wait(u16 channel, unsigned int timeout);
 
 /// DMA Fast Wait Routine
 /// This routine does the same as above, but using an accelerated
 /// EE instruction method rather than register polling.
-void dmaKit_wait_fast(unsigned int channel);
+/// The channels argument takes a bitmask of the channels you want to wait for.
+void dmaKit_wait_fast(void);
 
 /// DMA Send Routine
 /// Standard DMA send routine. 
-void dmaKit_send(unsigned int channel, void *data, unsigned int size);
+void dmaKit_send(u16 channel, void *data, unsigned int size);
 
 /// DMA UCAB Send Routine
 /// Similar to dmaKit_send, but for UCAB data pointers.
-void dmaKit_send_ucab(unsigned int channel, void *data, unsigned int size);
+void dmaKit_send_ucab(u16 channel, void *data, unsigned int size);
 
 /// DMA Scratchpad Send Routine
 /// Similar to dmaKit_send, but reads from the scratchpad instead.
-void dmaKit_send_spr(unsigned int channel, void *data, unsigned int size);
+void dmaKit_send_spr(u16 channel, void *data, unsigned int size);
 
 /// DMA Chain Send Routine
 /// Sends data over the DMAC using a DMA Chain.
-void dmaKit_send_chain(unsigned int channel, void *data, unsigned int size);
+void dmaKit_send_chain(u16 channel, void *data, unsigned int size);
 
 /// DMA Chain UCAB Send
 /// Sends data which has been written to RAM using UCAB over the DMAC using a DMA Chain.
-void dmaKit_send_chain_ucab(unsigned int channel, void *data);
+void dmaKit_send_chain_ucab(u16 channel, void *data);
 
 /// DMA Chain Scratchpad Send 
 /// Sends data over the DMAC using a DMA Chain via the scratchpad.
-void dmaKit_send_chain_spr(unsigned int channel, void *data);
+void dmaKit_send_chain_spr(u16 channel, void *data);
 
 /// DMA Get from Scratchpad Routine
 /// Transfers data from an external source to the EE.
 /// (ex: Scratchpad -> EE Main Memory)
-void dmaKit_get_spr(unsigned int channel, void *data, void *dest, unsigned int size);
+void dmaKit_get_spr(u16 channel, void *data, void *dest, unsigned int size);
 
 #ifdef __cplusplus
 }

@@ -49,8 +49,9 @@
 #define DMA_REG_RBSR	(volatile u32 *)0x1000E040
 #define DMA_REG_RBOR	(volatile u32 *)0x1000E050
 
-#define DMA_SET_STAT(A,B) *DMA_REG_STAT = ((A) << (B))
-#define DMA_SET_PCR(A,B) *DMA_REG_PCR = ((A) << (B))
+#define DMA_SET_CIS(A) *DMA_REG_STAT = (u32)(A)
+#define DMA_SET_CIM(A) *DMA_REG_STAT = (u32)((A) << 16)
+#define DMA_SET_CPCOND(A) *DMA_REG_PCR = (u32)(A)
 
 #define DMA_CHANNEL_VIF0	0x0
 #define DMA_CHANNEL_VIF1	0x1
@@ -74,7 +75,7 @@ extern "C" {
 
 /// DMAC Initilization
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS, 
-                unsigned int STD, unsigned int RCYC);
+                unsigned int STD, unsigned int RCYC, u16 fastwaitchannels);
 
 /// DMA Channel Initilization
 int dmaKit_chan_init(unsigned int channel);

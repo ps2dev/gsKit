@@ -90,7 +90,6 @@ u32  gsKit_texture_size(int width, int height, int psm)
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBPNG
-	printf("WARNING: PNG Support is currently BROKEN!\n");
 	int File = fioOpen(Path, O_RDONLY);
 	
 	png_structp png_ptr;
@@ -843,7 +842,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 
 	// Need to wait first to make sure that if our doublebuffered drawbuffer is still
 	// chugging away we have a safe time to start our transfer.
-	dmaKit_wait(DMA_CHANNEL_GIF, 0);
+	dmaKit_wait_fast();
 	dmaKit_send_chain(DMA_CHANNEL_GIF, p_store, p_size);
 	free(p_store);
 
@@ -966,8 +965,8 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	if(gsGlobal->Field == GS_FRAME)
 	{
-		y1 /= 2;
-		y2 /= 2;
+		y1 /= 2.0f;
+		y2 /= 2.0f;
 #ifdef GSKIT_ENABLE_HBOFFSET
 		if(!gsGlobal->EvenOrOdd)
 		{
@@ -978,14 +977,14 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	}
 
 	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)((x2 + 0.0625f) * 16.0f) + gsGlobal->OffsetX;
 	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)((y2 + 0.0625f) * 16.0f) + gsGlobal->OffsetY;
 
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
+	int iu1 = (int)((u1 + 0.5f) * 16.0f);
+	int iu2 = (int)((u2 - 0.375f) * 16.0f);
+	int iv1 = (int)((v1 + 0.5f) * 16.0f);
+	int iv2 = (int)((v2 - 0.375f) * 16.0f);
 
 	
 	int tw = 31 - (lzw(Texture->Width) + 1);
@@ -1041,8 +1040,8 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 
 	if(gsGlobal->Field == GS_FRAME)
 	{
-		y1 /= 2;
-		y2 /= 2;
+		y1 /= 2.0f;
+		y2 /= 2.0f;
 #ifdef GSKIT_ENABLE_HBOFFSET
 		if(!gsGlobal->EvenOrOdd)
 		{
@@ -1210,9 +1209,9 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	if(gsGlobal->Field == GS_FRAME)
 	{
-		y1 /= 2;
-		y2 /= 2;
-		y3 /= 2;
+		y1 /= 2.0f;
+		y2 /= 2.0f;
+		y3 /= 2.0f;
 #ifdef GSKIT_ENABLE_HBOFFSET
 		if(!gsGlobal->EvenOrOdd)
 		{
@@ -1295,7 +1294,7 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		vertexdata[count] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
-			*(TriStrip) /= 2;
+			*(TriStrip) /= 2.0f;
 		#ifdef GSKIT_ENABLE_HBOFFSET
 			if(!gsGlobal->EvenOrOdd)
 			{
@@ -1370,7 +1369,7 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
-			*(TriStrip) /= 2;
+			*(TriStrip) /= 2.0f;
 		#ifdef GSKIT_ENABLE_HBOFFSET
 			if(!gsGlobal->EvenOrOdd)
 			{
@@ -1445,7 +1444,7 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
-			*(TriFan) /= 2;
+			*(TriFan) /= 2.0f;
 		#ifdef GSKIT_ENABLE_HBOFFSET
 			if(!gsGlobal->EvenOrOdd)
 			{
@@ -1519,7 +1518,7 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
 		if(gsGlobal->Field == GS_FRAME)
 		{
-			*(TriFan) /= 2;
+			*(TriFan) /= 2.0f;
 		#ifdef GSKIT_ENABLE_HBOFFSET
 			if(!gsGlobal->EvenOrOdd)
 			{
@@ -1594,10 +1593,10 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 
 	if(gsGlobal->Field == GS_FRAME)
 	{
-		y1 /= 2;
-		y2 /= 2;
-		y3 /= 2;
-		y4 /= 2;
+		y1 /= 2.0f;
+		y2 /= 2.0f;
+		y3 /= 2.0f;
+		y4 /= 2.0f;
 #ifdef GSKIT_ENABLE_HBOFFSET
 		if(!gsGlobal->EvenOrOdd)
 		{
