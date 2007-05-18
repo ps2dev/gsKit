@@ -121,7 +121,7 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 Color);
 ///
 /// GS_ATEST_OFF - Turns off Alpha Testing (Source)
 ///
-/// GS_ATEST_OFF - Turns on Alpha Testing (Source)
+/// GS_ATEST_ON - Turns on Alpha Testing (Source)
 ///
 /// GS_D_ATEST_OFF - Turns off Alpha Testing (Destination)
 ///
