@@ -122,7 +122,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	if(setjmp(png_ptr->jmpbuf))
 	{
 		printf("Got PNG Error!\n");
-		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		fioClose(File);
 		return -1;
 	}
@@ -148,56 +148,90 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
 
-	png_read_update_info(png_ptr, info_ptr);	
-	
+	png_read_update_info(png_ptr, info_ptr);
+    
 	Texture->Width = width;
 	Texture->Height = height;
 
         Texture->VramClut = 0;
         Texture->Clut = NULL;
 
-	if(png_ptr->pixel_depth == 32)
+	if(png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
 	{
+        int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 		Texture->PSM = GS_PSM_CT32;
-		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, GS_PSM_CT32));
-		printf("Reading Image: ptr = %p, ref = %p\n", Texture->Mem, (png_bytep *)Texture->Mem);
+		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
 
-	        row_pointers = calloc(height, sizeof(png_bytep));
-	
-	        for (row = 0; row < height; row++) {
-	        	row_pointers[row] = malloc(png_get_rowbytes(png_ptr, info_ptr));
-	        }
-	
-	        png_read_image(png_ptr, row_pointers);
-			
-	        struct pixel { unsigned char r,g,b,a; };
-	        struct pixel *Pixels;
-	
-	        assert(Pixels = (struct pixel *)malloc((size_t)width*(size_t)height*sizeof(struct pixel)));
+        row_pointers = calloc(height, sizeof(png_bytep));
 
-	        for (i=0;i<height;i++) {
-	                for (j=0;j<width;j++) {
-	                        Pixels[k].r = row_pointers[i][4*j];
-	                        Pixels[k].g = row_pointers[i][4*j+1];
-	                        Pixels[k].b = row_pointers[i][4*j+2];
-	                        Pixels[k++].a = row_pointers[i][4*j+3];
-		        }
+        for (row = 0; row < height; row++) {
+            row_pointers[row] = malloc(row_bytes);
+        }
+	
+        png_read_image(png_ptr, row_pointers);
+        
+        struct pixel { unsigned char r,g,b,a; };
+        struct pixel *Pixels = (struct pixel *) Texture->Mem;
+
+        for (i=0;i<height;i++) {
+                for (j=0;j<width;j++) {
+                        Pixels[k].r = row_pointers[i][4*j];
+                        Pixels[k].g = row_pointers[i][4*j+1];
+                        Pixels[k].b = row_pointers[i][4*j+2];
+                        Pixels[k++].a = (int) row_pointers[i][4*j+3] * 128 / 255;
+            }
 		}
-		Texture->Mem = (u32 *)Pixels;
+                
+        for (row = 0; row < height; row++) {
+            free(row_pointers[row]);
+        }
+
+        free(row_pointers);
 		Texture->Filter = GS_FILTER_NEAREST;
 		
-		printf("Finished Reading Image\n");
 		png_read_end(png_ptr, NULL);
-		printf("Finished png_read_end\n");
 
-		printf("Do png_destroy_read_struct\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
-		printf("Finished png_destroy_read_struct\n");
+	}
+	else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB)
+	{
+        int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+		Texture->PSM = GS_PSM_CT24;
+		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
+
+        row_pointers = calloc(height, sizeof(png_bytep));
+
+        for (row = 0; row < height; row++) {
+            row_pointers[row] = malloc(row_bytes);
+        }
+
+        png_read_image(png_ptr, row_pointers);
+        
+        struct pixel3 { unsigned char r,g,b; };
+        struct pixel3 *Pixels = (struct pixel3 *) Texture->Mem;
+
+        for (i=0;i<height;i++) {
+                for (j=0;j<width;j++) {
+                        Pixels[k].r = row_pointers[i][4*j];
+                        Pixels[k].g = row_pointers[i][4*j+1];
+                        Pixels[k++].b = row_pointers[i][4*j+2];
+            }
+		}
+        
+        for (row = 0; row < height; row++) {
+            free(row_pointers[row]);
+        }
+
+        free(row_pointers);
+		Texture->Filter = GS_FILTER_NEAREST;
 		
+		png_read_end(png_ptr, NULL);
+
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
 	}
 	else
 	{
-		printf("This texture depth is not supported yet!");
+		printf("This texture depth is not supported yet!\n");
 	}
 
 	fioClose(File);
