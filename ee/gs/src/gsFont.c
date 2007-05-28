@@ -74,6 +74,7 @@ int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
+    int pgindx;
 	int i;
 
 	if( gsFont->RawData ) {
@@ -149,8 +150,11 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 		gsFont->Texture->VramClut = gsKit_vram_alloc(gsGlobal, 4096, GSKIT_ALLOC_USERBUFFER);
 		int TexSize = gsKit_texture_size(gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->PSM);
-		gsFont->FontM_Vram[0] = gsKit_vram_alloc(gsGlobal, TexSize, GSKIT_ALLOC_USERBUFFER);
-		gsFont->FontM_Vram[1] = gsKit_vram_alloc(gsGlobal, TexSize, GSKIT_ALLOC_USERBUFFER);
+        for(pgindx = 0; pgindx < GS_FONT_PAGE_COUNT; ++pgindx)
+        {
+            gsFont->FontM_Vram[pgindx] = gsKit_vram_alloc(gsGlobal, TexSize, GSKIT_ALLOC_USERBUFFER);
+            gsFont->FontM_LastPage[i] = (u32) -1;
+        }
 		gsFont->Texture->Vram = gsFont->FontM_Vram[0];
 		gsFont->FontM_VramIdx = 0;
 		gsFont->FontM_Spacing = 1.0f;
@@ -351,7 +355,7 @@ void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 }
 
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
-                      float scale, unsigned long color, char *String)
+                      float scale, unsigned long color, const char *String)
 {
 	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
 		gsFont->Type == GSKIT_FTYPE_FNT)
@@ -417,7 +421,6 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		u32 aligned, idxoffset, idxremain;
 		u32 voffset = 0;
 		u32 uoffset = 0;
-		u8 uploaded = 0;
 		u8 numlines = 0;
 		u8 curline = 0;
 		linechars[0] = 0;
@@ -480,7 +483,9 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			else
 			{
 				int idx;
+                int pgindx;
 				uoffset = 0;
+                gsFont->pgcount = 0;
 
 				if(cur == '\f')
 				{
@@ -598,13 +603,23 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 
 				*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
 
-				if(uploaded == 0 || gsFont->FontM_LastPage != aligned)
+                for(pgindx = 0; pgindx < GS_FONT_PAGE_COUNT; ++pgindx)
+                {
+                    if (gsFont->FontM_LastPage[pgindx] == aligned)
+                    {
+                        gsFont->Texture->Vram = gsFont->FontM_Vram[pgindx];
+                        break;
+                    }
+                }
+				if(pgindx >= GS_FONT_PAGE_COUNT)
 				{
+                    //printf("FontM Upload %d %d\n", gsFont->FontM_VramIdx, aligned);
+                    ++gsFont->pgcount;
 					gsFont->Texture->Vram = gsFont->FontM_Vram[gsFont->FontM_VramIdx];
 					gsKit_texture_send_inline(gsGlobal, (void *)aligned, gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->Vram, GS_PSM_T4, gsFont->Texture->TBW, GS_CLUT_NONE);
-					gsFont->FontM_LastPage = aligned;
-					uploaded = 0;
-					gsFont->FontM_VramIdx ^= 1;
+					//gsKit_texture_send_inline(gsGlobal, (void *)aligned, gsFont->Texture->Width, gsFont->Texture->Height, gsFont->Texture->Vram, GS_PSM_T4, gsFont->Texture->TBW, GS_CLUT_NONE);
+					gsFont->FontM_LastPage[gsFont->FontM_VramIdx] = aligned;
+					gsFont->FontM_VramIdx = (++gsFont->FontM_VramIdx) % GS_FONT_PAGE_COUNT;
 				}
 
 				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, posx[curline], posy, uoffset, voffset,

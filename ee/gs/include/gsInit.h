@@ -958,6 +958,8 @@ struct gsKit_fontm_header
 };
 typedef struct gsKit_fontm_header GSFONTM;
 
+#define GS_FONT_PAGE_COUNT 2
+
 /// gsKit Font Structure
 /// This structure holds all relevant data for any
 /// given font object, regardless of original format or type.
@@ -971,9 +973,9 @@ struct gsFont
 	int RawSize;		///< Raw File Datasize
 	GSTEXTURE *Texture;	///< Font Texture Object
 	GSFONTM FontM_Header;	///< FONTM Header
-	u32 FontM_Vram[2];	///< FONTM VRAM Allocation (Double Buffered)
+	u32 FontM_Vram[GS_FONT_PAGE_COUNT];	///< FONTM VRAM Allocation (Double Buffered)
 	u32 FontM_VramIdx;	///< FONTM Current Double Buffer Index
-	u32 FontM_LastPage;	///< FONTM Last Uploaded Texture Page
+	u32 FontM_LastPage[GS_FONT_PAGE_COUNT];	///< FONTM Last Uploaded Texture Page
 	u8 FontM_Align;		///< FONTM Line Alignment
 	float FontM_Spacing;	///< FONTM Glyph Spacing
 	void *TexBase;		///< Glyphs Texture Base
@@ -982,6 +984,7 @@ struct gsFont
 	u32 HChars;		///< Character Rows
 	u32 VChars;		///< Character Columns
 	u8 *Additional;		///< Additional Font Data
+    int pgcount;    /// Number of pages used in one call to gsKit_font_print_scaled
 };
 typedef struct gsFont GSFONT;
 
