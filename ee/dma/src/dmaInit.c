@@ -10,8 +10,10 @@
 //
 
 #include "dmaKit.h"
-#include "kernel.h"
 #include "dmaArrays.h"
+
+#include <stdio.h>
+#include <kernel.h>
 
 int dmaKit_init(unsigned int RELE, unsigned int MFD, unsigned int STS,
 		unsigned int STD, unsigned int RCYC, u16 fastwaitchannels)

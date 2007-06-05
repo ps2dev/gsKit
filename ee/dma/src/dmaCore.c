@@ -11,8 +11,10 @@
 //
 
 #include "dmaKit.h"
-#include "kernel.h"
 #include "dmaArrays.h"
+
+#include <stdio.h>
+#include <kernel.h>
 
 int dmaKit_wait(u16 channel, unsigned int timeout)
 {

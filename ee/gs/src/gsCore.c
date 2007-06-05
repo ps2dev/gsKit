@@ -14,6 +14,8 @@
 #include "gsKit.h"
 #include "gsInline.h"
 
+#include <stdio.h>
+
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 {
 	u32 CurrentPointer = gsGlobal->CurrentPointer;

@@ -13,6 +13,9 @@
 
 #include "gsKit.h"
 
+#include <stdio.h>
+#include <kernel.h>
+
 int gsKit_detect_signal(void)
 {
 	if (*(volatile char *)(0x1FC7FF52) == 'E')
