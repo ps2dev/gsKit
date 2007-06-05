@@ -17,9 +17,10 @@
 
 void gsKit_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-	if(fioRead(*((int *)png_ptr->io_ptr), data, length) <= 0)
+	FILE* File = (FILE*) png_ptr->io_ptr;
+	if(fread(data, length, 1, File) <= 0)
 	{
-		png_error(png_ptr, "Error reading via fioRead\n");
+		png_error(png_ptr, "Error reading via fread\n");
 		return;
 	}
 }
