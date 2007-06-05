@@ -48,9 +48,15 @@ $(EE_BIN_DIR):
 $(EE_OBJS_DIR):
 	mkdir $(EE_OBJS_DIR)
 
+ifeq ($(use_cpp), true)
+$(EE_BIN) : $(EE_OBJS) $(PS2SDK)/ee/startup/crt0.o
+	$(EE_CXX) -nostartfiles -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
+		-o $(EE_BIN) $(PS2SDK)/ee/startup/crt0.o $(EE_OBJS) $(EE_LIBS)
+else
 $(EE_BIN) : $(EE_OBJS) $(PS2SDK)/ee/startup/crt0.o
 	$(EE_CC) -nostartfiles -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
 		-o $(EE_BIN) $(PS2SDK)/ee/startup/crt0.o $(EE_OBJS) $(EE_LIBS)
+endif
 
 $(EE_LIB) : $(EE_OBJS)
 	$(EE_AR) cru $(EE_LIB) $(EE_OBJS)
