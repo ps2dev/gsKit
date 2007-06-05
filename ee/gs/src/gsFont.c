@@ -122,7 +122,6 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 		}
 		else
 		{
-			int i;
 			for (i = 0; i < 0x100; i++)
 			{
 				gsFont->Additional[i] = gsFont->CharWidth;
@@ -153,7 +152,7 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
         for(pgindx = 0; pgindx < GS_FONT_PAGE_COUNT; ++pgindx)
         {
             gsFont->FontM_Vram[pgindx] = gsKit_vram_alloc(gsGlobal, TexSize, GSKIT_ALLOC_USERBUFFER);
-            gsFont->FontM_LastPage[i] = (u32) -1;
+            gsFont->FontM_LastPage[pgindx] = (u32) -1;
         }
 		gsFont->Texture->Vram = gsFont->FontM_Vram[0];
 		gsFont->FontM_VramIdx = 0;
