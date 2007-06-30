@@ -465,7 +465,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			if(cur == '\n')
 			{
 				curline++;
-				posy += 26.0f;
+				posy += (26.0f * scale);
 			}
 			else if(cur == '\t')
 			{
