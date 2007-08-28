@@ -95,6 +95,49 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 		return 0;
 	}
+#ifdef HAVE_LIBPNG
+	else if( gsFont->Type == GSKIT_FTYPE_PNG_DAT )
+	{
+		if( gsKit_texture_png(gsGlobal, gsFont->Texture, gsFont->Path_PNG) == -1)
+		{
+			printf("Error uploading font png!\n");
+			return -1;
+		}
+
+		gsFont->HChars=16;
+		gsFont->VChars=16;
+		gsFont->CharWidth = gsFont->Texture->Width / 16;
+		gsFont->CharHeight = gsFont->Texture->Height / 16;
+
+		int File = fioOpen(gsFont->Path_DAT, O_RDONLY);
+		gsFont->Additional=malloc( 0x100 );
+		u16 temp_buffer[512];
+		if (File > 0)
+		{
+			fioLseek(File, 0, SEEK_SET);
+			if(fioRead(File, &temp_buffer, 0x200) <= 0)
+			{
+				printf("Could not load font sizes: %s\n", gsFont->Path_DAT);
+				return -1;
+			}
+			fioClose(File);
+			for (i = 0; i < 0x100; i++)
+			{
+				gsFont->Additional[i] = temp_buffer[i];
+			}
+		}
+		else
+		{
+			int i;
+			for (i = 0; i < 0x100; i++)
+			{
+				gsFont->Additional[i] = gsFont->CharWidth;
+			}
+		}
+
+		return 0;
+	}
+#endif
 	else if( gsFont->Type == GSKIT_FTYPE_BMP_DAT )
 	{
 		if( gsKit_texture_bmp(gsGlobal, gsFont->Texture, gsFont->Path_BMP) == -1 )
@@ -356,9 +399,67 @@ void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
                       float scale, unsigned long color, const char *String)
 {
+#ifdef HAVE_LIBPNG
+	if( gsFont->Type == GSKIT_FTYPE_PNG_DAT)
+	{
+		u64 oldalpha = gsGlobal->PrimAlpha;
+		u8 oldpabe = gsGlobal->PABE;
+		u8 fixate = 0;
+		if(gsGlobal->Test->ATE)
+		{
+			gsKit_set_test(gsGlobal, GS_ATEST_OFF);
+			fixate = 1;
+		}
+		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
+
+
+		int cx,cy,i,l;
+		char c;
+		cx=X;
+		cy=Y;
+
+		l=strlen( String );
+		for( i=0;i<l;i++ )
+		{
+			c=String[i];
+			if( c=='\n' )
+			{
+				cx=X;
+				cy+=gsFont->CharHeight;
+			}
+			else
+			{
+				int px,py,charsiz;
+				px=c%16;
+				py=(c-px)/16;
+				charsiz=gsFont->Additional[(u8)c]*1.5;
+
+				gsKit_prim_sprite_texture(gsGlobal, gsFont->Texture, cx, cy,
+					px*gsFont->CharWidth+1, py*gsFont->CharHeight+1,
+					cx+gsFont->CharWidth, cy+gsFont->CharHeight,
+					(px+1)*gsFont->CharWidth, (py+1)*gsFont->CharHeight,
+					Z, color);
+
+				cx+=charsiz+1;
+			}
+		}
+		gsGlobal->PABE = oldpabe;
+		gsGlobal->PrimAlpha=oldalpha;
+		gsKit_set_primalpha(gsGlobal, gsGlobal->PrimAlpha, gsGlobal->PABE);
+		//gsKit_set_clamp(gsGlobal, GS_CMODE_RESET);
+
+		if(fixate)
+			gsKit_set_test(gsGlobal, GS_ATEST_ON);
+
+	}
+	else if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
+		gsFont->Type == GSKIT_FTYPE_FNT)
+	{
+#else
 	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
 		gsFont->Type == GSKIT_FTYPE_FNT)
 	{
+#endif
 		u64 oldalpha = gsGlobal->PrimAlpha;
 		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
 	

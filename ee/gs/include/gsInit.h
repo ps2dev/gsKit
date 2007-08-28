@@ -967,6 +967,7 @@ struct gsFont
 {
 	char *Path;		///< Path (string) to the Font File
 	char *Path_BMP;		///< Path (string) to the BMP Glyph File
+	char *Path_PNG;		///< Path (string) to the PNG Glyph File
 	char *Path_DAT;		///< Path (string) to the Glyph DAT File
 	u8 Type;		///< Font Type
 	u8 *RawData;		///< Raw File Data
