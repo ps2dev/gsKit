@@ -91,6 +91,11 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBPNG
 	FILE* File = fopen(Path, "r");
+	if (File == NULL)
+	{
+		printf("Failed to load PNG file: %s\n", Path);
+		return -1;
+	}
 	
 	png_structp png_ptr;
 	png_infop info_ptr;
@@ -271,6 +276,11 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	u8  *p;
 
 	FILE* File = fopen(Path, "r");
+	if (File == NULL)
+	{
+		printf("Failed to load bitmap: %s\n", Path);
+		return -1;
+	}
 	if (fread(&Bitmap.FileHeader, sizeof(Bitmap.FileHeader), 1, File) <= 0)
 	{
 		printf("Could not load bitmap: %s\n", Path);
@@ -603,6 +613,11 @@ int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	FILE* File = fopen(Path, "r");
+	if (File == NULL)
+	{
+		printf("Failed to load  texture: %s\n", Path);
+		return -1;
+	}
 	int FileSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
 	int VramFileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	Texture->Mem = memalign(128, FileSize);
@@ -702,6 +717,11 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	int i;
 
 	FILE* File = fopen(gsFont->Path, "r");
+	if (File == NULL)
+	{
+		printf("Failed to load font: %s\n", gsFont->Path);
+		return -1;
+	}
 	fseek(File, 4, SEEK_SET);
 	if(fread(&gsFont->Texture->Width, 4, 1, File) <= 0)
 	{
