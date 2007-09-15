@@ -708,6 +708,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
                     if (gsFont->FontM_LastPage[pgindx] == aligned)
                     {
                         gsFont->Texture->Vram = gsFont->FontM_Vram[pgindx];
+                        gsFont->FontM_VramIdx = (pgindx + 1) % GS_FONT_PAGE_COUNT;
                         break;
                     }
                 }
