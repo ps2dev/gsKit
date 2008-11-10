@@ -889,8 +889,8 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		*p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
 		*p_data++ = GIF_AD;
 
-		*p_data++ = GS_TEXFLUSH;
 		*p_data++ = 0;
+		*p_data++ = GS_TEXFLUSH;
 	}
 
 	// Need to wait first to make sure that if our doublebuffered drawbuffer is still
@@ -978,8 +978,8 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 		*p_data++ = GIF_TAG_AD(1);
 		*p_data++ = GIF_AD;
 
-		*p_data++ = GS_TEXFLUSH;
 		*p_data++ = 0;
+		*p_data++ = GS_TEXFLUSH;
 	}
 
 }
