@@ -19,7 +19,14 @@ endif
 
 SUBDIRS = ee examples lib
 
+all:
+	@$(ECHO) ' ';
+	@$(ECHO) It is not intended for other projects to include the;
+	@$(ECHO) Makefile.global file used by gsKit.;
+	@$(ECHO) ' ';
+
 include Rules.make
+include $(PS2SDK)/Defs.make
 
 reset:
 	ps2client reset

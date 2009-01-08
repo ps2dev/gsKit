@@ -27,4 +27,4 @@ clean:
 install:
 
 include ../../Makefile.pref
-include ../../Makefile.global
+include ../Makefile.global

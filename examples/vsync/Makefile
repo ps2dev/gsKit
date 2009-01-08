@@ -6,16 +6,17 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/fontm/Makefile - Makefile for "fontm" example.
+# examples/basic/Makefile - Makefile for "basic" example.
 #
 
-EE_BIN  = fontm.elf
-EE_OBJS = fontm.o
+EE_BIN  = vsync.elf
+EE_OBJS = vsync.o
+EE_CFLAGS += -g
 
 all: $(EE_BIN)
 
 test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:fontm.elf
+	ps2client -h $(PS2_IP) -t 1 execee host:vsync.elf
 
 reset: clean
 	ps2client -h $(PS2_IP) reset

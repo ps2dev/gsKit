@@ -11,21 +11,6 @@
 
 #include "gsKit.h"
 
-#ifdef HAVE_LIBPNG
-
-#include <png.h>
-
-void gsKit_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-	FILE* File = (FILE*) png_ptr->io_ptr;
-	if(fread(data, length, 1, File) <= 0)
-	{
-		png_error(png_ptr, "Error reading via fread\n");
-		return;
-	}
-}
-#endif
-
 void gsKit_setup_tbw(GSTEXTURE *Texture)
 {
 	if(Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4)
@@ -56,16 +41,16 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 	int remain;
 	int qwc;
 	int Size;
-	
+
 	printf("THIS IS NOT DONE YET!\n");
-	
+
 	return 0;
-	
+
 	StartAddr = (-GS_VRAM_BLOCKSIZE)&(StartAddr+GS_VRAM_BLOCKSIZE-1);
 	EndAddr = (-GS_VRAM_BLOCKSIZE)&(EndAddr+GS_VRAM_BLOCKSIZE-1);
-	
+
 	Size = EndAddr - StartAddr;
-	
+
 	qwc = Size / 16;
 	if( Size % 16 )
 	{
@@ -97,7 +82,7 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 
 	*p_data++ = GS_SETREG_TRXREG(4095.9375, 4095.9375);
 	*p_data++ = GS_TRXREG;
-	
+
 	*p_data++ = 0;
 	*p_data++ = GS_FINISH;
 
@@ -105,13 +90,13 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 	*p_data++ = GS_TRXDIR;
 
 	dmaKit_send_spr( DMA_CHANNEL_GIF, 0, p_store, 7 );
-	
+
 	while(GS_CSR_FINISH != 1);
-	 
+
 	GS_SETREG_CSR_FINISH(1);
-	 
+
 	FlushCache(0);
-	 
+
 	GS_SETREG_BUSDIR(1);
-#endif 
+#endif
 }

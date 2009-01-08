@@ -15,74 +15,186 @@
 
 #include <stdio.h>
 #include <kernel.h>
+#include <osd_config.h>
 
-int gsKit_detect_signal(void)
+short int gsKit_detect_signal(void)
 {
-	if (*(volatile char *)(0x1FC7FF52) == 'E')
-	{
-		/* PAL (SCEE) detected */
+	char romname[14];
+
+	GetRomName((char *)romname);
+
+	if (romname[4] == 'E') {
 		return GS_MODE_PAL;
 	}
-	else
-	{
-		/* rest of the world is NTSC */
+	else {
 		return GS_MODE_NTSC;
 	}
+}
+
+void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
+{
+	switch (gsGlobal->Mode) {
+		case GS_MODE_NTSC:
+			gsGlobal->StartX = 652;
+			gsGlobal->StartY = 26;
+			gsGlobal->DW = 2560;
+			gsGlobal->DH = 448;
+			break;
+		case GS_MODE_PAL:
+			gsGlobal->StartX = 680;
+			gsGlobal->StartY = 37;
+			gsGlobal->DW = 2560;
+			gsGlobal->DH = 512;
+			break;
+		case GS_MODE_VGA_640_60:
+			gsGlobal->StartX = 280;
+			gsGlobal->StartY = 18;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 480;
+			break;
+		case GS_MODE_VGA_640_72:
+			gsGlobal->StartX = 330;
+			gsGlobal->StartY = 18;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 480;
+			break;
+		case GS_MODE_VGA_640_75:
+			gsGlobal->StartX = 360;
+			gsGlobal->StartY = 18;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 480;
+			break;
+		case GS_MODE_VGA_640_85:
+			gsGlobal->StartX = 260;
+			gsGlobal->StartY = 18;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 480;
+			break;
+		case GS_MODE_VGA_800_56:
+			gsGlobal->StartX = 450;
+			gsGlobal->StartY = 25;
+			gsGlobal->DW = 1600;
+			gsGlobal->DH = 600;
+			break;
+		case GS_MODE_VGA_800_60:
+		case GS_MODE_VGA_800_72:
+			gsGlobal->StartX = 465;
+			gsGlobal->StartY = 25;
+			gsGlobal->DW = 1600;
+			gsGlobal->DH = 600;
+			break;
+		case GS_MODE_VGA_800_75:
+			gsGlobal->StartX = 510;
+			gsGlobal->StartY = 25;
+			gsGlobal->DW = 1600;
+			gsGlobal->DH = 600;
+			break;
+		case GS_MODE_VGA_800_85:
+			gsGlobal->StartX = 500;
+			gsGlobal->StartY = 25;
+			gsGlobal->DW = 1600;
+			gsGlobal->DH = 600;
+			break;
+		case GS_MODE_VGA_1024_60:
+			gsGlobal->StartX = 580;
+			gsGlobal->StartY = 30;
+			gsGlobal->DW = 2048; // does this really need doubling? can't test
+			gsGlobal->DH = 768;
+			break;
+		case GS_MODE_VGA_1024_70:
+			gsGlobal->StartX = 266;
+			gsGlobal->StartY = 30;
+			gsGlobal->DW = 1024;
+			gsGlobal->DH = 768;
+			break;
+		case GS_MODE_VGA_1024_75:
+			gsGlobal->StartX = 260;
+			gsGlobal->StartY = 30;
+			gsGlobal->DW = 1024;
+			gsGlobal->DH = 768;
+			break;
+		case GS_MODE_VGA_1024_85:
+			gsGlobal->StartX = 290;
+			gsGlobal->StartY = 30;
+			gsGlobal->DW = 1024;
+			gsGlobal->DH = 768;
+			break;
+		case GS_MODE_VGA_1280_60:
+		case GS_MODE_VGA_1280_75:
+			gsGlobal->StartX = 350;
+			gsGlobal->StartY = 40;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 1024;
+			break;
+		case GS_MODE_DTV_480P:
+			gsGlobal->StartX = 232;
+			gsGlobal->StartY = 35;
+			gsGlobal->DW = 1440;
+			gsGlobal->DH = 960; // though rare there are tv's that can handle an interlaced 480p source
+			break;
+		case GS_MODE_DTV_720P:
+			gsGlobal->StartX = 420;
+			gsGlobal->StartY = 40;
+			gsGlobal->DW = 1280;
+			gsGlobal->DH = 720;
+			break;
+        case GS_MODE_DTV_1080I:
+			gsGlobal->StartX = 300;
+			gsGlobal->StartY = 120;
+			gsGlobal->DW = 1920;
+			gsGlobal->DH = 1080;
+			break;
+	}
+
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FIELD))
+        gsGlobal->StartY = (gsGlobal->StartY - 1) * 2;
+
+    gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
+	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
+
 }
 
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
 	u64	*p_store;
-	u8 Mode = 0;
-	int	fbHeight = 0;
-	int	size;
+	int	size = 17;
 
-	size = 17;
+    gsKit_set_buffer_attributes(gsGlobal);
 
-	if(!gsGlobal->Setup)
-	{
-		gsGlobal->CurrentPointer = 0;
-		if(gsGlobal->Mode == GS_MODE_NTSC_I)
-		{
-			Mode = GS_MODE_NTSC;
-			fbHeight = gsGlobal->Height / 2;
-		}
-		else if(gsGlobal->Mode == GS_MODE_PAL_I)
-		{
-			Mode = GS_MODE_PAL;
-			fbHeight = (gsGlobal->Height / 2);
-		}
-		else if(gsGlobal->Mode == GS_MODE_DTV_1080I_I)
-		{
-			Mode = GS_MODE_DTV_1080I;
-			fbHeight = (gsGlobal->Height / 2);
-		}
-		else
-		{
-			fbHeight = gsGlobal->Height;
-			Mode = gsGlobal->Mode;
-		}
-		
-		gsGlobal->CurrentPointer = 0;
-	
-		GS_RESET();
+#ifdef DEBUG
+    printf("Screen Mode:\n");
+    printf("------------\n");
+	printf("Width : %d\n", gsGlobal->Width);
+	printf("Height: %d\n", gsGlobal->Height);
+	printf("StartX: %d\n", gsGlobal->StartX);
+	printf("StartY: %d\n", gsGlobal->StartY);
+	printf("MagH  : %d\n", gsGlobal->MagH);
+	printf("MagV  : %d\n", gsGlobal->MagV);
+	printf("DW    : %d\n", gsGlobal->DW);
+	printf("DH    : %d\n", gsGlobal->DH);
+#endif
 
-		__asm__("sync.p; nop;");
+    GS_RESET();
 
-		GsPutIMR(0x0000F700);
-		
-		SetGsCrt(gsGlobal->Interlace, Mode, gsGlobal->Field);
+    __asm__("sync.p; nop;");
 
-		gsGlobal->Setup = 1;
-	}
+    *GS_CSR = 0x00000000; // Clean CSR registers
+
+    GsPutIMR(0x0000F700); // Unmasks all of the GS interrupts
+
+	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
+
+	gsGlobal->FirstFrame = GS_SETTING_ON;
 
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
 	{
 		gsGlobal->Test->ZTE = GS_SETTING_ON;
 		gsGlobal->Test->ZTST = 1;
 	}
-	
+
+	DIntr(); // disable interrupts
+
 	GS_SET_PMODE(	0,		// Read Circuit 1
 			1,		// Read Circuit 2
 			0,		// Use ALP Register for Alpha Blending
@@ -94,7 +206,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 			gsGlobal->Width / 64,	// Buffer Width (Address/64)
 			gsGlobal->PSM,		// Pixel Storage Format
 			0,			// Upper Left X in Buffer
-			0);	
+			0);
 
 	GS_SET_DISPFB2(	0,			// Frame Buffer Base Pointer (Address/2048)
 			gsGlobal->Width / 64,	// Buffer Width (Address/64)
@@ -104,35 +216,42 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	GS_SET_DISPLAY1(gsGlobal->StartX,		// X position in the display area (in VCK unit
 			gsGlobal->StartY,		// Y position in the display area (in Raster u
-			gsGlobal->MagX,			// Horizontal Magnification
-			gsGlobal->MagY,			// Vertical Magnification
-			(gsGlobal->Width * 4) -1,	// Display area width
-			(gsGlobal->Height-1));		// Display area height
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
 
 	GS_SET_DISPLAY2(gsGlobal->StartX,		// X position in the display area (in VCK units)
 			gsGlobal->StartY,		// Y position in the display area (in Raster units)
-			gsGlobal->MagX,			// Horizontal Magnification
-			gsGlobal->MagY,			// Vertical Magnification
-			(gsGlobal->Width * 4) -1,	// Display area width
-			(gsGlobal->Height-1));		// Display area height
-	
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+
 	GS_SET_BGCOLOR(	gsGlobal->BGColor->Red,		// Red
 			gsGlobal->BGColor->Green,	// Green
 			gsGlobal->BGColor->Blue);	// Blue
 
-	gsGlobal->CurrentPointer = 0;
+    EIntr(); //enable interrupts
+
+    gsGlobal->CurrentPointer = 0; // reset vram pointer too
+
 	// Context 1
-	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM), GSKIT_ALLOC_SYSBUFFER );
+	gsGlobal->ScreenBuffer[0] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM), GSKIT_ALLOC_SYSBUFFER );
+
 	if(gsGlobal->DoubleBuffering == GS_SETTING_OFF)
 	{
 		gsGlobal->ScreenBuffer[1] = gsGlobal->ScreenBuffer[0];
 	}
 	else
 		// Context 2
-		gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSM), GSKIT_ALLOC_SYSBUFFER );
-	
+		gsGlobal->ScreenBuffer[1] = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM), GSKIT_ALLOC_SYSBUFFER );
+
+
 	if(gsGlobal->ZBuffering == GS_SETTING_ON)
-		gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, fbHeight, gsGlobal->PSMZ), GSKIT_ALLOC_SYSBUFFER ); // Z Buffer
+		gsGlobal->ZBuffer = gsKit_vram_alloc( gsGlobal, gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSMZ), GSKIT_ALLOC_SYSBUFFER ); // Z Buffer
+
+    gsGlobal->TexturePointer = gsGlobal->CurrentPointer; // first useable address for textures
 
 	(u32)p_data = (u32)p_store = gsGlobal->dma_misc;
 
@@ -141,32 +260,37 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
-	
+
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
 					  gsGlobal->OffsetY);
 	*p_data++ = GS_XYOFFSET_1;
-					  
+
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
 	*p_data++ = GS_SCISSOR_1;
 
-	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
+	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST,
 				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL,
 				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
 				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
-	
+
 	*p_data++ = GS_TEST_1;
-	
-	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
-				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT,
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU,
 				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
 	*p_data++ = GS_CLAMP_1;
 
 	if(gsGlobal->ZBuffering == GS_SETTING_ON)
 	{
+	    if((gsGlobal->PSM == GS_PSM_CT16) && (gsGlobal->PSMZ != GS_PSMZ_16))
+            gsGlobal->PSMZ = GS_PSMZ_16; // seems only non-S 16-bit z depth works with this mode
+        if((gsGlobal->PSM != GS_PSM_CT16) && (gsGlobal->PSMZ == GS_PSMZ_16))
+            gsGlobal->PSMZ = GS_PSMZ_16S; // other depths don't seem to work with 16-bit non-S z depth
+
 		*p_data++ = GS_SETREG_ZBUF_1( gsGlobal->ZBuffer / 8192, gsGlobal->PSMZ, 0 );
 		*p_data++ = GS_ZBUF_1;
 	}
@@ -182,22 +306,22 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
-	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX, 
+	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
 					  gsGlobal->OffsetY);
-	*p_data++ = GS_XYOFFSET_2;	
-					  
+	*p_data++ = GS_XYOFFSET_2;
+
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
 	*p_data++ = GS_SCISSOR_2;
 
-	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST, 
+	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST,
 				gsGlobal->Test->AREF, gsGlobal->Test->AFAIL,
 				gsGlobal->Test->DATE, gsGlobal->Test->DATM,
 				gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
-	
+
 	*p_data++ = GS_TEST_2;
-	
-	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
-				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT,
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU,
 				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
 	*p_data++ = GS_CLAMP_2;
@@ -219,14 +343,42 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_BLEND_BACK2FRONT;
 	*p_data++ = GS_ALPHA_2;
 
+	*p_data++ = GS_SETREG_DIMX(gsGlobal->DitherMatrix[0],gsGlobal->DitherMatrix[1],
+                gsGlobal->DitherMatrix[2],gsGlobal->DitherMatrix[3],gsGlobal->DitherMatrix[4],
+                gsGlobal->DitherMatrix[5],gsGlobal->DitherMatrix[6],gsGlobal->DitherMatrix[7],
+                gsGlobal->DitherMatrix[8],gsGlobal->DitherMatrix[9],gsGlobal->DitherMatrix[10],
+                gsGlobal->DitherMatrix[11],gsGlobal->DitherMatrix[12],gsGlobal->DitherMatrix[13],
+                gsGlobal->DitherMatrix[14],gsGlobal->DitherMatrix[15]); // 4x4 dither matrix
+
+	*p_data++ = GS_DIMX;
+
+	if((gsGlobal->Dithering == GS_SETTING_ON) && ((gsGlobal->PSM == GS_PSM_CT16) || (gsGlobal->PSM == GS_PSM_CT16S))) {
+        *p_data++ = 1;
+        *p_data++ = GS_DTHE;
+	}
+
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, size);
 	dmaKit_wait_fast();
+
+    // do a single frame here to get rid whatever needs to be done during the first frame
+
+	gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00)); // clear the screen
+
+	gsKit_queue_exec(gsGlobal);
+
+	gsKit_sync_flip(gsGlobal);
+
+	gsKit_queue_reset(gsGlobal->Os_Queue);
 }
 
-GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
+GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 {
+    s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
+    //s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
+    int i = 0;
+
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
-	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));	
+	gsGlobal->BGColor = calloc(1,sizeof(GSBGCOLOR));
 	gsGlobal->Test = calloc(1,sizeof(GSTEST));
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 	gsGlobal->Os_Queue = calloc(1,sizeof(GSQUEUE));
@@ -234,17 +386,31 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 	(u32)gsGlobal->dma_misc = ((u32)memalign(64, 512) | 0x30000000);
 
 	/* Generic Values */
-	gsGlobal->Setup = 0;
-	gsGlobal->Aspect = GS_ASPECT_4_3;
+	if(configGetTvScreenType() == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
+    else
+    gsGlobal->Aspect = GS_ASPECT_4_3;
 
-        gsGlobal->PSM = GS_PSM_CT24;
-        gsGlobal->PSMZ = GS_PSMZ_32;
+    gsGlobal->PSM = GS_PSM_CT24;
+    gsGlobal->PSMZ = GS_PSMZ_32;
 
-	gsGlobal->DoSubOffset = GS_SETTING_OFF;
+    gsGlobal->Dithering = GS_SETTING_OFF;
+    gsGlobal->DoubleBuffering = GS_SETTING_ON;
+    gsGlobal->ZBuffering = GS_SETTING_ON;
+
+    // Setup a mode automatically
+    gsGlobal->Mode = gsKit_detect_signal();
+    gsGlobal->Interlace = GS_INTERLACED;
+	gsGlobal->Field = GS_FIELD;
+    gsGlobal->Width = 640;
+
+    if(gsGlobal->Mode == GS_MODE_PAL) gsGlobal->Height = 512;
+    else gsGlobal->Height = 448;
+
+    gsGlobal->CurrentPointer = 0;
 
 	gsGlobal->DrawOrder = GS_PER_OS;
 
-	gsGlobal->EvenOrOdd = 1;
+	gsGlobal->EvenOrOdd = 0;
 
 	gsGlobal->Os_AllocSize = Os_AllocSize;
 	(u32)gsGlobal->Os_Queue->dma_tag = (u32)gsGlobal->Os_Queue->pool[0] = ((u32)memalign(64, Os_AllocSize) | 0x30000000);
@@ -257,6 +423,7 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Os_Queue->last_tag = gsGlobal->Os_Queue->pool_cur;
 	gsGlobal->Os_Queue->last_type = GIF_RESERVED;
 	gsGlobal->Os_Queue->mode = GS_ONESHOT;
+
 	gsGlobal->Per_AllocSize = Per_AllocSize;
 	(u32)gsGlobal->Per_Queue->dma_tag = (u32)gsGlobal->Per_Queue->pool[0] = ((u32)memalign(64, Per_AllocSize) | 0x30000000);
 	(u32)gsGlobal->Per_Queue->pool_cur = ((u32)gsGlobal->Per_Queue->pool[0] + 16);
@@ -269,249 +436,20 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 
 	gsGlobal->CurQueue = gsGlobal->Os_Queue;
 
-	/* Auto-detect signal if needed */
-	if(mode == GS_MODE_AUTO)
-	{
-		mode = gsKit_detect_signal();
-	}
-	else if(mode == GS_MODE_AUTO_I)
-	{
-		int m = gsKit_detect_signal();
-		mode = (m == GS_MODE_NTSC) ? GS_MODE_NTSC_I : GS_MODE_PAL_I;
-	}
-
-	if(mode == GS_MODE_NTSC)
-	{
-		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 640;	
-		gsGlobal->Height = 448;
-		gsGlobal->StartX = 652;
-		gsGlobal->StartY = 50;
-		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_NTSC_I)
-	{
-		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FRAME;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 640;
-		gsGlobal->Height = 448; // really 224 per frame
-		gsGlobal->StartX = 652;
-		gsGlobal->StartY = 50;
-		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 0;
-		gsGlobal->DoSubOffset = GS_SETTING_ON;
-	}
-	else if(mode == GS_MODE_PAL)
-	{
-		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 640;
-		gsGlobal->Height = 512;
-		gsGlobal->StartX = 680;
-		gsGlobal->StartY = 72;
-		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_PAL_I)
-	{
-		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FRAME;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 640;		
-		gsGlobal->Height = 512; // really 256 per frame
-		gsGlobal->StartX = 680;
-		gsGlobal->StartY = 72;
-		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 0;
-		gsGlobal->DoSubOffset = GS_SETTING_ON;
-	}
-	else if(mode == GS_MODE_VGA_640_60 || mode == GS_MODE_VGA_640_72 ||
-			mode == GS_MODE_VGA_640_75 || mode == GS_MODE_VGA_640_85)
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 640;
-		gsGlobal->Height = 480;
-		if(mode == GS_MODE_VGA_640_60)
-			gsGlobal->StartX = 280;
-		else if(mode == GS_MODE_VGA_640_72)
-			gsGlobal->StartX = 330;
-		else if(mode == GS_MODE_VGA_640_75)
-			gsGlobal->StartX = 360;
-		else
-			gsGlobal->StartX = 260;
-		gsGlobal->StartY = 18;
-		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_VGA_800_56 || mode == GS_MODE_VGA_800_60 || 
-			mode == GS_MODE_VGA_800_72 || mode == GS_MODE_VGA_800_75 || 
-			mode == GS_MODE_VGA_800_85)
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 800;
-		gsGlobal->Height = 600;
-		if(mode == GS_MODE_VGA_800_56)
-			gsGlobal->StartX = 450;
-		else if(mode == GS_MODE_VGA_800_60)
-			gsGlobal->StartX = 465;
-		else if(mode == GS_MODE_VGA_800_72)
-			gsGlobal->StartX = 465;
-		else if(mode == GS_MODE_VGA_800_75)
-			gsGlobal->StartX = 510;
-		else
-			gsGlobal->StartX = 500;
-		gsGlobal->StartY = 25;
-		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_VGA_1024_60 || mode == GS_MODE_VGA_1024_70 ||
-			mode == GS_MODE_VGA_1024_75 || mode == GS_MODE_VGA_1024_85)
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-		gsGlobal->ZBuffering = GS_SETTING_OFF;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 1024;
-		gsGlobal->Height = 768;
-		gsGlobal->StartY = 30;
-		gsGlobal->MagY = 0;
-		if(mode == GS_MODE_VGA_1024_60)
-		{
-			gsGlobal->MagX = 1;
-			gsGlobal->StartX = 580;
-		}
-		else if(mode == GS_MODE_VGA_1024_70)
-		{
-			gsGlobal->MagX = 0;
-			gsGlobal->StartX = 266;
-		}
-		else if(mode == GS_MODE_VGA_1024_75)
-		{
-			gsGlobal->MagX = 0;
-			gsGlobal->StartX = 260;
-		}
-		else
-		{
-				gsGlobal->MagX = 0;
-				gsGlobal->StartX = 290;
-		}
-	}
-	else if(mode == GS_MODE_VGA_1280_60 || mode == GS_MODE_VGA_1280_75 )
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-		gsGlobal->ZBuffering = GS_SETTING_OFF;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 1280;
-		gsGlobal->Height = 1024;
-		gsGlobal->StartX = 350;
-		gsGlobal->StartY = 40;
-		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_DTV_480P)
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_ON;
-		gsGlobal->ZBuffering = GS_SETTING_ON;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 720;
-		gsGlobal->Height = 480;
-		gsGlobal->StartX = 232;
-		gsGlobal->StartY = 35;
-		gsGlobal->MagX = 1;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_DTV_720P)
-	{
-		gsGlobal->Interlace = GS_NONINTERLACED;
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-		gsGlobal->ZBuffering = GS_SETTING_OFF;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 1280;
-		gsGlobal->Height = 720;
-		gsGlobal->StartX = 420;
-		gsGlobal->StartY = 40;
-		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 0;
-	}
-	else if(mode == GS_MODE_DTV_1080I)
-	{
-		gsGlobal->Interlace = GS_INTERLACED;
-		gsGlobal->Field = GS_FIELD;
-	        gsGlobal->PSM = GS_PSM_CT16;
-		gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-		gsGlobal->ZBuffering = GS_SETTING_OFF;
-		gsGlobal->Mode = mode;
-		gsGlobal->Width = 1920;
-		gsGlobal->Height = 1080;
-		gsGlobal->StartX = 300;
-		gsGlobal->StartY = 120;
-		gsGlobal->MagX = 0;
-		gsGlobal->MagY = 0;
-	}
-        else if(mode == GS_MODE_DTV_1080I_I)
-        {
-                gsGlobal->Interlace = GS_INTERLACED;
-                gsGlobal->Field = GS_FRAME;
-	        gsGlobal->PSM = GS_PSM_CT16;
-                gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-                gsGlobal->ZBuffering = GS_SETTING_OFF;
-                gsGlobal->Mode = mode;
-                gsGlobal->Width = 1920;
-                gsGlobal->Height = 1080;
-                gsGlobal->StartX = 300;
-                gsGlobal->StartY = 60;
-                gsGlobal->MagX = 0;
-                gsGlobal->MagY = 1;
-        }
-	else 
-	{
-		printf("Invalid Mode Selected, Defaulting to NTSC.\n");
-		gsGlobal->Field = GS_FIELD;
-		gsGlobal->Mode = GS_MODE_NTSC;
-		gsGlobal->Width = 640;
-		gsGlobal->Height = 448;
-		gsGlobal->StartX = 632;
-		gsGlobal->StartY = 50;
-		gsGlobal->MagX = 3;
-		gsGlobal->MagY = 0;
-		gsGlobal->DoSubOffset = GS_SETTING_ON;
-	}		
 	gsGlobal->OffsetX = (int)(2048.0f * 16.0f);
 	gsGlobal->OffsetY = (int)(2048.0f * 16.0f);
 	gsGlobal->ActiveBuffer = 1;
+    gsGlobal->LockBuffer = GS_SETTING_OFF;
 	gsGlobal->PrimFogEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAlpha = GS_BLEND_BACK2FRONT;
 	gsGlobal->PrimContext = 0;
 	gsGlobal->FirstFrame = GS_SETTING_ON;
+
+	for(i = 0; i < 15; i++) {
+	    gsGlobal->DitherMatrix[i] = dither_matrix[i];
+	}
 
 	/* BGColor Register Values */
 	gsGlobal->BGColor->Red = 0x00;
@@ -538,30 +476,21 @@ GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize)
 	return gsGlobal;
 }
 
-GSFONT *gsKit_init_font(u8 type, char *path)
+void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 {
-	
-	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
-	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
-	if(path)
-	{
-		gsFont->Path = calloc(1,strlen(path));
-		strcpy(gsFont->Path, path);
-	}
-	gsFont->Type = type;
-		
-	return gsFont;
-}
+    (u32)gsGlobal->Per_Queue->pool[0] ^= 0x30000000;
+    (u32)gsGlobal->Os_Queue->pool[1] ^= 0x30000000;
+    (u32)gsGlobal->Os_Queue->pool[0] ^= 0x30000000;
+    (u32)gsGlobal->dma_misc ^= 0x30000000;
 
-GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size)
-{
-	
-	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
-	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
-	gsFont->RawData = data;
-	gsFont->RawSize = size;
-	gsFont->Type = type;
-		
-	return gsFont;
+    free(gsGlobal->Per_Queue->pool[0]);
+    free(gsGlobal->Os_Queue->pool[1]);
+    free(gsGlobal->Os_Queue->pool[0]);
+    free(gsGlobal->dma_misc);
+    free(gsGlobal->Per_Queue);
+    free(gsGlobal->Os_Queue);
+    free(gsGlobal->Clamp);
+    free(gsGlobal->Test);
+    free(gsGlobal->BGColor);
+    free(gsGlobal);
 }
-

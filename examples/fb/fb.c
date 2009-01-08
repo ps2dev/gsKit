@@ -13,8 +13,12 @@
 
 #include <gsKit.h>
 #include <dmaKit.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
+
+#include <gsToolkit.h>
 
 #define USEBMP
 
@@ -69,7 +73,7 @@ static void generate_palette(GSTEXTURE *tex)
 		cptr[i+128] = ((i << 1) << 8) | 0xff;
 	}
 }
-
+/*
 static void generate_framex(GSTEXTURE *tex)
 {
 	int x, y;
@@ -85,7 +89,7 @@ static void generate_framex(GSTEXTURE *tex)
 		}
 	}
 }
-
+*/
 static void generate_frame(GSTEXTURE *tex)
 {
 	int x, y;
@@ -138,7 +142,7 @@ int main(int argc, char *argv[])
         dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	/* allocate GSGLOBAL structure */
-	gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	gsGlobal = gsKit_init_global();
 
 	/* initialize screen */
 	gsGlobal->PSM = GS_PSM_CT24;

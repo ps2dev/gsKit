@@ -10,7 +10,7 @@
 #
 
 EE_OBJS = 	gsCore.o \
-		gsFont.o \
+		gsFontM.o \
 		gsInit.o \
 		gsMisc.o \
 		gsPrimitive.o \

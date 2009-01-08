@@ -9,7 +9,7 @@
 # ee/Makefile - gsKit e  makefile.
 #
 
-SUBDIRS = gs dma
+SUBDIRS = gs dma toolkit
 
 include ../Rules.make
 

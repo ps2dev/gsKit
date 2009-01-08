@@ -41,28 +41,22 @@
 /// Frame Mode - Reads Every Line
 #define GS_FRAME 0x01
 
-/// NTSC Full Buffer
-#define GS_MODE_NTSC 0x02
-/// PAL Full Buffer
-#define GS_MODE_PAL  0x03
-
-/// NTSC Half Buffer
-#define GS_MODE_NTSC_I 0x04
-/// PAL Half Buffer
-#define GS_MODE_PAL_I 0x05
-/// DTV 1080I Half Buffer
-#define GS_MODE_DTV_1080I_I 0x06
-
-/// Auto-detect Full Buffer
-#define GS_MODE_AUTO  0x07
-/// Auto-detect Half Buffer
-#define GS_MODE_AUTO_I 0x08
+/// Normal Field Mode - Draws all lines
+#define GS_FIELD_NORMAL 0x00
+/// Odd Field Mode - Draws only odd lines
+#define GS_FIELD_ODD    0x02
+/// Even Field Mode - Draws only even lines
+#define GS_FIELD_EVEN   0x03
 
 /// 4:3 Aspect Ratio (UNUSED)
 #define GS_ASPECT_4_3 0x0
 /// 16:9 Aspect Ratio (UNUSED)
 #define GS_ASPECT_16_9 0x1
 
+/// NTSC Full Buffer
+#define GS_MODE_NTSC 0x02
+/// PAL Full Buffer
+#define GS_MODE_PAL  0x03
 /// VGA 640x480 @ 60Hz
 #define GS_MODE_VGA_640_60 0x1A
 /// VGA 640x480 @ 72Hz
@@ -602,11 +596,11 @@
 #define GS_SETREG_XYZ(x, y, z) \
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32))
 
-/// GS Vertex Value With Fog Coefficent (Without Drawing Kick) Object Creation Macro 
+/// GS Vertex Value With Fog Coefficent (Without Drawing Kick) Object Creation Macro
 #define GS_SETREG_XYZF3 GS_SETREG_XYZF
 /// GS Vertex Value With Fog Coefficent Object Creation Macro
 #define GS_SETREG_XYZF2 GS_SETREG_XYZF
-/// GS Vertex Value With Fog Coefficent (Root Macro, XYZF2 and XYZF3 Call This) Object Creation Macro 
+/// GS Vertex Value With Fog Coefficent (Root Macro, XYZF2 and XYZF3 Call This) Object Creation Macro
 #define GS_SETREG_XYZF(x, y, z, f) \
   ((u64)(x) | ((u64)(y) << 16) | ((u64)(z) << 32) | \
   ((u64)(f) << 56))
@@ -681,6 +675,7 @@
 #define GS_SET_EXTWRITE(WRITE) \
         *GS_EXTWRITE = \
 	((u64)(WRITE)	<< 0)
+
 
 /// GS Framebuffer Register Access Macro (Output Circuit 1)
 #define GS_SET_DISPFB1(FBP,FBW,PSM,DBX,DBY) \
@@ -773,7 +768,7 @@
 /// GS FRAME Packing Macro
 #define GS_SETREG_FRAME(fbp, fbw, psm, fbmask) \
   ((u64)(fbp)        | ((u64)(fbw) << 16) | \
-  ((u64)(psm) << 24) | ((u64)(fbmask) << 32))  
+  ((u64)(psm) << 24) | ((u64)(fbmask) << 32))
 
 /// See GS_SETREG_SCISSOR
 #define GS_SETREG_SCISSOR_1 GS_SETREG_SCISSOR
@@ -796,18 +791,29 @@
 
 /// GS ALPHA Packing Macro
 #define GS_SETREG_ALPHA(A, B, C, D, FIX) \
-	(((u64)(A)	<< 0)	| \
+	((u64)(A)	<< 0)	| \
 	((u64)(B)	<< 2)	| \
 	((u64)(C)	<< 4)	| \
 	((u64)(D)	<< 6)	| \
-	((u64)(FIX)	<< 32))
+	((u64)(FIX)	<< 32)
+
+// ABCD
+// EFGH
+// IJKL
+// MNOP
+/// GS DIMX Packing Macro from dma.h in ps2sdk
+ #define GS_SETREG_DIMX(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P) \
+((u64)(A) << 0) | ((u64)(B) << 4) | ((u64)(C) << 8) | ((u64)(D) << 12) | \
+((u64)(E) << 16) | ((u64)(F) << 20) | ((u64)(G) << 24) | ((u64)(H) << 28) | \
+((u64)(I) << 32) | ((u64)(J) << 36) | ((u64)(K) << 40) | ((u64)(L) << 44) | \
+((u64)(M) << 48) | ((u64)(N) << 52) | ((u64)(0) << 56) | ((u64)(P) << 60)
 
 /// Background Color Structure
 struct gsBGColor
 {
 	u8 Red;		///< Red Value
 	u8 Green;	///< Green Value
-	u8 Blue;	///< Blue Value	
+	u8 Blue;	///< Blue Value
 };
 typedef struct gsBGColor GSBGCOLOR;
 
@@ -847,19 +853,19 @@ typedef struct gsClamp GSCLAMP;
 struct gsQueue
 {
 	void *pool[2] __attribute__ ((aligned (64)));	///< Pool Base Address (Two of these, since we doublebuffer)
-	void *pool_cur;					///< Current Pool Address (Offset from Base)
-	void *pool_max[2];				///< Pool Maximum Address (Used for bounds checking)
+	void *pool_cur;         ///< Current Pool Address (Offset from Base)
+	void *pool_max[2];      ///< Pool Maximum Address (Used for bounds checking)
 
-	int last_type;					///< Last type of object in this draw queue
-	void *last_tag;					///< Pointer to the GIF_TAG of the last object in this draw queue
+	int last_type;          ///< Last type of object in this draw queue
+	void *last_tag;         ///< Pointer to the GIF_TAG of the last object in this draw queue
 
-	int same_obj;					///< Number of times in a row the same REGLIST enabled object has been added (Used for NLOOP fixup later)
+	int same_obj;           ///< Number of times in a row the same REGLIST enabled object has been added (Used for NLOOP fixup later)
 
-	void *dma_tag;					///< Pointer to last DMA_TAG
-	u32 tag_size;					///< Quadwords in current DMA_TAG
+	void *dma_tag;          ///< Pointer to last DMA_TAG
+	u32 tag_size;           ///< Quadwords in current DMA_TAG
 
-	u8 mode;					///< Mode of the draw queue (NOT USED RIGHT NOW)
-	int dbuf;					///< Which of the pool[2] buffers we are using
+	u8 mode;                ///< Mode of the draw queue (NOT USED RIGHT NOW)
+	int dbuf;               ///< Which of the pool[2] buffers we are using
 };
 typedef struct gsQueue GSQUEUE;
 
@@ -880,48 +886,60 @@ typedef struct gsQueue GSQUEUE;
 ///
 /// This will create, allocate, and preload gsGlobal with all default values
 /// and specific values for the NTSC display mode.
+///
+/// To destroy a gsGlobal structure you can use the gsKit_deinit_global routine.
+///
+/// Example: gsKit_deinit_global(gsGlobal);
+///
+/// This will free all memory allocated by gsGlobal and memory allocated by
+/// structures within gsGlobal itself.
 struct gsGlobal
 {
-	s16 Mode;		///< Display Mode
-	s16 Interlace;		///< Interlace (On/Off)
-	s16 Field;		///< Field / Frame
-	u8 Setup;		///< Setup (Is set to 1 after screen init, see gsKit_init() for more info.)
-	u32 CurrentPointer;	///< Current VRAM Pointer
-	u8 DoubleBuffering;	///< Enable/Disable Double Buffering
-	u8 ZBuffering;		///< Enable/Disable Z Buffering
-	u32 ScreenBuffer[2];	///< Screenbuffer Pointer Array
-	u32 ZBuffer;		///< ZBuffer Pointer
-	u8 DoSubOffset;		///< Do Subpixel Offset
-	u8 EvenOrOdd;		///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
-	u8 DrawOrder;		///< Drawing Order (GS_PER_OS/GS_OS_PER) (GS_PER_OS = Persitant objects always drawn first)
-	u8 FirstFrame;		///< Have we executed a frame yet?
-	int ActiveBuffer;	///< Active Framebuffer
-	int Width;		///< Framebuffer Width
-	int Height;		///< Framebuffer Height
-	int Aspect;		///< Framebuffer Aspect Ratio (Not Currently Used)
-	int OffsetX;		///< X Window Offset
-	int OffsetY;		///< Y Window Offset
-	int StartX;		///< X Starting Coordinate (Used for Placement Correction)
-	int StartY;		///< Y Starting Coordinate (Used for Placement Correction)
-	int MagX;		///< X Magnification Value
-	int MagY;		///< Y Magnification Value (Always 0!)
-	GSBGCOLOR *BGColor;	///< Background Color Structure Pointer
-	GSTEST *Test;		///< TEST Register Value Structure Pointer
-	GSCLAMP *Clamp;		///< CLAMP Register Value Structure Pointer
-	GSQUEUE *CurQueue; 	///< Draw Queue (Current)
-	GSQUEUE *Per_Queue; 	///< Draw Queue (Persistent)
-	GSQUEUE *Os_Queue; 	///< Draw Queue (Oneshot)
-	int Os_AllocSize;	///< Oneshot Drawbuffer Size (Per Buffer)
-	int Per_AllocSize;	///< Persistent Drawbuffer Size (Per Buffer)
+	s16 Mode;            ///< Display Mode
+	s16 Interlace;       ///< Interlace (On/Off)
+	s16 Field;           ///< Field / Frame
+	u32 CurrentPointer;  ///< Current VRAM Pointer
+	u32 TexturePointer;  ///< Pointer to beginning of Texture Buffer
+	u8 Dithering;        ///< Dithering (On/Off)
+	s8 DitherMatrix[16]; ///< Dithering Matrix
+	u8 DoubleBuffering;	 ///< Enable/Disable Double Buffering
+	u8 ZBuffering;       ///< Enable/Disable Z Buffering
+	u32 ScreenBuffer[2]; ///< Screenbuffer Pointer Array
+	u32 ZBuffer;         ///< ZBuffer Pointer
+	u8 EvenOrOdd;        ///< Is ((GSREG*)CSR)->FIELD (Used for Interlace Correction)
+	u8 DrawOrder;        ///< Drawing Order (GS_PER_OS/GS_OS_PER) (GS_PER_OS = Persitant objects always drawn first)
+	u8 FirstFrame;       ///< Have we executed a frame yet?
+	u8 DrawField;        ///< Field to draw (GS_FIELD_NORMAL/GS_FIELD_ODD/GS_FIELD_EVEN)
+	u8 ActiveBuffer;     ///< Active Framebuffer
+	volatile u8 LockBuffer;       ///< Used to lock the buffer so it doesn't switch
+	int Width;           ///< Framebuffer Width (the mode's DW is a multiple of this value)
+	int Height;          ///< Framebuffer Height (the mode's DH is a multiple of this value)
+	int Aspect;          ///< Framebuffer Aspect Ratio (GS_ASPECT_4_3/GS_ASPECT_16_9)
+	int OffsetX;         ///< X Window Offset
+	int OffsetY;         ///< Y Window Offset
+	int StartX;          ///< X Starting Coordinate (Used for Placement Correction)
+	int StartY;          ///< Y Starting Coordinate (Used for Placement Correction)
+	int MagH;            ///< X Magnification Value (MAGH = DW / Width - 1)
+	int MagV;            ///< Y Magnification Value (MAGV = DH / Height - 1)
+	int DW;              ///< Total Display Area Width (DW = Width * (MAGH + 1))
+    int DH;              ///< Total Display Area Height (DH = Height * (MAGH + 1))
+	GSBGCOLOR *BGColor;  ///< Background Color Structure Pointer
+	GSTEST *Test;        ///< TEST Register Value Structure Pointer
+	GSCLAMP *Clamp;      ///< CLAMP Register Value Structure Pointer
+	GSQUEUE *CurQueue;   ///< Draw Queue (Current)
+	GSQUEUE *Per_Queue;  ///< Draw Queue (Persistent)
+	GSQUEUE *Os_Queue;   ///< Draw Queue (Oneshot)
+	int Os_AllocSize;    ///< Oneshot Drawbuffer Size (Per Buffer)
+	int Per_AllocSize;   ///< Persistent Drawbuffer Size (Per Buffer)
 	void *dma_misc __attribute__ ((aligned (64)));	///< Misc 512 byte DMA Transfer Buffer (so we don't malloc at runtime)
-	int PSM;		///< Pixel Storage Method (Color Mode)
-	int PSMZ;		///< ZBuffer Pixel Storage Method
-	int PrimContext;	///< Primitive Context
-	int PrimFogEnable;	///< Primitive Fog Enable
-	int PrimAAEnable;	///< Primitive AntiAlaising Enable
-	int PrimAlphaEnable;	///< Primitive Alpha Blending Enable
-	u64 PrimAlpha;		///< Primitive Alpha Value
-	u8  PABE;		///< Choose if to do Alpha Blend on a Per-Pixel Basis
+	int PSM;             ///< Pixel Storage Method (Color Mode)
+	int PSMZ;            ///< ZBuffer Pixel Storage Method
+	int PrimContext;     ///< Primitive Context
+	int PrimFogEnable;   ///< Primitive Fog Enable
+	int PrimAAEnable;    ///< Primitive AntiAlaising Enable
+	int PrimAlphaEnable; ///< Primitive Alpha Blending Enable
+	u64 PrimAlpha;       ///< Primitive Alpha Value
+	u8  PABE;            ///< Choose if to do Alpha Blend on a Per-Pixel Basis
 };
 typedef struct gsGlobal GSGLOBAL;
 
@@ -930,64 +948,19 @@ typedef struct gsGlobal GSGLOBAL;
 /// given texture object, regardless of original format or type.
 struct gsTexture
 {
-	u32     Width;		///< Width of the Texture
-	u32     Height;		///< Height of the Texture
+	u32 Width;		///< Width of the Texture
+	u32 Height;		///< Height of the Texture
 	u8	PSM;		///< Pixel Storage Method (Color Format)
 	u8	ClutPSM;	///< CLUT Pixel Storage Method (Color Format)
 	u32	TBW;		///< Texture Base Width
-	u32    *Mem;		///< EE Memory Pointer
-	u32    *Clut;		///< EE CLUT Memory Pointer
-	u32     Vram;		///< GS VRAM Memory Pointer
-	u32     VramClut;	///< GS VRAM CLUT Memory Pointer
-	u32     Filter;		///< NEAREST or LINEAR
+	u32 *Mem;		///< EE Memory Pointer
+	u32 *Clut;		///< EE CLUT Memory Pointer
+	u32 Vram;		///< GS VRAM Memory Pointer
+	u32 VramClut;	///< GS VRAM CLUT Memory Pointer
+	u32 Filter;		///< NEAREST or LINEAR
 	u8	Delayed;	///< Delay Texture Upload To VRAM
 };
 typedef struct gsTexture GSTEXTURE;
-
-/// gsKit FONTM Header Structure
-/// This stores the vital data for unpacked FONTM glyphsets.
-struct gsKit_fontm_header
-{
-	u32	sig;
-	u32	version;
-	u32	bitsize;
-	u32	baseoffset;
-	u32	num_entries;
-	u32	eof;
-	u32	*offset_table;
-};
-typedef struct gsKit_fontm_header GSFONTM;
-
-#define GS_FONT_PAGE_COUNT 2
-
-/// gsKit Font Structure
-/// This structure holds all relevant data for any
-/// given font object, regardless of original format or type.
-struct gsFont
-{
-	char *Path;		///< Path (string) to the Font File
-	char *Path_BMP;		///< Path (string) to the BMP Glyph File
-	char *Path_PNG;		///< Path (string) to the PNG Glyph File
-	char *Path_DAT;		///< Path (string) to the Glyph DAT File
-	u8 Type;		///< Font Type
-	u8 *RawData;		///< Raw File Data
-	int RawSize;		///< Raw File Datasize
-	GSTEXTURE *Texture;	///< Font Texture Object
-	GSFONTM FontM_Header;	///< FONTM Header
-	u32 FontM_Vram[GS_FONT_PAGE_COUNT];	///< FONTM VRAM Allocation (Double Buffered)
-	u32 FontM_VramIdx;	///< FONTM Current Double Buffer Index
-	u32 FontM_LastPage[GS_FONT_PAGE_COUNT];	///< FONTM Last Uploaded Texture Page
-	u8 FontM_Align;		///< FONTM Line Alignment
-	float FontM_Spacing;	///< FONTM Glyph Spacing
-	void *TexBase;		///< Glyphs Texture Base
-	u32 CharWidth;		///< Character Width
-	u32 CharHeight;		///< Character Height
-	u32 HChars;		///< Character Rows
-	u32 VChars;		///< Character Columns
-	u8 *Additional;		///< Additional Font Data
-    int pgcount;    /// Number of pages used in one call to gsKit_font_print_scaled
-};
-typedef struct gsFont GSFONT;
 
 /// Alternative Access Method to the GS CSR Register
 struct gsRegisters {
@@ -1014,19 +987,20 @@ extern "C" {
 #endif
 
 /// Detect signal (returns GS_MODE_NTSC or GS_MODE_PAL)
-int gsKit_detect_signal();
+short int gsKit_detect_signal();
 /// Initialize Screen and GS Registers
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 /// Initialize gsGlobal (With Specified Sizes (In Bytes) for the Persistent and Oneshot drawbuffers)
-GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize);
-/// Initialize Font Object
-GSFONT *gsKit_init_font(u8 type, char *path);
-/// Initialize Font Object (From Memory)
-GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size);
+//GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize);
+GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize);
 
+#define gsKit_reset_screen(gsGlobal) \
+		gsKit_init_screen(gsGlobal);
 
-#define gsKit_init_global(mode) \
-		gsKit_init_global_custom(mode, GS_RENDER_QUEUE_OS_POOLSIZE, GS_RENDER_QUEUE_PER_POOLSIZE);
+#define gsKit_init_global() \
+		gsKit_init_global_custom(GS_RENDER_QUEUE_OS_POOLSIZE, GS_RENDER_QUEUE_PER_POOLSIZE);
+
+void gsKit_deinit_global(GSGLOBAL *gsGlobal);
 
 #ifdef __cplusplus
 }

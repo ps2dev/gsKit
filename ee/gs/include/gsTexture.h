@@ -18,7 +18,7 @@
 #define GS_UV         0x03
 #define GS_TEX0_1     0x06
 #define GS_TEX0_2     0x07
-#define GS_TEX1_1     0x14   
+#define GS_TEX1_1     0x14
 #define GS_TEX1_2     0x15
 #define GS_TEX2_1     0x16
 #define GS_TEX2_2     0x17
@@ -106,63 +106,9 @@
   ((u64)(spsm) << 24) | ((u64)(dbp) << 32) | \
   ((u64)(dbw) << 48)  | ((u64)(dpsm) << 56))
 
-struct gsBitMapFileHeader
-{
-	u16	Type;
-	u32	Size;
-	u16 Reserved1;
-	u16 Reserved2;
-	u32 Offset;
-} __attribute__ ((packed));
-typedef struct gsBitMapFileHeader GSBMFHDR;
-
-struct gsBitMapInfoHeader
-{
-	u32	Size;
-	u32	Width;
-	u32	Height;
-	u16	Planes;
-	u16 BitCount;
-	u32 Compression;
-	u32 SizeImage;
-	u32 XPelsPerMeter;
-	u32 YPelsPerMeter;
-	u32 ColorUsed;
-	u32 ColorImportant;
-} __attribute__ ((packed));
-typedef struct gsBitMapInfoHeader GSBMIHDR;
-
-struct gsBitMapClut
-{
-	u8 Blue;
-	u8 Green;
-	u8 Red;
-	u8 Alpha;
-} __attribute__ ((packed));
-typedef struct gsBitMapClut GSBMCLUT;
-
-struct gsBitmap
-{
-	GSBMFHDR FileHeader;
-	GSBMIHDR InfoHeader;
-	char *Texture;
-	GSBMCLUT *Clut;
-};
-typedef struct gsBitmap GSBITMAP;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path);
-int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont);
-int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
-
 u32  gsKit_texture_size_ee(int width, int height, int psm);
 u32  gsKit_texture_size(int width, int height, int psm);
 void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
@@ -177,30 +123,30 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
                                                                        float x2, float y2, int iz2, float u2, float v2,
                                                                        u64 color);
 
-void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
 				float x3, float y3, int iz3, float u3, float v3, u64 color);
-				
+
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color);
-				
+
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, u64 color);
-					
+
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, int iz, u64 color);
-					
+
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, u64 color);
-								       
-void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, 	
+
+void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
 				float x3, float y3, int iz3, float u3, float v3,
 				float x4, float y4, int iz4, float u4, float v4, u64 color);
-								       
-							
+
+
 #define gsKit_prim_sprite_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
 							x2, y2, u2, v2,		\
 							z, color)		\
@@ -212,7 +158,7 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 							z, color)		\
 	gsKit_prim_sprite_striped_texture_3d(gsGlobal, Texture, x1, y1, z, u1, v1,	\
 					 		x2, y2, z, u2, v2, color);
-							
+
 #define gsKit_prim_triangle_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
 							x2, y2, u2, v2,		\
 							x3, y3, u3, v3,		\
@@ -220,7 +166,7 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	gsKit_prim_triangle_texture_3d(gsGlobal, Texture, x1, y1, z, u1, v1,	\
 							x2, y2, z, u2, v2,	\
 							x3, y3, z, u3, v3, color);
-							
+
 #define gsKit_prim_quad_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
 							x2, y2, u2, v2,		\
 							x3, y3, u3, v3,		\

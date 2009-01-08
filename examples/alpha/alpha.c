@@ -15,13 +15,15 @@
 
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60);
+	GSGLOBAL *gsGlobal = gsKit_init_global();
+//GS_MODE_VGA_640_60
+#ifdef HAVE_LIBTIFF
 	GSTEXTURE Sprite;
+    u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+#endif
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
-	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
-        u64 Red = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x00,0x00);
-        u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
+    u64 Red = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x00,0x00);
+    u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
 	u64 Blue = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x00,0x00);
 	u64 BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
 
@@ -47,7 +49,7 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
-	
+
 	gsKit_init_screen(gsGlobal);
 #ifdef HAVE_LIBTIFF
 	if(gsKit_texture_tiff(gsGlobal, &Sprite, "host:alpha.tiff") < 0)
@@ -69,7 +71,7 @@ int main(void)
                         y-=10;
 
 		gsKit_clear(gsGlobal, White);
-		
+
 		gsKit_prim_quad_gouraud(gsGlobal, 250.0f, 50.0f, 250.0f, 400.0f,
 						  400.0f, 50.0f, 400.0f, 400.0f,
 						  1, Red, Green, Blue, White);
@@ -78,7 +80,7 @@ int main(void)
 
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
-#ifdef HAVE_LIBTIFF			
+#ifdef HAVE_LIBTIFF
 		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
 								50.0f,  // Y2
 								0.0f,  // U1
@@ -96,9 +98,9 @@ int main(void)
 		gsKit_sync_flip(gsGlobal);
 
 		gsKit_queue_exec(gsGlobal);
-	
+
 		gsKit_queue_reset(gsGlobal->Per_Queue);
 	}
-	
+
 	return 0;
 }

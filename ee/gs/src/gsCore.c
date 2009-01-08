@@ -15,6 +15,7 @@
 #include "gsInline.h"
 
 #include <stdio.h>
+#include <kernel.h>
 
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 {
@@ -43,34 +44,26 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 	}
 }
 
+void gsKit_vram_clear(GSGLOBAL *gsGlobal)
+{
+    gsGlobal->CurrentPointer = gsGlobal->TexturePointer;
+}
+
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 {
 	if(!gsGlobal->FirstFrame)
 	{
-		gsKit_vsync();
+		gsKit_vsync_wait();
 
 		if(gsGlobal->DoubleBuffering == GS_SETTING_ON)
 		{
 			GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
 				gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
-	 
+
 			gsGlobal->ActiveBuffer ^= 1;
 			gsGlobal->PrimContext ^= 1;
 		}
 
-	}
-
-	if(gsGlobal->DoSubOffset == GS_SETTING_ON)
-	{
-
-		// This is an experimental pixel offset feature for halfbuffered modes.
-		/*
-			if(((GSREG*)GS_CSR)->FIELD)
-				gsGlobal->OffsetY = (int)(2048.0f * 16.0f);
-			else
-				gsGlobal->OffsetY = (int)(2048.5f * 16.0f);
-		*/
-		gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
 	}
 
 	gsKit_setactive(gsGlobal);
@@ -86,7 +79,7 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 
 	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
-	
+
 	// Context 1
 
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
@@ -97,7 +90,7 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_FRAME_1;
 
 	// Context 2
-	
+
 	*p_data++ = GS_SETREG_SCISSOR_1( 0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1 );
 	*p_data++ = GS_SCISSOR_2;
 
@@ -114,10 +107,97 @@ void gsKit_finish(void)
 	while(!(GS_CSR_FINISH));
 }
 
-void gsKit_vsync(void)
+void gsKit_lock_buffer(GSGLOBAL *gsGlobal)
+{
+    gsGlobal->LockBuffer = GS_SETTING_ON;
+}
+
+void gsKit_unlock_buffer(GSGLOBAL *gsGlobal)
+{
+    gsGlobal->LockBuffer = GS_SETTING_OFF;
+}
+
+int gsKit_lock_status(GSGLOBAL *gsGlobal)
+{
+    return gsGlobal->LockBuffer;
+}
+
+void gsKit_display_buffer(GSGLOBAL *gsGlobal)
+{
+    GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
+            gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
+}
+
+void gsKit_switch_context(GSGLOBAL *gsGlobal)
+{
+    gsGlobal->ActiveBuffer ^= 1;
+    gsGlobal->PrimContext ^= 1;
+
+    gsKit_setactive(gsGlobal);
+}
+
+void gsKit_vsync_wait(void)
 {
 	*GS_CSR = *GS_CSR & 8;
 	while(!(*GS_CSR & 8));
+}
+
+void gsKit_vsync_nowait(void)
+{
+    *GS_CSR = *GS_CSR & 8;
+}
+
+void gsKit_get_field(GSGLOBAL *gsGlobal)
+{
+    gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
+}
+
+void gsKit_hsync_wait(void)
+{
+    *GS_CSR = *GS_CSR & 4;
+    while(!(*GS_CSR & 4));
+}
+
+/*
+enum
+{
+   kINTC_GS,
+   kINTC_SBUS,
+   kINTC_VBLANK_START,
+   kINTC_VBLANK_END,
+   kINTC_VIF0,
+   kINTC_VIF1,
+   kINTC_VU0,
+   kINTC_VU1,
+   kINTC_IPU,
+   kINTC_TIMER0,
+   kINTC_TIMER1
+};
+*/
+int gsKit_add_vsync_handler(int (*vsync_callback)())
+{
+    int callback_id;
+
+    DIntr();
+
+    callback_id = AddIntcHandler(2, vsync_callback, 0);
+
+    EnableIntc(2);
+
+    EIntr();
+
+    return callback_id;
+}
+
+void gsKit_remove_vsync_handler(int callback_id)
+{
+    DIntr();
+
+    DisableIntc(2);
+
+    RemoveIntcHandler(2, callback_id);
+
+    EIntr();
 }
 
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
@@ -127,7 +207,7 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 	u8 strips = gsGlobal->Width / 64;
 	u8 remain = gsGlobal->Width % 64;
 	u32 pos = 0;
-	
+
 	strips++;
 	while(strips-- > 0)
 	{
@@ -138,7 +218,7 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 	{
 		gsKit_prim_sprite(gsGlobal, pos, 0, remain + pos, gsGlobal->Height, 0, color);
 	}
-	
+
 	gsGlobal->Test->ZTST = PrevZState;
 	gsKit_set_test(gsGlobal, 0);
 }
@@ -167,8 +247,8 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 	*p_data++ = GIF_AD;
 
 	*p_data++ = GS_SETREG_TEST( gsGlobal->Test->ATE, gsGlobal->Test->ATST,
-				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL, 
-				    gsGlobal->Test->DATE, gsGlobal->Test->DATM, 
+				    gsGlobal->Test->AREF, gsGlobal->Test->AFAIL,
+				    gsGlobal->Test->DATE, gsGlobal->Test->DATM,
 				    gsGlobal->Test->ZTE, gsGlobal->Test->ZTST );
 
 	*p_data++ = GS_TEST_1+gsGlobal->PrimContext;
@@ -179,7 +259,7 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 {
 	u64 *p_data;
 	u64 *p_store;
-	
+
 	if(Preset == GS_CMODE_REPEAT)
 	{
 		gsGlobal->Clamp->WMS = GS_CMODE_REPEAT;
@@ -206,8 +286,8 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 	*p_data++ = GIF_TAG_AD(1);
 	*p_data++ = GIF_AD;
 
-	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT, 
-				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU, 
+	*p_data++ = GS_SETREG_CLAMP(gsGlobal->Clamp->WMS, gsGlobal->Clamp->WMT,
+				gsGlobal->Clamp->MINU, gsGlobal->Clamp->MAXU,
 				gsGlobal->Clamp->MINV, gsGlobal->Clamp->MAXV);
 
 	*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
@@ -222,13 +302,13 @@ void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel)
 	gsGlobal->PABE = PerPixel;
 
 	p_data = p_store = gsKit_heap_alloc(gsGlobal, 2, 32, GIF_AD);
-	
+
 	*p_data++ = GIF_TAG_AD(2);
 	*p_data++ = GIF_AD;
-	
+
 	*p_data++ = gsGlobal->PABE;
 	*p_data++ = GS_PABE;
-	
+
 	*p_data++ = gsGlobal->PrimAlpha;
 	*p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
 }
@@ -237,7 +317,7 @@ void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 {
 	u64 *p_data;
 	u64 *p_store;
-	
+
 	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(1);
@@ -247,6 +327,93 @@ void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 }
 
+void gsKit_set_dither_matrix(GSGLOBAL *gsGlobal)
+{
+    u64 *p_data;
+    u64 *p_store;
+
+    p_data = p_store = gsKit_heap_alloc(gsGlobal, 1 ,16, GIF_AD);
+
+    *p_data++ = GIF_TAG_AD(1);
+    *p_data++ = GIF_AD;
+
+    *p_data++ = GS_SETREG_DIMX( gsGlobal->DitherMatrix[0],  gsGlobal->DitherMatrix[1],  gsGlobal->DitherMatrix[2],  gsGlobal->DitherMatrix[3],
+                                gsGlobal->DitherMatrix[4],  gsGlobal->DitherMatrix[5],  gsGlobal->DitherMatrix[6],  gsGlobal->DitherMatrix[7],
+                                gsGlobal->DitherMatrix[8],  gsGlobal->DitherMatrix[9], gsGlobal->DitherMatrix[10], gsGlobal->DitherMatrix[11],
+                                gsGlobal->DitherMatrix[12], gsGlobal->DitherMatrix[13], gsGlobal->DitherMatrix[14], gsGlobal->DitherMatrix[15]);
+    *p_data++ = GS_DIMX;
+}
+
+void gsKit_set_dither(GSGLOBAL *gsGlobal)
+{
+    u64 *p_data;
+    u64 *p_store;
+
+    p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+    *p_data++ = GIF_TAG_AD(1);
+    *p_data++ = GIF_AD;
+
+    if(gsGlobal->Dithering == GS_SETTING_ON)
+        *p_data++ = 1;
+    else
+        *p_data++ = 0;
+
+    *p_data++ = GS_DTHE;
+}
+
+
+// taken from libgraph
+void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field)
+{
+    u64 *p_data;
+    u64 *p_store;
+
+    p_data = p_store = gsKit_heap_alloc(gsGlobal, 1 ,16, GIF_AD);
+
+    *p_data++ = GIF_TAG_AD(1);
+    *p_data++ = GIF_AD;
+
+    if (field == GS_FIELD_NORMAL) { //Draw both
+        *p_data++ = 0;;
+    }
+    else if (field == GS_FIELD_ODD) { // Draw only odd
+        *p_data++ = 2;
+    }
+    else if (field == GS_FIELD_EVEN) { // Draw only even
+        *p_data++ = 3;
+    }
+
+    *p_data++ = GS_SCANMSK;
+}
+/*
+// taken from libgraph
+void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field)
+{
+    u64 *p_data;
+    u64 *p_store;
+
+    (u32)p_data = (u32)p_store = gsGlobal->dma_misc;
+
+    *p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1);
+    *p_data++ = GIF_AD;
+
+    if (field == GS_FIELD_NORMAL) { //Draw both
+        *p_data++ = GIF_TAG_SCANMSK(0);
+    }
+    else if (field == GS_FIELD_ODD) { // Draw only odd
+        *p_data++ = GIF_TAG_SCANMSK(2);
+    }
+    else if (field == GS_FIELD_EVEN) { // Draw only even
+        *p_data++ = GIF_TAG_SCANMSK(3);
+    }
+
+    *p_data++ = GS_SCANMSK;
+
+    dmaKit_wait_fast();
+	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 2);
+}
+*/
 GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal)
 {
 	u64 *p_data;

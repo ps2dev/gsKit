@@ -23,6 +23,6 @@
 #include "gsCore.h"
 #include "gsPrimitive.h"
 #include "gsTexture.h"
-#include "gsFont.h"
+#include "gsFontM.h"
 
 #endif /* __GSKIT_H__ */

@@ -9,20 +9,25 @@
 // textures.c - Example demonstrating gsKit texture operation.
 //
 
+#include <stdio.h>
+
 #include "gsKit.h"
 #include "dmaKit.h"
 #include "malloc.h"
 
+#include "gsToolkit.h"
+
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global();
 
 	GSTEXTURE Tex1;
-	int x, y;
-	
-	
-	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
+	int x = 0, y = 0;
+
+#ifdef HAVE_LIBPNG
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+#endif
+	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
 	u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
 
@@ -37,7 +42,7 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
-#ifdef HAVE_LIBPNG	
+#ifdef HAVE_LIBPNG
 	printf("alpha\n");
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 #endif
@@ -46,7 +51,7 @@ int main(void)
 	float VHeight = gsGlobal->Height;
 
 	gsKit_clear(gsGlobal, White);
-#ifdef HAVE_LIBPNG	
+#ifdef HAVE_LIBPNG
 	gsKit_texture_png(gsGlobal, &Tex1, "host:test.png");
 	printf("Texture 1 Height: %i\n",Tex1.Height);
 	printf("Texture 1 Width: %i\n",Tex1.Width);
@@ -66,14 +71,14 @@ int main(void)
 	                x-=10;
 	        else if( y > 10 && x <= 10 )
 	                y-=10;
-		
+
 		gsKit_clear(gsGlobal, Green);
 
 		gsKit_prim_sprite(gsGlobal, x, y, x + Tex1.Width, y + Tex1.Height, 1, BlueTrans);
-#ifdef HAVE_LIBPNG		
+#ifdef HAVE_LIBPNG
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
-		
+
 		gsKit_prim_sprite_texture(gsGlobal, &Tex1,	0.0f,  // X1
 							0.0f,  // Y2
 							0.0f,  // U1
@@ -95,6 +100,6 @@ int main(void)
 		gsKit_queue_reset(gsGlobal->Per_Queue);
 #endif
 	}
-	
+
 	return 0;
 }

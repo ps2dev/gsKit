@@ -9,14 +9,23 @@
 // textures.c - Example demonstrating gsKit texture operation.
 //
 
+#include <stdio.h>
+
 #include "gsKit.h"
 #include "dmaKit.h"
 #include "malloc.h"
 
+#include "gsToolkit.h"
+
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
-	GSTEXTURE Tex1, Tex2, Tex3;
+	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSTEXTURE Tex1, Tex2;
+
+#ifdef HAVE_LIBJPG
+    GSTEXTURE Tex3;
+#endif
+
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
@@ -32,13 +41,13 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
-	
+
 	gsKit_init_screen(gsGlobal);
 
 	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	gsKit_clear(gsGlobal, White);
-	
+
 	Tex1.Width = 256;
 	Tex1.Height = 256;
 	Tex1.PSM = GS_PSM_CT24;
@@ -54,14 +63,14 @@ int main(void)
 
 	printf("Texure 1 VRAM Range = 0x%X - 0x%X\n",Tex1.Vram, Tex1.Vram +gsKit_texture_size(Tex1.Width, Tex1.Height, Tex1.PSM) - 1);
 	printf("Texure 2 VRAM Range = 0x%X - 0x%X\n",Tex2.Vram, Tex2.Vram +gsKit_texture_size(Tex2.Width, Tex2.Height, Tex2.PSM) - 1);
-	
-	#ifdef HAVE_LIBJPG
+
+#ifdef HAVE_LIBJPG
 	gsKit_texture_jpeg(gsGlobal, &Tex3, "host:ps2dev.jpg");
-	
+
 	printf("Texture 3 Height: %i\n",Tex3.Height);
 	printf("Texture 3 Width: %i\n",Tex3.Width);
 	printf("Texure 3 VRAM Range = 0x%X - 0x%X\n",Tex3.Vram, Tex3.Vram +gsKit_texture_size(Tex3.Width, Tex3.Height, Tex3.PSM) - 1);
-	#endif
+#endif
 
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
@@ -122,6 +131,6 @@ int main(void)
 		gsKit_sync_flip(gsGlobal);
 		gsKit_queue_exec(gsGlobal);
 	}
-	
+
 	return 0;
 }

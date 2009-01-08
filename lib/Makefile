@@ -14,10 +14,11 @@ all:
 clean:
 	rm -f libgskit.a
 	rm -f libdmakit.a
+	rm -f libgskit_toolkit.a
 
 install:
 	mkdir -p $(GSKIT)/lib
-	cp libgskit.a libdmakit.a $(GSKIT)/lib
+	cp libgskit.a libdmakit.a libgskit_toolkit.a $(GSKIT)/lib
 
 include ../Makefile.global
 include ../Makefile.pref

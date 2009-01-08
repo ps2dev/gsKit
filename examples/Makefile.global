@@ -1,0 +1,50 @@
+#  ____     ___ |    / _____ _____
+# |  __    |    |___/    |     |
+# |___| ___|    |    \ __|__   |     gsKit Open Source Project.
+# ----------------------------------------------------------------------
+# Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>
+# Licenced under Academic Free License version 2.0
+# Review gsKit README & LICENSE files for further details.
+#
+# Makefile.global - Makefile global variable include.
+#
+
+include $(GSKITSRC)/ee/Rules.make
+
+EE_LIBS = -Xlinker --start-group
+
+ifdef LIBJPEG
+	EE_INCS += -I$(LIBJPEG)/include
+	EE_CFLAGS += -DHAVE_LIBJPEG
+	EE_LIB_DIRS += -L$(LIBJPEG)/lib
+	EE_LIBS += -ljpeg
+endif
+
+ifdef LIBTIFF
+        EE_INCS += -I$(LIBTIFF)
+        EE_CFLAGS += -DHAVE_LIBTIFF
+        EE_LIB_DIRS += -L$(LIBTIFF)
+        EE_LIBS += -ltiff
+endif
+
+ifdef LIBPNG
+ifdef ZLIB
+	EE_INCS += -I$(ZLIB)/include -I$(LIBPNG)/include
+	EE_CFLAGS += -DHAVE_LIBPNG -DHAVE_ZLIB
+	EE_LIB_DIRS += -L$(ZLIB)/lib -L$(LIBPNG)/lib
+	EE_LIBS += -lz -lpng -lm
+endif
+endif
+
+EE_LIBS += -lgskit_toolkit -lgskit -ldmakit -lc -lkernel
+
+EE_LIBS += -Xlinker --end-group
+
+# include dir
+EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include -I$(GSKITSRC)/ee/toolkit/include -I$(PS2GDB)/ee
+EE_CFLAGS += -fno-builtin-printf
+
+# linker flags
+EE_LIB_DIRS += -L$(GSKITSRC)/lib -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
+EE_LDFLAGS += $(EE_LIB_DIRS)
+

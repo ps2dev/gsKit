@@ -81,17 +81,41 @@ extern "C" {
 /// GS VRAM Allocation
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type);
 
-/// GS VRAM Deallocation
-/// This is currently unimplimented.
-void gsKit_vram_free(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
+/// GS VRAM Clear
+void gsKit_vram_clear(GSGLOBAL *gsGlobal);
 
 /// Flips Framebuffers on VSync
-/// This calls gsKit_vsync, then calls gsKit_setactive
+/// This calls gsKit_vsync_wait, then calls gsKit_setactive
 /// to swap your framebuffers.
 ///
-/// It then sets your active PrimContext and ActiveBuffer 
+/// It then sets your active PrimContext and ActiveBuffer
 /// appropriately.
 void gsKit_sync_flip(GSGLOBAL *gsGlobal);
+
+/// Sets the LockBuffer parameter of gsGlobal to GS_SETTING_ON
+/// Used with gsKit_unlock_buffer and gsKit_lock_status
+/// This enables you to lock your current working buffer so it isn't
+/// flipped while it's being worked on
+void gsKit_lock_buffer(GSGLOBAL *gsGlobal);
+
+/// Sets the LockBuffer parameter of gsGlobal to GS_SETTING_OFF
+/// Used with gsKit_unlock_buffer and gsKit_lock_status
+/// This enables you to unlock your current working buffer so it can
+/// be flipped
+void gsKit_unlock_buffer(GSGLOBAL *gsGlobal);
+
+/// Returns the status of LockBuffer parameter of gsGlobal
+/// If it returns GS_SETTING_ON then the buffer is locked
+/// If it returns GS_SETTING_OFF then the buffer is unlocked
+int gsKit_lock_status(GSGLOBAL *gsGlobal);
+
+/// Switches the currently displayed buffer for the current
+/// working buffer or front buffer with back buffer
+void gsKit_display_buffer(GSGLOBAL *gsGlobal);
+
+/// Switches the current working buffer with the
+/// last displayed buffer or back buffer with front buffer
+void gsKit_switch_context(GSGLOBAL *gsGlobal);
 
 /// Sets Your Active Framebuffer
 void gsKit_setactive(GSGLOBAL *gsGlobal);
@@ -100,7 +124,25 @@ void gsKit_setactive(GSGLOBAL *gsGlobal);
 void gsKit_finish(void);
 
 /// Blocks Until a VSync
-void gsKit_vsync(void);
+void gsKit_vsync_wait(void);
+
+/// Blocks until a HSync
+void gsKit_hsync_wait(void);
+
+/// Initiates a vsync but doesn't block
+void gsKit_vsync_nowait(void);
+
+/// Installs a vsync interrupt handler (vblank_start)
+int gsKit_add_vsync_handler(int (*vsync_callback)());
+
+/// Removes a vsync interrupt handler
+void gsKit_remove_vsync_handler(int callback_id);
+
+/// Sets gsGlobal->EvenOrOdd depending on current field drawing
+void gsKit_get_field(GSGLOBAL *gsGlobal);
+
+/// Sets the GS to draw only on even/odd/both fields (from libgraph)
+void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field);
 
 /// Clears the Screen With the Specified Color
 /// This actually just momentarily turns off Z Test,

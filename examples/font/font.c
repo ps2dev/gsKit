@@ -13,12 +13,15 @@
 #include "dmaKit.h"
 #include "malloc.h"
 
+#include "gsToolkit.h"
+
 int main(void)
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global();
 
-	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_FNT, "host:arial.fnt");
+	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "host:dejavu.bmp");
+	//GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_PNG_DAT, "host:dejavu.png");
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);
@@ -27,10 +30,10 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
-	
+
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
-	
+
 	WhiteFont = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x80,0x00);
 	BlackFont = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x80,0x00);
 	RedFont = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x80,0x00);
@@ -46,10 +49,10 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 
-        gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
+    gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	gsKit_font_upload(gsGlobal, gsFont);
-	
+
 	gsKit_clear(gsGlobal, Black);
 
 	gsKit_font_print(gsGlobal, gsFont, 50, 50, 1, WhiteFont, "Hello World!");
@@ -57,6 +60,10 @@ int main(void)
 	gsKit_font_print(gsGlobal, gsFont, 50, 80, 1, RedFont, "red");
 	gsKit_font_print(gsGlobal, gsFont, 50, 110, 1, GreenFont, "green");
 	gsKit_font_print(gsGlobal, gsFont, 50, 140, 1, BlueFont, "blue");
+
+	gsKit_font_print_scaled(gsGlobal, gsFont, 400, 160, 2, 2.0f, BlueFont, "scaled 1\n"\
+                                                                           "scaled 2\n"\
+                                                                           "scaled 3\n");
 
 	gsKit_font_print(gsGlobal, gsFont, 100, 200, 2, WhiteFont, "Testing 1\n"\
 							       "Testing 2\n"\
@@ -74,6 +81,6 @@ int main(void)
 
 		gsKit_queue_exec(gsGlobal);
 	}
-	
+
 	return 0;
 }

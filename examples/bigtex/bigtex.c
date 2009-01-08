@@ -13,9 +13,11 @@
 #include "dmaKit.h"
 #include "malloc.h"
 
+#include "gsToolkit.h"
+
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
+	GSGLOBAL *gsGlobal = gsKit_init_global();
 	GSTEXTURE bigtex;
 	u64 Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
@@ -30,14 +32,14 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
 	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
-	
+
 	gsKit_init_screen(gsGlobal);
 
         bigtex.Width = 640;
         bigtex.Height = 480;
         bigtex.PSM = GS_PSM_CT24;
         bigtex.Filter = GS_FILTER_NEAREST;
-	
+
 //	gsKit_texture_raw(gsGlobal, &bigtex, "host:bigtex.raw");
 	gsKit_texture_bmp(gsGlobal, &bigtex, "host:bigtex.bmp");
 //	gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
@@ -53,7 +55,7 @@ int main(void)
 	while(1)
 	{
 		gsKit_clear(gsGlobal, Black);
-	
+
 		gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
 		gsKit_prim_sprite_striped_texture(gsGlobal, &bigtex, x,  // X1

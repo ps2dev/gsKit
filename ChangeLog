@@ -1,5 +1,118 @@
 gsKit ChangeLog:
 
+-> 12/29/08 - ragnarok2040
+   * Fixed a bug in the vsync example. The display buffer doesn't need
+     to check if it's locked to display.
+   * Moved some FontM code to their respective gsFontM files.
+   * Reset the FirstFrame attribute when resetting the GS.
+   * Clear the screen as part of initializing to remove
+     FirstFrame quirkyness. As a result, the vsync example
+     started working with ps2link.
+
+-> 12/28/08 - ragnarok2040
+   * Added LockBuffer to gsGlobal
+   * Added gsKit_lock_buffer to lock the current working buffer
+   * Added gsKit_unlock_buffer to unlock the current working buffer
+   * Added gsKit_lock_status which returns GS_SETTING_ON if the
+     working buffer is locked. All this allows you to lock the buffer
+     as it's being displayed and block until there's an active buffer
+     to use.
+   * Added vsync example based on basic example to show the usage
+     of a vsync interrupt handler with display buffer locking
+
+-> 12/27/08 - ragnarok2040
+   * Added gsKit_add_vsync_handler to add a vsync handler
+   * Added gsKit_remove_vsync_handler to remove a vsync handler
+   * Added gsKit_switch_dispfb() to switch buffers for display
+   * Added gsKit_switch_context() to switch the working buffers
+
+-> 12/25/08 - ragnarok2040
+   * Merry Christmas
+   * Removed gslib tga2fnt font support since the support was broken
+     except for certain converted types
+   * Fixed png/bmp with .dat variable font widths rendering
+   * Fonts need to be left-aligned when created
+   * Added ability to scale png/bmp with .dat with variable font widths
+   * Converted font example to use bmp/png .dat variable width fonts
+
+-> 12/24/08 - ragnarok2040
+   * Changed build structure to use separate Makefile.global files
+     depending on what's being built
+   * Finished work on the font code
+   * Started work on building the examples
+   * Discovered bitmap.raw is bad in textures example
+   * Discovered testorig.jpg is bad in linuz-texture example
+   * Fixed a bug in gsKit_texture_bmp() as fread() returns the
+     number of elements read, not the number of bytes
+
+-> 12/23/08 - ragnarok2040
+   * Changed gsFont.c and gsFont.h to gsFontM.c and gsFontM.h
+   * Finished migration of non-FontM code
+   * Started separation of non-FontM code from FontM code in gskit
+   * Started separation of FontM code from non-FontM code in gskit_toolkit
+
+-> 12/22/08 - ragnarok2040
+   * Continued separation of FontM and non-FontM codes
+   * Finished changing fio* file routines to stdio file routines
+   * Started work on fixing .fnt support for tga2fnt fonts
+     from gslib
+
+-> 12/21/08 - ragnarok2040
+   * Modified gsKit_init_font to allocate memory for the ".dat" path
+   * Modified gsKit_font_upload to properly load a ".dat" file
+   * Changed gsFont->Additional to a s16 type since a ".dat" file is 256 short ints
+   * More separation of FontM and non-FontM code
+
+-> 12/20/08 - ragnarok2040
+   * Added the ability to clear the vram by resetting the
+     vram pointer back to the beginning of useable texture
+     buffer space.
+   * Continued migration of image lib texture functions
+     to gsKit_toolkit.
+   * Added a fix to Z Buffering support for mismatched depths.
+   * Started modifying non-fontm loading routines to use stdio file functions
+
+-> 12/19/08 - ragnarok2040
+   * Fixed draw buffer code to allow for smaller draw buffers
+     for the mode selected. This is useful as it allows you to
+     use a 640x540 draw buffer that can be used for 1080i or
+     640x720 or 640x360 draw buffer for 720p, etc.
+   * Added dithering support for 16-bit modes.
+   * Added the ability to set the dithering matrix.
+   * Started migration of integrated image lib texture
+     support into an external library called gsKit_toolkit.
+   * Started separation of fontm and non-fontm code for the migration.
+
+-> 12/18/08 - ragnarok2040
+   * Added gsKit_deinit_global() which frees all the memory
+     gsGlobal allocates
+   * Modified gsKit_init_global() to enable DoubleBuffering and
+     ZBuffering as default - might not work with large resolutions
+   * Fixed a bug with 1920x1080i using GS_FRAME mode
+
+-> 12/17/08 - ragnarok2040
+   * Changed gsKit_vsync() to gsKit_vsync_wait()
+   * Added gsKit_hsync_wait()
+   * Added gsKit_vsync_nowait()
+   * Added gsKit_hsync_nowait()
+   * Added ability to set which fields to render with gsKit_set_drawfield()
+     based on libgraph's code
+   * Added gsKit_get_field() which sets gsGlobal->EvenOrOdd from the CSR->Field
+     register: 0 is for Even and 1 is for Odd
+   * Removed all the half buffer offset (HBOFFSET) fixes which users should do
+     using their own vsync interrupt handler
+   * Removed all the FRAME height adjustments which users should do depending on
+     the interlace mode they choose
+   * Added the ability to set low-resolution modes
+   * Modified the gsKit_init_global_custom() to remove mode parameter
+   * gsGlobal->Width, gsGlobal->Height, gsGlobal->Mode, gsGlobal->Interlace, and
+     gsGlobal->Field should all be set prior to calling gsKit_init_screen()
+   * Modified gsKit_init_screen() to reset the GS any time it is called
+   * Defined a gsKit_reset_screen() symbol for resetting the screen
+   * Added aspect ratio detection within gsKit_init_global()
+   * Modified gsKit_detect_signal() to use RomGetName() method
+     of detecting a PS2's region
+
 -> 04/15/07 - Chris Gilbert (Neovanglist)
    * Fixed up dmaKit to properly support fast cop0 waits.
    * Removed some unneeded printf
@@ -59,7 +172,7 @@ gsKit ChangeLog:
    * gsKit now uses REGLIST mode and GIFTAG sharing on same-type prims!
    * Major speedups.
    * Got all known bugs back out... last commit was a real mess.
-   * NOTICE: I made new routines in gsCore for setting tex1 and blend modes. 
+   * NOTICE: I made new routines in gsCore for setting tex1 and blend modes.
      Right now they get setup "Automagically" but this is a performance issue
      and will be changed *after* gsKit 0.3.
 
@@ -108,18 +221,18 @@ gsKit ChangeLog:
    * FNT files can be loaded in raw format.
    * font demo uses arial.fnt by default, compiled within the elf.
 
--> 06/29/04 - Chris Gilbert (Neovanglist) 
+-> 06/29/04 - Chris Gilbert (Neovanglist)
    * dmaKit officially finished.
    * gsKit has working ZTest.
    * gsKit has working Alpha.
    * All primitives implimented and working.
    * gsKit 0.1 release.
 
--> 06/15/04 - Chris Gilbert (Neovanglist) 
+-> 06/15/04 - Chris Gilbert (Neovanglist)
    * Changed directory layout. (See README)
    * Added dmaKit.
 
--> 06/15/04 - Chris Gilbert (Neovanglist) 
+-> 06/15/04 - Chris Gilbert (Neovanglist)
    * Project framework and build system completed.
    * Created CVS module and commited to PS2Dev CVS.
    * README, STATUS, AUTHORS, ID, and LICENSE files added.

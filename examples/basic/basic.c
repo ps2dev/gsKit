@@ -16,18 +16,51 @@
 int main(void)
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60); // VGA 640x480@60Hz
+	GSGLOBAL *gsGlobal = gsKit_init_global();
 
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_480P); // HTDV 480P
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_720P); // HTDV 720P
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I); // HDTV 1080I Full Buffers
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_DTV_1080I_I); // HDTV 1080I Half Buffers
+    // By default the gsKit_init_global() uses an autodetected interlaced field mode
+    // To set a new mode set these five variables for the resolution desired and
+    // mode desired
 
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL); // Full Buffers
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_PAL_I); // NTSC Half Buffers
+    // Some examples
+    // Make sure that gsGlobal->Height is a factor of the mode's gsGlobal->DH
 
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC); // NTSC Full Buffers
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC_I); // NTSC Half Buffers
+    //gsGlobal->Mode = GS_MODE_NTSC
+    //gsGlobal->Interlace = GS_INTERLACED;
+    //gsGlobal->Field = GS_FIELD;
+    //gsGlobal->Width = 640;
+    //gsGlobal->Height = 448;
+
+    //gsGlobal->Mode = GS_MODE_PAL;
+    //gsGlobal->Interlace = GS_INTERLACED;
+	//gsGlobal->Field = GS_FIELD;
+    //gsGlobal->Width = 640;
+    //gsGlobal->Height = 512;
+
+    //gsGlobal->Mode = GS_MODE_DTV_480P;
+    //gsGlobal->Interlace = GS_NONINTERLACED;
+    //gsGlobal->Field = GS_FRAME;
+    //gsGlobal->Width = 720;
+    //gsGlobal->Height = 480;
+
+    //gsGlobal->Mode = GS_MODE_DTV_1080I;
+    //gsGlobal->Interlace = GS_INTERLACED;
+    //gsGlobal->Field = GS_FIELD;
+    //gsGlobal->Width = 640;
+    //gsGlobal->Height = 540;
+    //gsGlobal->PSM = GS_PSM_CT16;
+    //gsGlobal->PSMZ = GS_PSMZ_16;
+    //gsGlobal->Dithering = GS_SETTING_ON;
+
+    // A width of 640 would work as well
+    // However a height of 720 doesn't seem to work well
+    //gsGlobal->Mode = GS_MODE_DTV_720P;
+    //gsGlobal->Interlace = GS_NONINTERLACED;
+    //gsGlobal->Field = GS_FRAME;
+    //gsGlobal->Width = 640;
+    //gsGlobal->Height = 360;
+    //gsGlobal->PSM = GS_PSM_CT16;
+    //gsGlobal->PSMZ = GS_PSMZ_16;
 
 	// You can use these to turn off Z/Double Buffering. They are on by default.
 	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
@@ -36,10 +69,10 @@ int main(void)
 	// This makes things look marginally better in half-buffer mode...
 	// however on some CRT and all LCD, it makes a really horrible screen shake.
 	// Uncomment this to disable it. (It is on by default)
-	// gsGlobal->DoSubOffset = GS_SETTING_OFF;	
+	// gsGlobal->DoSubOffset = GS_SETTING_OFF;
 
-	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;	
-	
+	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
+
 	float x = 10;
 	float y = 10;
 	float width = 150;
@@ -83,7 +116,7 @@ int main(void)
 	*TriStrip++ = 150;
 	*TriStrip++ = 575;
 	*TriStrip++ = 175;
-	
+
 	TriFanPtr = TriFan = malloc(16 * sizeof(float));
 	*TriFan++ = 300;
 	*TriFan++ = 100;
@@ -101,7 +134,7 @@ int main(void)
 	*TriFan++ = 75;
 	*TriFan++ = 375;
 	*TriFan++ = 100;
-	
+
 	dmaKit_init(D_CTRL_RELE_OFF, D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);
 
@@ -140,7 +173,7 @@ int main(void)
 	gsKit_prim_point(gsGlobal, 600.0f, 100.0f, 1, Black);
 	gsKit_prim_point(gsGlobal, 625.0f, 125.0f, 1, Black);
 
-	gsKit_prim_quad(gsGlobal, 150.0f, 150.0f, 
+	gsKit_prim_quad(gsGlobal, 150.0f, 150.0f,
 				   150.0f, 400.0f,
 				   450.0f, 150.0f,
 				   450.0f, 400.0f, 2, Green);
@@ -149,15 +182,15 @@ int main(void)
 
 	gsKit_prim_triangle_fan(gsGlobal, TriFanPtr, 8, 5, Black);
 
-	gsKit_prim_quad_gouraud(gsGlobal, 500.0f, 250.0f, 
-					   500.0f, 350.0f, 
+	gsKit_prim_quad_gouraud(gsGlobal, 500.0f, 250.0f,
+					   500.0f, 350.0f,
 					   600.0f, 250.0f,
 					   600.0f, 350.0f, 2,
 					   Red, Green, Blue, Black);
 
 	gsKit_prim_triangle_gouraud(gsGlobal, 280.0f, 200.0f,
 					       280.0f, 350.0f,
-					       180.0f, 350.0f, 5, 
+					       180.0f, 350.0f, 5,
 					       Blue, Red, White);
 
 	gsKit_prim_triangle(gsGlobal, 300.0f, 200.0f, 300.0f, 350.0f, 400.0f, 350.0f, 3, Red);
@@ -171,7 +204,7 @@ int main(void)
 		if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
 			x+=10;
 		else if( (y + height)  <  (VHeight - 10) && (x + width) >= (gsGlobal->Width - 10) )
-			y+=10;		
+			y+=10;
 		else if( (y + height) >=  (VHeight - 10) && x > 10 )
 			x-=10;
 		else if( y > 10 && x <= 10 )
@@ -188,6 +221,6 @@ int main(void)
 		gsKit_sync_flip(gsGlobal);
 
 	}
-	
+
 	return 0;
 }

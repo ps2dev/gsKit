@@ -6,24 +6,21 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/fontm/Makefile - Makefile for "fontm" example.
+# ee/gs/src/Makefile - gsKit gs makefile.
 #
 
-EE_BIN  = fontm.elf
-EE_OBJS = fontm.o
+EE_OBJS = gsToolkit.o
 
-all: $(EE_BIN)
+EE_CFLAGS += -O2
 
-test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:fontm.elf
-
-reset: clean
-	ps2client -h $(PS2_IP) reset
+all: $(EE_OBJS)
+	$(EE_AR) rcs $(LIBGSKIT_TOOLKIT) $(EE_OBJS)
 
 clean:
-	rm -f $(EE_OBJS) $(EE_BIN)
+	rm -f $(EE_OBJS)
 
 install:
 
-include ../../Makefile.pref
+include ../../../Makefile.pref
 include ../Makefile.global
+

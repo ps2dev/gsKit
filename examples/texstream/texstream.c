@@ -15,12 +15,13 @@
 
 int main(void)
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_NTSC);
-//	GSGLOBAL *gsGlobal = gsKit_init_global(GS_MODE_VGA_640_60);
+	GSGLOBAL *gsGlobal = gsKit_init_global();
+//GS_MODE_VGA_640_60
 	GSTEXTURE Sprite;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
+#ifdef HAVE_LIBPNG
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
-
+#endif
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
 //	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
@@ -33,7 +34,7 @@ int main(void)
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
-	
+
 	gsKit_init_screen(gsGlobal);
 
 	Sprite.Delayed = GS_SETTING_ON;
@@ -54,7 +55,7 @@ int main(void)
 		gsKit_clear(gsGlobal, White);
 
 		gsKit_texture_send_inline(gsGlobal, Sprite.Mem, Sprite.Width, Sprite.Height, Sprite.Vram, Sprite.PSM, Sprite.TBW, GS_CLUT_NONE);
-		
+
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 #ifdef HAVE_LIBPNG
@@ -76,6 +77,6 @@ int main(void)
 
 		gsKit_queue_exec(gsGlobal);
 	}
-	
+
 	return 0;
 }
