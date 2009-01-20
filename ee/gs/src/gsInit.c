@@ -38,13 +38,13 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->StartX = 652;
 			gsGlobal->StartY = 26;
 			gsGlobal->DW = 2560;
-			gsGlobal->DH = 448;
+			gsGlobal->DH = 224;
 			break;
 		case GS_MODE_PAL:
 			gsGlobal->StartX = 680;
 			gsGlobal->StartY = 37;
 			gsGlobal->DW = 2560;
-			gsGlobal->DH = 512;
+			gsGlobal->DH = 256;
 			break;
 		case GS_MODE_VGA_640_60:
 			gsGlobal->StartX = 280;
@@ -130,7 +130,7 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->StartX = 232;
 			gsGlobal->StartY = 35;
 			gsGlobal->DW = 1440;
-			gsGlobal->DH = 960; // though rare there are tv's that can handle an interlaced 480p source
+			gsGlobal->DH = 480; // though rare there are tv's that can handle an interlaced 480p source
 			break;
 		case GS_MODE_DTV_720P:
 			gsGlobal->StartX = 420;
@@ -138,18 +138,20 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->DW = 1280;
 			gsGlobal->DH = 720;
 			break;
-        case GS_MODE_DTV_1080I:
+		case GS_MODE_DTV_1080I:
 			gsGlobal->StartX = 300;
 			gsGlobal->StartY = 120;
 			gsGlobal->DW = 1920;
-			gsGlobal->DH = 1080;
+			gsGlobal->DH = 540;
 			break;
 	}
 
-	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FIELD))
-        gsGlobal->StartY = (gsGlobal->StartY - 1) * 2;
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FIELD)) {
+		gsGlobal->DH *= 2;
+		gsGlobal->StartY = (gsGlobal->StartY - 1) * 2;
+	}
 
-    gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
+	gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
 	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
 
 }

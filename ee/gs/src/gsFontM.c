@@ -371,9 +371,9 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 		else
 		{
 			int idx;
-            int pgindx;
+			int pgindx;
 			uoffset = 0;
-            gsFontM->pgcount = 0;
+			gsFontM->pgcount = 0;
 
 			if(cur == '\f')
 			{
