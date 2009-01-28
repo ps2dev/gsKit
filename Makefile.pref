@@ -15,7 +15,9 @@
 
 include $(PS2SDK)/Defs.make
 
-PS2DEV = ~/ps2dev
+ifeq (x$(PS2DEV), x)
+PS2DEV = $(HOME)/ps2dev
+endif
 
 ifeq (x$(GSKIT), x)
 GSKIT = $(PS2DEV)/gsKit
