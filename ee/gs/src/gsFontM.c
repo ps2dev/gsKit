@@ -386,10 +386,9 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 			{
 				u32 slen = 0;
 				pos++;
-				for(slen = 0; ((pos + slen) < length) && String[pos + slen] != ' ' &&
-									 String[pos + slen] != '\0' &&
-									 String[pos + slen] != '\t' &&
-									 String[pos + slen] != '\n'; slen++);
+				for(slen = 0; ((pos + slen) < length) &&
+									 String[pos + slen] >= 'a' &&
+									 String[pos + slen] <= 'z'; slen++);
 
 				if((pos+slen) <= length)
 				{
