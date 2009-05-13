@@ -338,7 +338,8 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		Texture->Clut = NULL;
 	}
 
-	FTexSize = fseek(File, 0, SEEK_END);
+	fseek(File, 0, SEEK_END);
+	FTexSize = ftell(File);
 	FTexSize -= Bitmap.FileHeader.Offset;
 
 	fseek(File, Bitmap.FileHeader.Offset, SEEK_SET);
