@@ -937,7 +937,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 
 
 		int cx,cy,i,l;
-		char c;
+		unsigned char c;
 		cx=X;
 		cy=Y;
 
@@ -983,7 +983,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
 
 		int cx,cy,i,l;
-		char c;
+		unsigned char c;
 		cx=X;
 		cy=Y;
 
