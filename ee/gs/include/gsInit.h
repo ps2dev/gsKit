@@ -332,6 +332,24 @@
 		((u64)(GS_XYZ2)		<< 8)	| \
 		((u64)(GS_XYZ2)		<< 12);
 
+// Line Goraud Primitive
+/// Line Goraud Primitive GIFTAG
+#define GIF_TAG_LINE_GORAUD(NLOOP)   \
+		((u64)(NLOOP)		<< 0)	| \
+		((u64)(1)		<< 15)	| \
+		((u64)(0)		<< 46)	| \
+		((u64)(0)		<< 47)	| \
+		((u64)(1)		<< 58)	| \
+		((u64)(6)		<< 60);
+/// Line Goraud Primitive REGLIST
+#define GIF_TAG_LINE_GORAUD_REGS   \
+		((u64)(GS_PRIM)		<< 0)	| \
+		((u64)(GS_RGBAQ)	<< 4)	| \
+		((u64)(GS_XYZ2)		<< 8)	| \
+		((u64)(GS_RGBAQ)	<< 12)	| \
+		((u64)(GS_XYZ2)		<< 16)	| \
+		((u64)(GIF_NOP)		<< 20);
+
 // Triangle Primitive
 /// Triangle Primitive GIFTAG
 #define GIF_TAG_TRIANGLE(NLOOP)   \
@@ -491,6 +509,56 @@
 		((u64)(GS_UV)		<< 36)	| \
 		((u64)(GS_XYZ2)		<< 40)	| \
 		((u64)(GIF_NOP)		<< 44);
+		
+// Textured Triangle Goraud Primitive
+/// Textured Triangle Goraud Primitive GIFTAG
+#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED(NLOOP)   \
+		((u64)(NLOOP)		<< 0)	| \
+		((u64)(1)		<< 15)	| \
+		((u64)(0)		<< 46)	| \
+		((u64)(0)		<< 47)	| \
+		((u64)(1)		<< 58)	| \
+		((u64)(12)		<< 60);
+/// Textured Triangle Goraud Primitive REGLIST
+#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(ctx)   \
+		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
+		((u64)(GS_PRIM)		<< 4)	| \
+		((u64)(GS_RGBAQ)	<< 8)	| \
+		((u64)(GS_UV)		<< 12)	| \
+		((u64)(GS_XYZ2)		<< 16)	| \
+		((u64)(GS_RGBAQ)	<< 20)	| \
+		((u64)(GS_UV)		<< 24)	| \
+		((u64)(GS_XYZ2)		<< 28)	| \
+		((u64)(GS_RGBAQ)	<< 32)	| \
+		((u64)(GS_UV)		<< 36)	| \
+		((u64)(GS_XYZ2)		<< 40)	| \
+		((u64)(GIF_NOP)		<< 44);
+
+// Textured Quad Goraud Primitive
+/// Textured Quad Goraud Primitive GIFTAG
+#define GIF_TAG_QUAD_GORAUD_TEXTURED(NLOOP)   \
+		((u64)(NLOOP)		<< 0)	| \
+		((u64)(1)		<< 15)	| \
+		((u64)(0)		<< 46)	| \
+		((u64)(0)		<< 47)	| \
+		((u64)(1)		<< 58)	| \
+		((u64)(14)		<< 60);
+/// Textured Quad Goraud Primitive REGLIST
+#define GIF_TAG_QUAD_GORAUD_TEXTURED_REGS(ctx)   \
+		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
+		((u64)(GS_PRIM)		<< 4)	| \
+		((u64)(GS_RGBAQ)	<< 8)	| \
+		((u64)(GS_UV)		<< 12)	| \
+		((u64)(GS_XYZ2)		<< 16)	| \
+		((u64)(GS_RGBAQ)	<< 20)	| \
+		((u64)(GS_UV)		<< 24)	| \
+		((u64)(GS_XYZ2)		<< 28)	| \
+		((u64)(GS_RGBAQ)	<< 32)	| \
+		((u64)(GS_UV)		<< 36)	| \
+		((u64)(GS_XYZ2)		<< 40)	| \
+		((u64)(GS_RGBAQ)	<< 44)	| \
+		((u64)(GS_UV)		<< 48)	| \
+		((u64)(GS_XYZ2)		<< 52);
 
 /// Reserved GIF Tag. This is never sent, only used for sanity checks.
 #define GIF_RESERVED	0x0B
