@@ -9,9 +9,11 @@
 // texstream.c - Example demonstrating gsKit texture streaming operation.
 //
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <gsToolkit.h>
+#include <malloc.h>
+#include <stdio.h>
 
 int main(void)
 {

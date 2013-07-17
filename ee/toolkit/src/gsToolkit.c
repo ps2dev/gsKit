@@ -26,17 +26,6 @@
 
 #ifdef HAVE_LIBPNG
 #include <png.h>
-#include <assert.h>
-
-void gsKit_png_read(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-	FILE* File = (FILE*) png_ptr->io_ptr;
-	if(fread(data, length, 1, File) <= 0)
-	{
-		png_error(png_ptr, "Error reading via fread\n");
-		return;
-	}
-}
 #endif
 
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
@@ -76,7 +65,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
-	if(setjmp(png_ptr->jmpbuf))
+	if(setjmp(png_jmpbuf(png_ptr)))
 	{
 		printf("Got PNG Error!\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
@@ -84,7 +73,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
-	png_set_read_fn(png_ptr, File, gsKit_png_read);
+	png_set_read_fn(png_ptr, File, NULL);	//Function is set to NULL because we want the default reading function which uses stdio.
 
 	png_set_sig_bytes(png_ptr, sig_read);
 
@@ -113,84 +102,70 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
         Texture->VramClut = 0;
         Texture->Clut = NULL;
 
-	if(png_ptr->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+	if(png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB_ALPHA)
 	{
-        int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+		int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 		Texture->PSM = GS_PSM_CT32;
 		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
 
-        row_pointers = calloc(height, sizeof(png_bytep));
+		row_pointers = calloc(height, sizeof(png_bytep));
 
-        for (row = 0; row < height; row++) {
-            row_pointers[row] = malloc(row_bytes);
-        }
+		for (row = 0; row < height; row++) row_pointers[row] = malloc(row_bytes);
 
-        png_read_image(png_ptr, row_pointers);
+		png_read_image(png_ptr, row_pointers);
 
-        struct pixel { unsigned char r,g,b,a; };
-        struct pixel *Pixels = (struct pixel *) Texture->Mem;
+		struct pixel { unsigned char r,g,b,a; };
+		struct pixel *Pixels = (struct pixel *) Texture->Mem;
 
-        for (i=0;i<height;i++) {
-                for (j=0;j<width;j++) {
-                        Pixels[k].r = row_pointers[i][4*j];
-                        Pixels[k].g = row_pointers[i][4*j+1];
-                        Pixels[k].b = row_pointers[i][4*j+2];
-                        Pixels[k++].a = (int) row_pointers[i][4*j+3] * 128 / 255;
-            }
+		for (i=0;i<height;i++) {
+			for (j=0;j<width;j++) {
+				Pixels[k].r = row_pointers[i][4*j];
+				Pixels[k].g = row_pointers[i][4*j+1];
+				Pixels[k].b = row_pointers[i][4*j+2];
+				Pixels[k++].a = 128-((int) row_pointers[i][4*j+3] * 128 / 255);
+			}
 		}
 
-        for (row = 0; row < height; row++) {
-            free(row_pointers[row]);
-        }
+		for(row = 0; row < height; row++) free(row_pointers[row]);
 
-        free(row_pointers);
-		Texture->Filter = GS_FILTER_NEAREST;
-
-		png_read_end(png_ptr, NULL);
-
-		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
+		free(row_pointers);
 	}
-	else if(png_ptr->color_type == PNG_COLOR_TYPE_RGB)
+	else if(png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB)
 	{
-        int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
+		int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 		Texture->PSM = GS_PSM_CT24;
 		Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
 
-        row_pointers = calloc(height, sizeof(png_bytep));
+		row_pointers = calloc(height, sizeof(png_bytep));
 
-        for (row = 0; row < height; row++) {
-            row_pointers[row] = malloc(row_bytes);
-        }
+		for(row = 0; row < height; row++) row_pointers[row] = malloc(row_bytes);
 
-        png_read_image(png_ptr, row_pointers);
+		png_read_image(png_ptr, row_pointers);
 
-        struct pixel3 { unsigned char r,g,b; };
-        struct pixel3 *Pixels = (struct pixel3 *) Texture->Mem;
+		struct pixel3 { unsigned char r,g,b; };
+		struct pixel3 *Pixels = (struct pixel3 *) Texture->Mem;
 
-        for (i=0;i<height;i++) {
-                for (j=0;j<width;j++) {
-                        Pixels[k].r = row_pointers[i][4*j];
-                        Pixels[k].g = row_pointers[i][4*j+1];
-                        Pixels[k++].b = row_pointers[i][4*j+2];
-            }
+		for (i=0;i<height;i++) {
+			for (j=0;j<width;j++) {
+				Pixels[k].r = row_pointers[i][4*j];
+				Pixels[k].g = row_pointers[i][4*j+1];
+				Pixels[k++].b = row_pointers[i][4*j+2];
+			}
 		}
 
-        for (row = 0; row < height; row++) {
-            free(row_pointers[row]);
-        }
+		for(row = 0; row < height; row++) free(row_pointers[row]);
 
-        free(row_pointers);
-		Texture->Filter = GS_FILTER_NEAREST;
-
-		png_read_end(png_ptr, NULL);
-
-		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
+		free(row_pointers);
 	}
 	else
 	{
 		printf("This texture depth is not supported yet!\n");
+		return -1;
 	}
 
+	Texture->Filter = GS_FILTER_NEAREST;
+	png_read_end(png_ptr, NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
 	fclose(File);
 
 	if(!Texture->Delayed)
@@ -284,7 +259,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	}
 	else if(Bitmap.InfoHeader.BitCount == 8)
-{
+	{
 		Texture->PSM = GS_PSM_T8;
 		Texture->Clut = memalign(128, gsKit_texture_size_ee(16, 16, GS_PSM_CT32));
 		Texture->ClutPSM = GS_PSM_CT32;
@@ -326,7 +301,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		}
 	}
 	else if(Bitmap.InfoHeader.BitCount == 16)
-{
+	{
 		Texture->PSM = GS_PSM_CT16;
 		Texture->VramClut = 0;
 		Texture->Clut = NULL;
@@ -366,7 +341,22 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	}
 	else if(Bitmap.InfoHeader.BitCount == 16)
 	{
-		printf("16-bit BMP not supported yet.\n");
+		image = memalign(128, FTexSize);
+		if (image == NULL) return -2;
+
+		fread(image, FTexSize, 1, File);
+
+		p = (void *)((u32)Texture->Mem | 0x30000000);
+		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
+			for (x=0; x<Texture->Width; x++) {
+				unsigned short int value;
+				value=*(unsigned short int*)&image[(cy*Texture->Width+x)*2];
+				value=(value&0x8000) | value<<10 | (value&0x3E0) | (value&0x7C00)>>10;	//ARGB -> ABGR
+
+				*(unsigned short int*)&p[(y*Texture->Width+x)*2]=value;
+			}
+		}
+		free(image);
 	}
 	else if(Bitmap.InfoHeader.BitCount == 8 || Bitmap.InfoHeader.BitCount == 4 )
 	{
@@ -391,14 +381,13 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		if(Bitmap.InfoHeader.BitCount == 4)
 		{
 			int byte;
-			u8 *tmpdst = (u8 *)((u32)Texture->Mem | 0x30000000);
+			u8 *tmpdst = (char *)((u32)Texture->Mem | 0x30000000);
 			u8 *tmpsrc = (u8 *)tex;
 
 			for(byte = 0; byte < FTexSize; byte++)
 			{
 				tmpdst[byte] = (tmpsrc[byte] << 4) | (tmpsrc[byte] >> 4);
 			}
-			free(tex);
 		}
 	}
 	else
