@@ -319,13 +319,13 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
@@ -370,17 +370,17 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 		th++;
 
 	u64 Tex0;
-	if(!Texture->VramClut)
+	if(Texture->VramClut == 0)
 	{
 		Tex0 = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		Tex0 = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	u64 Prim = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
@@ -532,13 +532,13 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 0, 1, gsGlobal->PrimFogEnable,
@@ -600,13 +600,13 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 1, gsGlobal->PrimFogEnable,
@@ -661,13 +661,13 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 	*p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
@@ -727,13 +727,13 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 	*p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
@@ -791,13 +791,13 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 	*p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
@@ -856,13 +856,13 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 	*p_data++ = GS_TEX0_1+gsGlobal->PrimContext;
 
@@ -935,13 +935,13 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 0, 1, gsGlobal->PrimFogEnable,
@@ -1014,13 +1014,13 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			0, 0, Texture->ClutPSM, 0, GS_CLUT_STOREMODE_NOLOAD);
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
 	}
 	else
 	{
 		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
 			tw, th, gsGlobal->PrimAlphaEnable, 0,
-			Texture->VramClut/256, 0, 0, 0, GS_CLUT_STOREMODE_LOAD);
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRISTRIP, 1, 1, gsGlobal->PrimFogEnable,
