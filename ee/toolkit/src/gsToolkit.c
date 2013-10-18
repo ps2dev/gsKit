@@ -31,7 +31,7 @@
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBPNG
-	FILE* File = fopen(Path, "r");
+	FILE* File = fopen(Path, "rb");
 	if (File == NULL)
 	{
 		printf("Failed to load PNG file: %s\n", Path);
@@ -73,7 +73,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
-	png_set_read_fn(png_ptr, File, NULL);	//Function is set to NULL because we want the default reading function which uses stdio.
+	png_init_io(png_ptr, File);
 
 	png_set_sig_bytes(png_ptr, sig_read);
 
@@ -202,7 +202,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	u8  *image;
 	u8  *p;
 
-	FILE* File = fopen(Path, "r");
+	FILE* File = fopen(Path, "rb");
 	if (File == NULL)
 	{
 		printf("Failed to load bitmap: %s\n", Path);
@@ -518,7 +518,7 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 /*
 	// To dump+debug the RBGA data from tiff
-	FILE* File = fopen("host:texdump.raw", "w");
+	FILE* File = fopen("host:texdump.raw", "wb");
 
 	fwrite(Texture->Mem, TextureSize, 1, File);
 
@@ -553,7 +553,7 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-	FILE* File = fopen(Path, "r");
+	FILE* File = fopen(Path, "rb");
 	if (File == NULL)
 	{
 		printf("Failed to load  texture: %s\n", Path);
@@ -664,7 +664,7 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	int vramsize = 0;
 	int i;
 
-	FILE* File = fopen(gsFont->Path, "r");
+	FILE* File = fopen(gsFont->Path, "rb");
 	if (File == NULL)
 	{
 		printf("Failed to load font: %s\n", gsFont->Path);
@@ -876,7 +876,7 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 		gsFont->CharHeight = gsFont->Texture->Height / 16;
 
         if(gsFont->Path_DAT != NULL) {
-            FILE* File = fopen(gsFont->Path_DAT, "r");
+            FILE* File = fopen(gsFont->Path_DAT, "rb");
             if (File != NULL)
             {
                 fseek(File, 0, SEEK_SET);
