@@ -8,12 +8,12 @@
 //
 // basic.c - Example demonstrating basic gsKit operation.
 //
-#include <stdio.h>
 #include <kernel.h>
+#include <stdio.h>
+#include <malloc.h>
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <gsKit.h>
+#include <dmaKit.h>
 
 GSGLOBAL *gsGlobal;
 
@@ -30,7 +30,7 @@ float VHeight;
 volatile int vsync_num = 0;
 int frame_num = 0;
 
-int vsync_callback(void)
+static int vsync_callback(void)
 {
     gsKit_display_buffer(gsGlobal); // working buffer gets displayed
 
@@ -41,13 +41,12 @@ int vsync_callback(void)
 
     vsync_num++;
 
-    asm("sync.l");
-    EIntr();
+    ExitHandler();
 
     return 0;
 }
 
-int render_frame()
+static int render_frame(void)
 {
     vsync_num = 0;
 
@@ -97,7 +96,7 @@ int render_frame()
     return 0;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     int callback_id;
 
@@ -109,8 +108,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
     callback_id = gsKit_add_vsync_handler(&vsync_callback);
 

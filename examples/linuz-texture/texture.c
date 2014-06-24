@@ -9,15 +9,15 @@
 // texture.c - Example demonstrating CLUT texture operation.
 //
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <malloc.h>
 
 extern char testorig[];
 extern unsigned int   image_clut32[];
 extern unsigned char  image_pixel[];
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	u64 White, Black;
 	GSTEXTURE tex;
@@ -29,8 +29,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);

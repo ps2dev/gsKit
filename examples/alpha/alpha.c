@@ -9,11 +9,14 @@
 // alpha.c - Example demonstrating gsKit alpha blending operation.
 //
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <stdio.h>
+#include <malloc.h>
 
-int main(void)
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <gsToolkit.h>
+
+int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 //GS_MODE_VGA_640_60
@@ -45,8 +48,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 

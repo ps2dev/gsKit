@@ -10,14 +10,13 @@
 //
 
 #include <stdio.h>
+#include <malloc.h>
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <gsToolkit.h>
 
-#include "gsToolkit.h"
-
-int main(void)
+int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 	GSTEXTURE Tex1, Tex2;
@@ -39,8 +38,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	gsKit_init_screen(gsGlobal);
 

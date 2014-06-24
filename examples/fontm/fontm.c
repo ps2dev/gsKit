@@ -9,14 +9,14 @@
 // fontm.c - Example demonstrating ROM Font (FONTM) usage
 //
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
 #include <stdio.h>
+#include <malloc.h>
 
-#include "gsToolkit.h"
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <gsToolkit.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
@@ -31,8 +31,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
@@ -42,7 +40,7 @@ int main(void)
 	RedFont = GS_SETREG_RGBAQ(0xFF,0x80,0x80,0x80,0x00);
 	GreenFont = GS_SETREG_RGBAQ(0x80,0xFF,0x80,0x80,0x00);
 	BlueFont = GS_SETREG_RGBAQ(0x80,0x80,0xFF,0x80,0x00);
-    u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
 	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
 	RedTrans = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x60,0x00);

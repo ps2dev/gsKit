@@ -9,13 +9,13 @@
 // font.c - Example demonstrating basic font operation.
 //
 
-#include "gsKit.h"
-#include "dmaKit.h"
-#include "malloc.h"
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <malloc.h>
 
-#include "gsToolkit.h"
+#include <gsToolkit.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
@@ -28,8 +28,6 @@ int main(void)
 
 	// Initialize the DMAC
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
-	dmaKit_chan_init(DMA_CHANNEL_FROMSPR);
-	dmaKit_chan_init(DMA_CHANNEL_TOSPR);
 
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
@@ -49,7 +47,7 @@ int main(void)
 
 	gsKit_init_screen(gsGlobal);
 
-    gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
+	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	gsKit_font_upload(gsGlobal, gsFont);
 

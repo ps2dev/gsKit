@@ -9,13 +9,14 @@
 // texstream.c - Example demonstrating gsKit texture streaming operation.
 //
 
+#include <stdio.h>
+#include <malloc.h>
+
 #include <gsKit.h>
 #include <dmaKit.h>
 #include <gsToolkit.h>
-#include <malloc.h>
-#include <stdio.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 //GS_MODE_VGA_640_60

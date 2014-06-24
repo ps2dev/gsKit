@@ -292,14 +292,14 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 	int bsize = 64;
 
 	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)((x2 + 0.0625f) * 16.0f) + gsGlobal->OffsetX;
+	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
 	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)((y2 + 0.0625f) * 16.0f) + gsGlobal->OffsetY;
+	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
 
-	int iu1 = (int)((u1 + 0.5f) * 16.0f);
-	int iu2 = (int)((u2 - 0.375f) * 16.0f);
-	int iv1 = (int)((v1 + 0.5f) * 16.0f);
-	int iv2 = (int)((v2 - 0.375f) * 16.0f);
+	int iu1 = (int)(u1 * 16.0f);
+	int iu2 = (int)(u2 * 16.0f);
+	int iv1 = (int)(v1 * 16.0f);
+	int iv2 = (int)(v2 * 16.0f);
 
 
 	int tw = 31 - (lzw(Texture->Width) + 1);

@@ -176,28 +176,22 @@ enum
 */
 int gsKit_add_vsync_handler(int (*vsync_callback)())
 {
-    int callback_id;
+	int callback_id;
 
-    DIntr();
+	DIntr();
+	callback_id = AddIntcHandler(2, vsync_callback, 0);
+	EnableIntc(kINTC_VBLANK_START);
+	EIntr();
 
-    callback_id = AddIntcHandler(2, vsync_callback, 0);
-
-    EnableIntc(2);
-
-    EIntr();
-
-    return callback_id;
+	return callback_id;
 }
 
 void gsKit_remove_vsync_handler(int callback_id)
 {
-    DIntr();
-
-    DisableIntc(2);
-
-    RemoveIntcHandler(2, callback_id);
-
-    EIntr();
+	DIntr();
+	DisableIntc(kINTC_VBLANK_START);
+	RemoveIntcHandler(2, callback_id);
+	EIntr();
 }
 
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
