@@ -24,7 +24,7 @@ ifdef LIBTIFF
         EE_INCS += -I$(LIBTIFF)
         EE_CFLAGS += -DHAVE_LIBTIFF
         EE_LIB_DIRS += -L$(LIBTIFF)
-        EE_LIBS += -ltiff
+        EE_LIBS += -ltiff -lm
 endif
 
 ifdef LIBPNG

@@ -11,34 +11,34 @@ echo "Libraries:"
 
 if [ -f $PS2SDK/ports/include/libjpg.h ];
 then
-	echo "\tLIBJPEG detected."
+	echo -e "\tLIBJPEG detected."
 	export LIBJPEG=$PS2SDK/ports
 else
-	echo "\tLIBJPEG not detected."
+	echo -e "\tLIBJPEG not detected."
 fi
 
 if [ -f $PS2SDK/ports/include/png.h ];
 then
-	echo "\tLIBPNG detected."
+	echo -e "\tLIBPNG detected."
 	export LIBPNG=$PS2SDK/ports
 else
-	echo "\tLIBPNG not detected."
+	echo -e "\tLIBPNG not detected."
 fi
 
 if [ -f $PS2SDK/ports/include/zlib.h ];
 then
-	echo "\tZLIB detected."
+	echo -e "\tZLIB detected."
 	export ZLIB=$PS2SDK/ports
 else
-	echo "\tZLIB not detected."
+	echo -e "\tZLIB not detected."
 fi
 
 if [ -f $PS2SDK/ports/include/tiff.h ];
 then
-	echo "\tLIBTIFF detected."
+	echo -e "\tLIBTIFF detected."
 	export LIBTIFF=$PS2SDK/ports
 else
-	echo "\tLIBTIFF not detected."
+	echo -e "\tLIBTIFF not detected."
 fi
 
 echo "Building gsKit."
