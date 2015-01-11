@@ -172,6 +172,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	// chugging away we have a safe time to start our transfer.
 	dmaKit_wait_fast();
 	dmaKit_send_chain(DMA_CHANNEL_GIF, p_store, p_size);
+	dmaKit_wait_fast();	//Wait for the DMA transfer to complete, before freeing the GIF packet buffer.
 	free(p_store);
 
 }
