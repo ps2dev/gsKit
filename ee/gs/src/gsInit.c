@@ -259,7 +259,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
     gsGlobal->TexturePointer = gsGlobal->CurrentPointer; // first useable address for textures
 
-	(u32)p_data = (u32)p_store = gsGlobal->dma_misc;
+	p_data = p_store = (u64 *)gsGlobal->dma_misc;
 
 	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
 	*p_data++ = GIF_AD;
@@ -389,7 +389,7 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 	gsGlobal->Os_Queue = calloc(1,sizeof(GSQUEUE));
 	gsGlobal->Per_Queue = calloc(1,sizeof(GSQUEUE));
-	(u32)gsGlobal->dma_misc = ((u32)memalign(64, 512) | 0x30000000);
+	gsGlobal->dma_misc = (u64 *)((u32)memalign(64, 512) | 0x30000000);
 
 	/* Generic Values */
 	if(configGetTvScreenType() == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
@@ -419,11 +419,11 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->EvenOrOdd = 0;
 
 	gsGlobal->Os_AllocSize = Os_AllocSize;
-	(u32)gsGlobal->Os_Queue->dma_tag = (u32)gsGlobal->Os_Queue->pool[0] = ((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	(u32)gsGlobal->Os_Queue->pool[1] = ((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	(u32)gsGlobal->Os_Queue->pool_cur = ((u32)gsGlobal->Os_Queue->pool[0] + 16);
-	(u32)gsGlobal->Os_Queue->pool_max[0] = ((u32)gsGlobal->Os_Queue->pool[0] + Os_AllocSize);
-	(u32)gsGlobal->Os_Queue->pool_max[1] = ((u32)gsGlobal->Os_Queue->pool[1] + Os_AllocSize);
+	gsGlobal->Os_Queue->dma_tag = gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
+	gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
+	gsGlobal->Os_Queue->pool_cur = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + 16);
+	gsGlobal->Os_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + Os_AllocSize);
+	gsGlobal->Os_Queue->pool_max[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] + Os_AllocSize);
 	gsGlobal->Os_Queue->dbuf = 0;
 	gsGlobal->Os_Queue->tag_size = 0;
 	gsGlobal->Os_Queue->last_tag = gsGlobal->Os_Queue->pool_cur;
@@ -431,9 +431,9 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Os_Queue->mode = GS_ONESHOT;
 
 	gsGlobal->Per_AllocSize = Per_AllocSize;
-	(u32)gsGlobal->Per_Queue->dma_tag = (u32)gsGlobal->Per_Queue->pool[0] = ((u32)memalign(64, Per_AllocSize) | 0x30000000);
-	(u32)gsGlobal->Per_Queue->pool_cur = ((u32)gsGlobal->Per_Queue->pool[0] + 16);
-	(u32)gsGlobal->Per_Queue->pool_max[0] = ((u32)gsGlobal->Per_Queue->pool[0] + Per_AllocSize);
+	gsGlobal->Per_Queue->dma_tag = gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)memalign(64, Per_AllocSize) | 0x30000000);
+	gsGlobal->Per_Queue->pool_cur = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + 16);
+	gsGlobal->Per_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + Per_AllocSize);
 	gsGlobal->Per_Queue->dbuf = 0;
 	gsGlobal->Per_Queue->tag_size = 0;
 	gsGlobal->Per_Queue->last_tag = gsGlobal->Per_Queue->pool_cur;
@@ -484,10 +484,10 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 
 void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 {
-    (u32)gsGlobal->Per_Queue->pool[0] ^= 0x30000000;
-    (u32)gsGlobal->Os_Queue->pool[1] ^= 0x30000000;
-    (u32)gsGlobal->Os_Queue->pool[0] ^= 0x30000000;
-    (u32)gsGlobal->dma_misc ^= 0x30000000;
+    gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] ^ 0x30000000);
+    gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] ^ 0x30000000);
+    gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] ^ 0x30000000);
+    gsGlobal->dma_misc = (u64 *)((u32)gsGlobal->dma_misc ^ 0x30000000);
 
     free(gsGlobal->Per_Queue->pool[0]);
     free(gsGlobal->Os_Queue->pool[1]);

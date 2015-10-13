@@ -157,7 +157,7 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	gsFontM->Header.offset_table = malloc(TableSize);
 
 	u8 *temp;
-	(u32)temp = ((u32)unpacked + gsFontM->Header.baseoffset + 17680);
+	temp = (u8 *)((u32)unpacked + gsFontM->Header.baseoffset + 17680);
 
 	int TexSize = (338 * gsFontM->Header.num_entries);
 
