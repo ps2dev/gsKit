@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	tex.Width = 256;
 	tex.Height = 256;
 	tex.PSM = GS_PSM_CT24;
-	(char*)tex.Mem = testorig;
+	tex.Mem = (void *)testorig;
 	tex.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(tex.Width, tex.Height, tex.PSM), GSKIT_ALLOC_USERBUFFER);
 	tex.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	tex8.Width = 256;
 	tex8.Height = 256;
 	tex8.PSM = GS_PSM_T8;
-	(unsigned char*)tex8.Mem = image_pixel;
+	tex8.Mem = (void *)image_pixel;
 	tex8.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(tex8.Width, tex8.Height, tex8.PSM), GSKIT_ALLOC_USERBUFFER);
 	tex8.Clut = image_clut32;
 	tex8.ClutPSM = GS_PSM_CT32;

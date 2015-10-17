@@ -23,7 +23,7 @@ ifeq (x$(GSKIT), x)
 GSKIT = $(PS2DEV)/gsKit
 endif
 
-#GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.2
+#GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.3
 #CPPLIB = $(PS2DEV)/ee/ee/lib
 
 LIBGSKIT = $(GSKITSRC)/lib/libgskit.a
