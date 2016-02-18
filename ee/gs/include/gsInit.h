@@ -1048,7 +1048,7 @@ struct gsRegisters {
  u64 ID:          8 __attribute__((packed)); /* ro */
  u64 pad32:      32 __attribute__((packed));
 };
-typedef struct gsRegisters GSREG __attribute__((packed));
+typedef struct gsRegisters GSREG;
 
 #ifdef __cplusplus
 extern "C" {

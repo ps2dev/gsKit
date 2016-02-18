@@ -18,58 +18,58 @@ int main(int argc, char *argv[])
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 
-    // By default the gsKit_init_global() uses an autodetected interlaced field mode
-    // To set a new mode set these five variables for the resolution desired and
-    // mode desired
+    //  By default the gsKit_init_global() uses an autodetected interlaced field mode
+    //  To set a new mode set these five variables for the resolution desired and
+    //  mode desired
 
-    // Some examples
-    // Make sure that gsGlobal->Height is a factor of the mode's gsGlobal->DH
+    //  Some examples
+    //  Make sure that gsGlobal->Height is a factor of the mode's gsGlobal->DH
 
-    //gsGlobal->Mode = GS_MODE_NTSC
-    //gsGlobal->Interlace = GS_INTERLACED;
-    //gsGlobal->Field = GS_FIELD;
-    //gsGlobal->Width = 640;
-    //gsGlobal->Height = 448;
+    // gsGlobal->Mode = GS_MODE_NTSC
+    // gsGlobal->Interlace = GS_INTERLACED;
+    // gsGlobal->Field = GS_FIELD;
+    // gsGlobal->Width = 640;
+    // gsGlobal->Height = 448;
 
-    //gsGlobal->Mode = GS_MODE_PAL;
-    //gsGlobal->Interlace = GS_INTERLACED;
-	//gsGlobal->Field = GS_FIELD;
-    //gsGlobal->Width = 640;
-    //gsGlobal->Height = 512;
+    // gsGlobal->Mode = GS_MODE_PAL;
+    // gsGlobal->Interlace = GS_INTERLACED;
+	// gsGlobal->Field = GS_FIELD;
+    // gsGlobal->Width = 640;
+    // gsGlobal->Height = 512;
 
-    //gsGlobal->Mode = GS_MODE_DTV_480P;
-    //gsGlobal->Interlace = GS_NONINTERLACED;
-    //gsGlobal->Field = GS_FRAME;
-    //gsGlobal->Width = 720;
-    //gsGlobal->Height = 480;
+    // gsGlobal->Mode = GS_MODE_DTV_480P;
+    // gsGlobal->Interlace = GS_NONINTERLACED;
+    // gsGlobal->Field = GS_FRAME;
+    // gsGlobal->Width = 720;
+    // gsGlobal->Height = 480;
 
-    //gsGlobal->Mode = GS_MODE_DTV_1080I;
-    //gsGlobal->Interlace = GS_INTERLACED;
-    //gsGlobal->Field = GS_FIELD;
-    //gsGlobal->Width = 640;
-    //gsGlobal->Height = 540;
-    //gsGlobal->PSM = GS_PSM_CT16;
-    //gsGlobal->PSMZ = GS_PSMZ_16;
-    //gsGlobal->Dithering = GS_SETTING_ON;
+    // gsGlobal->Mode = GS_MODE_DTV_1080I;
+    // gsGlobal->Interlace = GS_INTERLACED;
+    // gsGlobal->Field = GS_FIELD;
+    // gsGlobal->Width = 640;
+    // gsGlobal->Height = 540;
+    // gsGlobal->PSM = GS_PSM_CT16;
+    // gsGlobal->PSMZ = GS_PSMZ_16;
+    // gsGlobal->Dithering = GS_SETTING_ON;
 
-    // A width of 640 would work as well
-    // However a height of 720 doesn't seem to work well
-    //gsGlobal->Mode = GS_MODE_DTV_720P;
-    //gsGlobal->Interlace = GS_NONINTERLACED;
-    //gsGlobal->Field = GS_FRAME;
-    //gsGlobal->Width = 640;
-    //gsGlobal->Height = 360;
-    //gsGlobal->PSM = GS_PSM_CT16;
-    //gsGlobal->PSMZ = GS_PSMZ_16;
+    //  A width of 640 would work as well
+    //  However a height of 720 doesn't seem to work well
+    // gsGlobal->Mode = GS_MODE_DTV_720P;
+    // gsGlobal->Interlace = GS_NONINTERLACED;
+    // gsGlobal->Field = GS_FRAME;
+    // gsGlobal->Width = 640;
+    // gsGlobal->Height = 360;
+    // gsGlobal->PSM = GS_PSM_CT16;
+    // gsGlobal->PSMZ = GS_PSMZ_16;
 
-	// You can use these to turn off Z/Double Buffering. They are on by default.
-	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-	// gsGlobal->ZBuffering = GS_SETTING_OFF;
+	//  You can use these to turn off Z/Double Buffering. They are on by default.
+	//  gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	//  gsGlobal->ZBuffering = GS_SETTING_OFF;
 
-	// This makes things look marginally better in half-buffer mode...
-	// however on some CRT and all LCD, it makes a really horrible screen shake.
-	// Uncomment this to disable it. (It is on by default)
-	// gsGlobal->DoSubOffset = GS_SETTING_OFF;
+	//  This makes things look marginally better in half-buffer mode...
+	//  however on some CRT and all LCD, it makes a really horrible screen shake.
+	//  Uncomment this to disable it. (It is on by default)
+	//  gsGlobal->DoSubOffset = GS_SETTING_OFF;
 
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 
@@ -212,6 +212,8 @@ int main(int argc, char *argv[])
 
 		// RedTrans must be a oneshot for proper blending!
 		gsKit_prim_sprite(gsGlobal, 100.0f, 100.0f, 200.0f, 200.0f, 5, RedTrans);
+		gsKit_prim_sprite(gsGlobal, 100.0f, 200.0f, 250.0f, 250.0f, 5, GreenTrans);
+		gsKit_prim_sprite(gsGlobal, 200.0f, 250.0f, 275.0f, 275.0f, 5, WhiteTrans);
 
 		gsKit_queue_exec(gsGlobal);
 

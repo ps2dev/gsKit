@@ -14,8 +14,8 @@
 #include <malloc.h>
 
 extern char testorig[];
-extern unsigned int   image_clut32[];
-extern unsigned char  image_pixel[];
+extern u32 image_clut32[];
+extern u8 image_pixel[];
 
 int main(int argc, char *argv[])
 {
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 	tex8.Filter = GS_FILTER_LINEAR;
 	gsKit_texture_upload(gsGlobal, &tex8);
 
+	gsKit_clear(gsGlobal, Black);
 	gsKit_clear(gsGlobal, White);
 	gsKit_prim_sprite_texture(gsGlobal, &tex, 0, 0, 0, 0, 256, 256, 256, 256, 0, 0x80808080);
 	gsKit_prim_sprite_texture(gsGlobal, &tex8, 256, 0, 0, 0, 512, 256, 256, 256, 0, 0x80808080);

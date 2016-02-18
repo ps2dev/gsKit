@@ -21,6 +21,11 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 //GS_MODE_VGA_640_60
 	GSTEXTURE Sprite;
+	Sprite.Width = 0;
+	Sprite.Height = 0;
+	Sprite.PSM = 0;
+	Sprite.Mem = 0;
+	Sprite.TBW = 0;
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 #ifdef HAVE_LIBPNG
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);

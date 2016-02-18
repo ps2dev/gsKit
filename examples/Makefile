@@ -9,7 +9,18 @@
 # examples/Makefile - gsKit examples root makefile.
 #
 
-SUBDIRS = basic bigtex texstream textures linuz-texture font fb alpha fontm png-texture vsync
+SUBDIRS =
+SUBDIRS += basic
+SUBDIRS += bigtex
+SUBDIRS += texstream
+SUBDIRS += textures
+SUBDIRS += linuz-texture
+SUBDIRS += font
+SUBDIRS += alpha
+SUBDIRS += fontm
+SUBDIRS += png-texture
+SUBDIRS += vsync
+SUBDIRS += fb
 
 include ../Rules.make
 

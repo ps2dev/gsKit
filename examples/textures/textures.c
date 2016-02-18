@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 	GSTEXTURE Tex1, Tex2;
 
-#ifdef HAVE_LIBJPG
+#ifdef HAVE_LIBJPEG
     GSTEXTURE Tex3;
 #endif
 
@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
-//	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-//	gsGlobal->ZBuffering = GS_SETTING_OFF;
+	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	// gsGlobal->ZBuffering = GS_SETTING_OFF;
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	printf("Texure 1 VRAM Range = 0x%X - 0x%X\n",Tex1.Vram, Tex1.Vram +gsKit_texture_size(Tex1.Width, Tex1.Height, Tex1.PSM) - 1);
 	printf("Texure 2 VRAM Range = 0x%X - 0x%X\n",Tex2.Vram, Tex2.Vram +gsKit_texture_size(Tex2.Width, Tex2.Height, Tex2.PSM) - 1);
 
-#ifdef HAVE_LIBJPG
+#ifdef HAVE_LIBJPEG
 	gsKit_texture_jpeg(gsGlobal, &Tex3, "host:ps2dev.jpg");
 
 	printf("Texture 3 Height: %i\n",Tex3.Height);
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 							TexCol);
 
 
-#ifdef HAVE_LIBJPG
+#ifdef HAVE_LIBJPEG
 	gsKit_prim_sprite_texture(gsGlobal, &Tex3,	40.0f,  // X1
 							386.0f,  // Y2
 							0.0f,  // U1

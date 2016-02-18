@@ -8,6 +8,7 @@
 //
 // fontm.c - Example demonstrating ROM Font (FONTM) usage
 //
+// Early units (SCPH-1xxxx and DESR-xxxx) lacks this feature
 
 #include <stdio.h>
 #include <malloc.h>
@@ -20,8 +21,8 @@ int main(int argc, char *argv[])
 {
 	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
-// GS_MODE_PAL_I
-// GS_MODE_VGA_640_60
+	// GS_MODE_PAL_I
+	// GS_MODE_VGA_640_60
 	GSTEXTURE test;
 
 	GSFONTM *gsFontM = gsKit_init_fontm();
@@ -70,7 +71,7 @@ int main(int argc, char *argv[])
 	gsKit_texture_bmp(gsGlobal, &test, "host:test.bmp");
 	test.Filter = GS_FILTER_LINEAR;
 
-        gsKit_mode_switch(gsGlobal, GS_ONESHOT);
+    gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 
 	while(1)
 	{
@@ -95,15 +96,16 @@ int main(int argc, char *argv[])
 
 		gsKit_clear(gsGlobal, White);
 
-	        gsKit_prim_sprite_texture(      gsGlobal, &test,
-                                                50.0f, 50.0f, 0.0f, 0.0f,
-                                                gsGlobal->Width - 50.0f, gsGlobal->Height - 50.0f,
-                                                test.Width, test.Height,
-                                                1, TexCol);
+	    gsKit_prim_sprite_texture(gsGlobal, &test,
+                                        50.0f, 50.0f, 0.0f, 0.0f,
+                                        gsGlobal->Width - 50.0f, gsGlobal->Height - 50.0f,
+                                        test.Width, test.Height,
+                                        1, TexCol);
 
 		gsKit_prim_sprite(gsGlobal, x2, y2, x2 + width, y2 + height, 2, RedTrans);
+		gsKit_prim_sprite(gsGlobal, x2, y, x2 + width, y + height, 1, WhiteTrans);
 
-		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 50, 50, 3, 0.85f, TexCol,
+		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 50, 50, 3, 0.85f, WhiteFont,
 			"1: ABCDEFGHIJKLM\n"
 			"2: NOPQRSTUVWXYZ\n"
 			"3: abcdefghijklm\n"
@@ -118,20 +120,21 @@ int main(int argc, char *argv[])
 
 		sprintf(tempstr, "X =%d\t| Y =%d\nX2=%d\t| Y2=%d", (int)x, (int)y, (int)x2, (int)y2);
 
-		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 50, 340, 3, 0.6f, TexCol, tempstr);
+		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 50, 340, 3, 0.6f, RedFont, tempstr);
 
-//		gsKit_font_print(gsGlobal, gsFont, 50, 50, 2.0f, TexCol, "\f0000");
+		// gsKit_font_print(gsGlobal, gsFont, 50, 50, 2.0f, TexCol, "\f0000");
 
 		gsKit_prim_sprite(gsGlobal, 418, 335, 422, 425, 3, Black);
 
-		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 340, 4, 0.6f, TexCol, "Left Aligned");
+		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 340, 4, 0.6f, BlueFont, "Left Aligned");
 		gsFontM->Align = GSKIT_FALIGN_CENTER;
-		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 370, 4, 0.6f, TexCol, "Center Aligned");
+		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 370, 4, 0.6f, GreenFont, "Center Aligned");
 		gsFontM->Align = GSKIT_FALIGN_RIGHT;
-		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 400, 4, 0.60f, TexCol, "Right Aligned");
+		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 420, 400, 4, 0.60f, BlackFont, "Right Aligned");
 		gsFontM->Align = GSKIT_FALIGN_LEFT;
 
 		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
+		gsKit_prim_sprite(gsGlobal, x, y2, x + width, y2 + height, 3, GreenTrans);
 
 		gsKit_sync_flip(gsGlobal);
 

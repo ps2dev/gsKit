@@ -15,7 +15,7 @@ EE_OBJS = texture.o testorig.o sample.o
 all: $(EE_BIN)
 
 test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:texture.elf
+	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
 
 reset: clean
 	ps2client -h $(PS2_IP) reset

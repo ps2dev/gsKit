@@ -19,7 +19,7 @@
 int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global();
-//GS_MODE_VGA_640_60
+	// GS_MODE_VGA_640_60
 #ifdef HAVE_LIBTIFF
 	GSTEXTURE Sprite;
     u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 	u64 Blue = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x00,0x00);
 	u64 BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
 
-
         float x = 10;
         float y = 10;
         float width = 150;
@@ -40,8 +39,8 @@ int main(int argc, char *argv[])
 
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
-//	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
-//	gsGlobal->ZBuffering = GS_SETTING_OFF;
+	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	// gsGlobal->ZBuffering = GS_SETTING_OFF;
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);

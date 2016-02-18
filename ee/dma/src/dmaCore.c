@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <kernel.h>
 
-int dmaKit_wait(u16 channel, unsigned int timeout)
+int dmaKit_wait(u16 channel, u32 timeout)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Waiting for DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -53,7 +53,7 @@ void dmaKit_wait_fast(void)
 			 "0:");
 }
 
-void dmaKit_send(u16 channel, void *data, unsigned int size)
+void dmaKit_send(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -81,7 +81,7 @@ void dmaKit_send(u16 channel, void *data, unsigned int size)
 	return;
 }
 
-void dmaKit_send_ucab(u16 channel, void *data, unsigned int size)
+void dmaKit_send_ucab(u16 channel, void *data, u32 size)
 {
         #ifdef GSKIT_DEBUG
         printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
@@ -107,7 +107,7 @@ void dmaKit_send_ucab(u16 channel, void *data, unsigned int size)
         return;
 }
 
-void dmaKit_send_spr(u16 channel, void *data, unsigned int size)
+void dmaKit_send_spr(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel w/ SPR %i - %s\n",channel, DMA_NAME[channel]);
@@ -132,7 +132,7 @@ void dmaKit_send_spr(u16 channel, void *data, unsigned int size)
 	return;
 }
 
-void dmaKit_send_chain(u16 channel, void *data, unsigned int size)
+void dmaKit_send_chain(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
 	printf("Sending to DMA Channel in Chain Mode %i - %s\n",channel, DMA_NAME[channel]);
@@ -211,7 +211,7 @@ void dmaKit_send_chain_spr(u16 channel, void *data)
 	return;
 }
 
-void dmaKit_get_spr(u16 channel, void *data, void *dest, unsigned int size)
+void dmaKit_get_spr(u16 channel, void *data, void *dest, u32 size)
 {
         #ifdef GSKIT_DEBUG
         printf("Sending to DMA Channel %i - %s\n",channel, DMA_NAME[channel]);

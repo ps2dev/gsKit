@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	u64 Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 
-//	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
+	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
 	gsGlobal->ZBuffering = GS_SETTING_OFF;
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
         bigtex.PSM = GS_PSM_CT24;
         bigtex.Filter = GS_FILTER_NEAREST;
 
-//	gsKit_texture_raw(gsGlobal, &bigtex, "host:bigtex.raw");
+	// gsKit_texture_raw(gsGlobal, &bigtex, "host:bigtex.raw");
 	gsKit_texture_bmp(gsGlobal, &bigtex, "host:bigtex.bmp");
-//	gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
+	// gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
 
 
 	float x = 0.0f;
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 		gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
 		gsKit_prim_sprite_striped_texture(gsGlobal, &bigtex, x,  // X1
-//		gsKit_prim_sprite_texture(gsGlobal, &bigtex, x,  // X1
+		// gsKit_prim_sprite_texture(gsGlobal, &bigtex, x,  // X1
 							     0.0f,  // Y2
 							     0.0f,  // U1
 							     0.0f,  // V1
