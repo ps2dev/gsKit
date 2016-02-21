@@ -23,8 +23,8 @@ EE_CXXFLAGS := -D_EE -O2 -G0 -Wall $(EE_CXXFLAGS)
 #endif
 
 # Linker flags
-# EE_LDFLAGS := -mno-crt0 $(EE_LDFLAGS)
-EE_LDFLAGS := -nostartfiles $(EE_LDFLAGS)
+EE_LDFLAGS := -mno-crt0 $(EE_LDFLAGS)
+# EE_LDFLAGS := -nostartfiles $(EE_LDFLAGS)
 
 # Assembler flags
 EE_ASFLAGS := -G0 $(EE_ASFLAGS)
