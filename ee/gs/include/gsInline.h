@@ -13,6 +13,8 @@
 #ifndef __GSINLINE_H__
 #define __GSINLINE_H__
 
+#include <stdio.h>
+
 ///  Drawbuffer Heap Allocator
 static inline void *gsKit_heap_alloc(GSGLOBAL *gsGlobal, int qsize, int bsize, int type)
 {

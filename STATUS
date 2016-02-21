@@ -51,6 +51,9 @@ Contributors: Please do not modify this file without letting the others
 
 BUGS:
 	* Scaling for DVD modes untested.
-	* Reports of Mode StartX/StartY vaules off. Please e-mail me with ones that work for you.
-	* PNG Support Crashes.
+	* Reports of Mode StartX/StartY values off. Please e-mail me with ones that work for you.
+	* JPG Support Crashes (jpgOpen (fileXioOpen) crashes in sample/textures).
+	* Something really wrong happens with vsync when GSKIT_DEBUG enabled.
+	* Font sample doesn't work (crashes with "not enough VRAM")
+	* Almost all warnings fixed except of some unused variables and one maybe unitialized value.
 

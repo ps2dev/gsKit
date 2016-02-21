@@ -16,13 +16,18 @@ EE_LIBS = -Xlinker --start-group
 
 EE_LIBS += -lc -lkernel
 
+ifdef GSKIT_DEBUG
+    EE_CFLAGS += -DGSKIT_DEBUG
+    EE_INCS += -I$(PS2GDB)/ee
+    EE_LIB_DIRS += -L$(PS2GDB)/lib
+endif
+
 EE_LIBS += -Xlinker --end-group
 
 # include dir
-EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include -I$(PS2GDB)/ee
+EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include
 EE_CFLAGS += -fno-builtin-printf
 
 # linker flags
-EE_LIB_DIRS += -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
+EE_LIB_DIRS += -L$(PS2SDK)/ee/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
-

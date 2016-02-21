@@ -14,37 +14,45 @@ include $(GSKITSRC)/ee/Rules.make
 EE_LIBS = -Xlinker --start-group
 
 ifdef LIBJPEG
-	EE_INCS += -I$(LIBJPEG)/include
-	EE_CFLAGS += -DHAVE_LIBJPEG
-	EE_LIB_DIRS += -L$(LIBJPEG)/lib
-	EE_LIBS += -ljpeg
+    EE_INCS += -I$(LIBJPEG)/include
+    EE_CFLAGS += -DHAVE_LIBJPEG
+    EE_LIB_DIRS += -L$(LIBJPEG)/lib
+    EE_LIBS += -ljpeg -lfileXio -ldebug
 endif
 
 ifdef LIBTIFF
-        EE_INCS += -I$(LIBTIFF)
-        EE_CFLAGS += -DHAVE_LIBTIFF
-        EE_LIB_DIRS += -L$(LIBTIFF)
-        EE_LIBS += -ltiff
+    EE_INCS += -I$(LIBTIFF)/include
+    EE_CFLAGS += -DHAVE_LIBTIFF
+    EE_LIB_DIRS += -L$(LIBTIFF)/lib
+    EE_LIBS += -ltiff -lm
 endif
 
 ifdef LIBPNG
 ifdef ZLIB
-	EE_INCS += -I$(ZLIB)/include -I$(LIBPNG)/include
-	EE_CFLAGS += -DHAVE_LIBPNG -DHAVE_ZLIB
-	EE_LIB_DIRS += -L$(ZLIB)/lib -L$(LIBPNG)/lib
-	EE_LIBS += -lz -lpng
+    EE_INCS += -I$(ZLIB)/include -I$(LIBPNG)/include
+    EE_CFLAGS += -DHAVE_LIBPNG -DHAVE_ZLIB
+    EE_LIB_DIRS += -L$(ZLIB)/lib -L$(LIBPNG)/lib
+    EE_LIBS += -lz -lpng -lm
 endif
 endif
 
-EE_LIBS += -lgskit -ldmakit -lkernel -lc
+ifdef GSKIT_DEBUG
+    EE_CFLAGS += -DGSKIT_DEBUG
+    EE_INCS += -I$(PS2GDB)/ee
+    EE_LIB_DIRS += -L$(PS2GDB)/lib
+endif
+
+EE_LIBS += -lgskit -ldmakit
+EE_LIBS += -lc -lkernel
 
 EE_LIBS += -Xlinker --end-group
 
 # include dir
-EE_INCS += -I$(GSKITSRC)/ee/gs/include  -I$(GSKITSRC)/ee/dma/include -I$(GSKITSRC)/ee/toolkit/include -I$(PS2GDB)/ee
+EE_INCS += -I$(GSKITSRC)/ee/gs/include -I$(GSKITSRC)/ee/dma/include
 EE_CFLAGS += -fno-builtin-printf
+EE_INCS += -I$(GSKITSRC)/ee/toolkit/include
 
 # linker flags
-EE_LIB_DIRS += -L$(GSKITSRC)/lib -L$(PS2SDK)/ee/lib -L$(PS2GDB)/lib
+EE_LIB_DIRS += -L$(GSKITSRC)/lib
+EE_LIB_DIRS += -L$(PS2SDK)/ee/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
-
