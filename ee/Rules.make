@@ -11,11 +11,20 @@ EE_INCS := $(EE_INCS) -I$(PS2SDK)/ee/include -I$(PS2SDK)/common/include -I$(GSKI
 # C compiler flags
 EE_CFLAGS := -D_EE -O2 -G0 -Wall $(EE_CFLAGS)
 
+#ifdef GSKIT_DEBUG
+#	EE_CFLAGS += -DGSKIT_DEBUG
+#endif
+
 # C++ compiler flags
 EE_CXXFLAGS := -D_EE -O2 -G0 -Wall $(EE_CXXFLAGS)
 
+#ifdef GSKIT_DEBUG
+#	EE_CXXFLAGS += -DGSKIT_DEBUG
+#endif
+
 # Linker flags
-#EE_LDFLAGS := $(EE_LDFLAGS)
+EE_LDFLAGS := -mno-crt0 $(EE_LDFLAGS)
+# EE_LDFLAGS := -nostartfiles $(EE_LDFLAGS)
 
 # Assembler flags
 EE_ASFLAGS := -G0 $(EE_ASFLAGS)
@@ -50,11 +59,11 @@ $(EE_OBJS_DIR):
 
 ifeq ($(use_cpp), true)
 $(EE_BIN) : $(EE_OBJS) $(PS2SDK)/ee/startup/crt0.o
-	$(EE_CXX) -nostartfiles -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
+	$(EE_CXX) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
 		-o $(EE_BIN) $(PS2SDK)/ee/startup/crt0.o $(EE_OBJS) $(EE_LIBS)
 else
 $(EE_BIN) : $(EE_OBJS) $(PS2SDK)/ee/startup/crt0.o
-	$(EE_CC) -nostartfiles -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
+	$(EE_CC) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) \
 		-o $(EE_BIN) $(PS2SDK)/ee/startup/crt0.o $(EE_OBJS) $(EE_LIBS)
 endif
 

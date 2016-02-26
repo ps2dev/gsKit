@@ -34,12 +34,12 @@
 
 struct gsKit_fontm_unpack
 {
-	unsigned int	size;
-	unsigned int	data;
-	unsigned int	ande;
-	unsigned int	dif;
-	unsigned int	shft;
-	unsigned char	*ptr;
+	u32	size;
+	u32	data;
+	u32	ande;
+	u32	dif;
+	u32	shft;
+	u8	*ptr;
 };
 
 /// gsKit FONTM Header Structure
@@ -83,7 +83,7 @@ GSFONTM *gsKit_init_fontm();
 
 int gsKit_fontm_upload(GSGLOBAL *gsGlobal, GSFONTM *gsFontM);
 int gsKit_fontm_unpack(GSFONTM *gsFontM);
-void gsKit_fontm_unpack_raw(unsigned char *base, struct gsKit_fontm_unpack *oke);
+void gsKit_fontm_unpack_raw(u8 *base, struct gsKit_fontm_unpack *oke);
 void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke);
 void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, float Y, int Z,
 		      float scale, unsigned long color, const char *String);

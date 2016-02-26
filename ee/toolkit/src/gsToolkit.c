@@ -15,7 +15,7 @@
 #include "gsKit.h"
 #include "gsToolkit.h"
 
-#ifdef HAVE_LIBJPG
+#ifdef HAVE_LIBJPEG
 #include <libjpg.h>
 #endif
 
@@ -43,7 +43,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	png_uint_32 width, height;
 	png_bytep *row_pointers;
 
-	unsigned int sig_read = 0;
+	u32 sig_read = 0;
         int row, i, k=0, j, bit_depth, color_type, interlace_type;
 
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp) NULL, NULL, NULL);
@@ -114,7 +114,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 		png_read_image(png_ptr, row_pointers);
 
-		struct pixel { unsigned char r,g,b,a; };
+		struct pixel { u8 r,g,b,a; };
 		struct pixel *Pixels = (struct pixel *) Texture->Mem;
 
 		for (i=0;i<height;i++) {
@@ -142,7 +142,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 		png_read_image(png_ptr, row_pointers);
 
-		struct pixel3 { unsigned char r,g,b; };
+		struct pixel3 { u8 r,g,b; };
 		struct pixel3 *Pixels = (struct pixel3 *) Texture->Mem;
 
 		for (i=0;i<height;i++) {
@@ -349,11 +349,11 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		p = (void *)((u32)Texture->Mem | 0x30000000);
 		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
 			for (x=0; x<Texture->Width; x++) {
-				unsigned short int value;
-				value=*(unsigned short int*)&image[(cy*Texture->Width+x)*2];
+				u16 value;
+				value=*(u16*)&image[(cy*Texture->Width+x)*2];
 				value=(value&0x8000) | value<<10 | (value&0x3E0) | (value&0x7C00)>>10;	//ARGB -> ABGR
 
-				*(unsigned short int*)&p[(y*Texture->Width+x)*2]=value;
+				*(u16*)&p[(y*Texture->Width+x)*2]=value;
 			}
 		}
 		free(image);
@@ -381,7 +381,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		if(Bitmap.InfoHeader.BitCount == 4)
 		{
 			int byte;
-			u8 *tmpdst = (char *)((u32)Texture->Mem | 0x30000000);
+			u8 *tmpdst = (u8 *)((u32)Texture->Mem | 0x30000000);
 			u8 *tmpsrc = (u8 *)tex;
 
 			for(byte = 0; byte < FTexSize; byte++)
@@ -419,14 +419,14 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-#ifdef HAVE_LIBJPG
+#ifdef HAVE_LIBJPEG
 
 	jpgData *jpg;
 
 	int TextureSize = 0;
 	int VramTextureSize = 0;
 
-	jpg = jpgOpen(Path);
+	jpg = jpgOpen(Path, JPG_NORMAL);
 	if (jpg == NULL) {
 		return -1;
 		printf("error opening %s\n", Path);
@@ -506,7 +506,7 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	Texture->Mem = memalign(128,TextureSize);
 
-	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, Texture->Mem, 0))
+	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, (long unsigned int *)Texture->Mem, 0))
 	{
 		printf("Error Reading TIFF Data\n");
 		TIFFClose(tif);
@@ -926,7 +926,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 
 
 		int cx,cy,i,l;
-		unsigned char c;
+		u8 c;
 		cx=X;
 		cy=Y;
 

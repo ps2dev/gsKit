@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 
 	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "host:dejavu.bmp");
-	//GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_PNG_DAT, "host:dejavu.png");
+	// GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_PNG_DAT, "host:dejavu.png");
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
 		    D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);
@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		gsKit_sync_flip(gsGlobal);
-
 		gsKit_queue_exec(gsGlobal);
 	}
 

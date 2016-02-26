@@ -241,10 +241,10 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	return 0;
 }
 
-void gsKit_fontm_unpack_raw(unsigned char *base, struct gsKit_fontm_unpack *oke)
+void gsKit_fontm_unpack_raw(u8 *base, struct gsKit_fontm_unpack *oke)
 {
-	unsigned int val, count, i;
-	unsigned char *p, *src;
+	u32 val, count, i;
+	u8 *p, *src;
 
 	for (i=0, p=base; p < base+oke->size; i--, oke->data <<= 1)
 	{

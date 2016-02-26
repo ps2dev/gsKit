@@ -15,19 +15,17 @@
 
 include $(PS2SDK)/Defs.make
 
-ifeq (x$(PS2DEV), x)
-PS2DEV = $(HOME)/ps2dev
-endif
-
 ifeq (x$(GSKIT), x)
 GSKIT = $(PS2DEV)/gsKit
 endif
 
-#GCCLIB = $(PS2DEV)/ee/lib/gcc-lib/ee/3.2.3
-#CPPLIB = $(PS2DEV)/ee/ee/lib
-
 LIBGSKIT = $(GSKITSRC)/lib/libgskit.a
 LIBDMAKIT = $(GSKITSRC)/lib/libdmakit.a
 LIBGSKIT_TOOLKIT = $(GSKITSRC)/lib/libgskit_toolkit.a
+# GSKIT_DEBUG = 1
+# LIBJPEG = $(PS2SDK)/ports
+# LIBTIFF = $(PS2SDK)/ports
+# LIBPNG = $(PS2SDK)/ports
+# ZLIB = $(PS2SDK)/ports
 
 PS2_IP = 192.168.1.10

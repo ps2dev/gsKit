@@ -19,6 +19,8 @@ GSGLOBAL *gsGlobal;
 
 u64 BlueTrans;
 u64 RedTrans;
+u64 GreenTrans;
+u64 WhiteTrans;
 
 int vsync_max = 50;
 float x = 10;
@@ -67,6 +69,8 @@ static int render_frame(void)
 
         // RedTrans must be a oneshot for proper blending!
         gsKit_prim_sprite(gsGlobal, 100.0f, 100.0f, 200.0f, 200.0f, 5, RedTrans);
+		gsKit_prim_sprite(gsGlobal, 100.0f, 200.0f, 250.0f, 250.0f, 5, GreenTrans);
+		gsKit_prim_sprite(gsGlobal, 200.0f, 250.0f, 275.0f, 275.0f, 5, WhiteTrans);
 
         gsKit_queue_exec(gsGlobal);
 
@@ -100,7 +104,7 @@ int main(int argc, char *argv[])
 {
     int callback_id;
 
-	u64 White, Black, Red, Green, Blue, GreenTrans, WhiteTrans;
+	u64 White, Black, Red, Green, Blue;
     gsGlobal = gsKit_init_global();
 
     dmaKit_init(D_CTRL_RELE_OFF, D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,

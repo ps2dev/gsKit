@@ -15,7 +15,7 @@ EE_OBJS = texstream.o
 all: $(EE_BIN)
 
 test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:texstream.elf
+	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
 
 reset: clean
 	ps2client -h $(PS2_IP) reset

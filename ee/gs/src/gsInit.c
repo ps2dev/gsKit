@@ -302,7 +302,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	}
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
 	{
-		*p_data++ = GS_SETREG_ZBUF_1( NULL, gsGlobal->PSM, 1 );
+		*p_data++ = GS_SETREG_ZBUF_1( 0, gsGlobal->PSM, 1 );
 		*p_data++ = GS_ZBUF_1;
 	}
 
@@ -339,7 +339,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	}
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
 	{
-		*p_data++ = GS_SETREG_ZBUF_1( NULL, gsGlobal->PSM, 1 );
+		*p_data++ = GS_SETREG_ZBUF_1( 0, gsGlobal->PSM, 1 );
 		*p_data++ = GS_ZBUF_2;
 	}
 

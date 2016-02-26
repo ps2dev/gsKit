@@ -71,7 +71,8 @@
 
  - There is a default drawbuffer size of 2MB for oneshot, and 256KB for persistent.
    If they are filled beyond capacity, bad things will start to happen.
-   (Compile with -DGSKIT_DEBUG to get warnings about it at the expense of performance)
+   (Compile with -DGSKIT_DEBUG to get warnings about it at the expense of performance
+   or just uncomment section in Makefile.pref)
    You can tweak these values with the GS_RENDER_QUEUE_(OS/PER)_POOLSIZE macros.
    (Look in ee/gs/include/gsInit.h)
 
@@ -81,6 +82,9 @@
    are also queued into the drawbuffer in a future version.
 
  - By default gsKit's active drawbuffer is Oneshot.
+
+ - You can specify some external libraries in Makefile.pref
+   (just uncomment what you need)
 
  Feedback & Questions
  -----------------------------------------------------------------------

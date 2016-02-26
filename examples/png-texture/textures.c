@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 
 	GSTEXTURE Tex1;
+	Tex1.Width = 0;
+	Tex1.Height = 0;
 	int x = 0, y = 0;
 
 #ifdef HAVE_LIBPNG
