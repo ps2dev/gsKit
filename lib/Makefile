@@ -16,9 +16,9 @@ clean:
 	rm -f libdmakit.a
 	rm -f libgskit_toolkit.a
 
-install:
-	mkdir -p $(GSKIT)/lib
-	cp libgskit.a libdmakit.a libgskit_toolkit.a $(GSKIT)/lib
+install: all
+	mkdir -p $(DESTDIR)$(GSKIT)/lib
+	cp libgskit.a libdmakit.a libgskit_toolkit.a $(DESTDIR)$(GSKIT)/lib
 
 include ../Makefile.global
 include ../Makefile.pref

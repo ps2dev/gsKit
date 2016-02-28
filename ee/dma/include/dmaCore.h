@@ -52,7 +52,7 @@
 #define DMA_CALL        0x5
 #define DMA_RET         0x6
 #define DMA_END         0x7
-        
+     
 #define DMA_TAG(QWC,PCE,ID,IRQ,ADDR,SPR) ( \
         ((u64)(QWC)  <<  0) | ((u64)(PCE) << 26) | \
         ((u64)(ID)   << 28) | ((u64)(IRQ) << 31) | \
@@ -76,7 +76,7 @@ int dmaKit_wait(u16 channel, u32 timeout);
 void dmaKit_wait_fast(void);
 
 /// DMA Send Routine
-/// Standard DMA send routine. 
+/// Standard DMA send routine.
 void dmaKit_send(u16 channel, void *data, u32 size);
 
 /// DMA UCAB Send Routine
@@ -95,7 +95,7 @@ void dmaKit_send_chain(u16 channel, void *data, u32 size);
 /// Sends data which has been written to RAM using UCAB over the DMAC using a DMA Chain.
 void dmaKit_send_chain_ucab(u16 channel, void *data);
 
-/// DMA Chain Scratchpad Send 
+/// DMA Chain Scratchpad Send
 /// Sends data over the DMAC using a DMA Chain via the scratchpad.
 void dmaKit_send_chain_spr(u16 channel, void *data);
 

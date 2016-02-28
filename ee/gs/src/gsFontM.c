@@ -507,7 +507,7 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
                 gsKit_texture_send_inline(gsGlobal, (void *)aligned, gsFontM->Texture->Width, gsFontM->Texture->Height, gsFontM->Texture->Vram, GS_PSM_T4, gsFontM->Texture->TBW, GS_CLUT_NONE);
                 //gsKit_texture_send_inline(gsGlobal, (void *)aligned, gsFontM->Texture->Width, gsFontM->Texture->Height, gsFontM->Texture->Vram, GS_PSM_T4, gsFontM->Texture->TBW, GS_CLUT_NONE);
                 gsFontM->LastPage[gsFontM->VramIdx] = aligned;
-                gsFontM->VramIdx = (++gsFontM->VramIdx) % GS_FONTM_PAGE_COUNT;
+                gsFontM->VramIdx = (gsFontM->VramIdx + 1) % GS_FONTM_PAGE_COUNT;
             }
 
             gsKit_prim_sprite_texture(gsGlobal, gsFontM->Texture, posx[curline], posy, uoffset, voffset,

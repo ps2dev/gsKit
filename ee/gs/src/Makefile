@@ -17,7 +17,7 @@ EE_OBJS = 	gsCore.o \
 		gsTexture.o \
 		gsVU1.o
 
-EE_CFLAGS += -O2
+EE_CFLAGS += -Wno-unused -O2
 
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBGSKIT) $(EE_OBJS)
@@ -25,7 +25,7 @@ all: $(EE_OBJS)
 clean:
 	rm -f $(EE_OBJS)
 
-install:
+install: all
 
 include ../../../Makefile.pref
 include ../../../Makefile.global
