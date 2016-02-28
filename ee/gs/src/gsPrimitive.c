@@ -100,7 +100,7 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 
 	*p_data++ = color1;
 	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
-	
+
 	*p_data++ = color2;
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 }

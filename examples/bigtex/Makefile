@@ -23,7 +23,7 @@ reset: clean
 clean:
 	rm -f $(EE_OBJS) $(EE_BIN)
 
-install:
+install: all
 
 include ../../Makefile.pref
 include ../Makefile.global

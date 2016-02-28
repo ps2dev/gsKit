@@ -13,9 +13,9 @@ all:
 
 clean:
 
-install:
-	mkdir -p $(GSKIT)/include
-	cp *.h $(GSKIT)/include
+install: all
+	mkdir -p $(DESTDIR)$(GSKIT)/include
+	cp *.h $(DESTDIR)$(GSKIT)/include
 
 include ../../../Makefile.global
 include ../../../Makefile.pref

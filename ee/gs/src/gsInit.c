@@ -162,7 +162,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	u64	*p_store;
 	int	size = 18;
 
-	if((gsGlobal->Dithering == GS_SETTING_ON) && 
+	if((gsGlobal->Dithering == GS_SETTING_ON) &&
 	   ((gsGlobal->PSM == GS_PSM_CT16) || (gsGlobal->PSM == GS_PSM_CT16S)))
 		size = 19;
 

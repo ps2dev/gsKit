@@ -38,7 +38,7 @@ int dmaKit_wait(u16 channel, u32 timeout)
 	#ifdef GSKIT_DEBUG
 	printf("DMA Channel %i - %s is now clear.\n",channel, DMA_NAME[channel]);
 	#endif
-	
+
 	return 0;
 }
 
@@ -91,7 +91,7 @@ void dmaKit_send_ucab(u16 channel, void *data, u32 size)
 
         if(DMA_QWC[channel])
                 *(volatile u32 *)DMA_QWC[channel] = size;
-        *(volatile u32 *)DMA_MADR[channel] = DMA_SET_MADR((u32)data - 0x30000000, 0); 
+        *(volatile u32 *)DMA_MADR[channel] = DMA_SET_MADR((u32)data - 0x30000000, 0);
         *(volatile u32 *)DMA_CHCR[channel] = DMA_SET_CHCR(1,    // Direction
                                                           0,    // ChainMode
                                                           0,    // Address Stack Pointer

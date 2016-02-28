@@ -40,11 +40,11 @@ void *dmaKit_spr_alloc(int size)
 	printf("Allocating Scratchpad Memory\n");
 	#endif
 	if( (u32)DMA_SPR + size >= 0x70004000)
-		DMA_SPR = (void*)SPR_START;   
+		DMA_SPR = (void*)SPR_START;
 
 	p_spr = DMA_SPR;
 	DMA_SPR += size;
-         
+      
 	#ifdef GSKIT_DEBUG
 	printf("Scratchpad Memory Allocated\n");
 	#endif

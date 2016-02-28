@@ -17,7 +17,7 @@ ifeq (x$(GSKITSRC), x)
 GSKITSRC=`pwd`
 endif
 
-SUBDIRS = ee examples lib
+SUBDIRS = ee lib examples
 
 all:
 	@$(ECHO) ' ';

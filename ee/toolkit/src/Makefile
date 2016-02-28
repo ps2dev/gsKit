@@ -19,7 +19,7 @@ all: $(EE_OBJS)
 clean:
 	rm -f $(EE_OBJS)
 
-install:
+install: all
 
 include ../../../Makefile.pref
 include ../Makefile.global
