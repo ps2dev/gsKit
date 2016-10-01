@@ -63,14 +63,14 @@
 /// Use simple filtering (nearest neighbor)
 #define GS_FILTER_NEAREST 0x00
 /// Use bilinear filter on texture
-#define GS_FILTER_LINEAR  0x01
+#define GS_FILTER_LINEAR 0x01
 
 /// Basic X/Y/Z Vertex Structure
 struct gsVertex
 {
-	s32 x __attribute__ ((packed));
-	s32 y __attribute__ ((packed));
-	s32 z __attribute__ ((packed));
+    s32 x __attribute__((packed));
+    s32 y __attribute__((packed));
+    s32 z __attribute__((packed));
 };
 typedef struct gsVertex GSVERTEX;
 

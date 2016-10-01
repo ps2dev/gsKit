@@ -16,45 +16,45 @@
 
 struct gsBitMapFileHeader
 {
-	u16	Type;
-	u32	Size;
-	u16 Reserved1;
-	u16 Reserved2;
-	u32 Offset;
-} __attribute__ ((packed));
+    u16 Type;
+    u32 Size;
+    u16 Reserved1;
+    u16 Reserved2;
+    u32 Offset;
+} __attribute__((packed));
 typedef struct gsBitMapFileHeader GSBMFHDR;
 
 struct gsBitMapInfoHeader
 {
-	u32	Size;
-	u32	Width;
-	u32	Height;
-	u16	Planes;
-	u16 BitCount;
-	u32 Compression;
-	u32 SizeImage;
-	u32 XPelsPerMeter;
-	u32 YPelsPerMeter;
-	u32 ColorUsed;
-	u32 ColorImportant;
-} __attribute__ ((packed));
+    u32 Size;
+    u32 Width;
+    u32 Height;
+    u16 Planes;
+    u16 BitCount;
+    u32 Compression;
+    u32 SizeImage;
+    u32 XPelsPerMeter;
+    u32 YPelsPerMeter;
+    u32 ColorUsed;
+    u32 ColorImportant;
+} __attribute__((packed));
 typedef struct gsBitMapInfoHeader GSBMIHDR;
 
 struct gsBitMapClut
 {
-	u8 Blue;
-	u8 Green;
-	u8 Red;
-	u8 Alpha;
-} __attribute__ ((packed));
+    u8 Blue;
+    u8 Green;
+    u8 Red;
+    u8 Alpha;
+} __attribute__((packed));
 typedef struct gsBitMapClut GSBMCLUT;
 
 struct gsBitmap
 {
-	GSBMFHDR FileHeader;
-	GSBMIHDR InfoHeader;
-	char *Texture;
-	GSBMCLUT *Clut;
+    GSBMFHDR FileHeader;
+    GSBMIHDR InfoHeader;
+    char *Texture;
+    GSBMCLUT *Clut;
 };
 typedef struct gsBitmap GSBITMAP;
 
@@ -68,18 +68,18 @@ typedef struct gsBitmap GSBITMAP;
 /// given font object, regardless of original format or type.
 struct gsFont
 {
-	char *Path;		///< Path (string) to the Font File
-	char *Path_DAT;		///< Path (string) to the Glyph DAT File
-	u8 Type;		///< Font Type
-	u8 *RawData;		///< Raw File Data
-	int RawSize;		///< Raw File Datasize
-	GSTEXTURE *Texture;	///< Font Texture Object
-	u32 CharWidth;		///< Character Width
-	u32 CharHeight;		///< Character Height
-	u32 HChars;		///< Character Rows
-	u32 VChars;		///< Character Columns
-	s16 *Additional;		///< Additional Font Data
-    int pgcount;    /// Number of pages used in one call to gsKit_font_print_scaled
+    char *Path;          ///< Path (string) to the Font File
+    char *Path_DAT;      ///< Path (string) to the Glyph DAT File
+    u8 Type;             ///< Font Type
+    u8 *RawData;         ///< Raw File Data
+    int RawSize;         ///< Raw File Datasize
+    GSTEXTURE *Texture;  ///< Font Texture Object
+    u32 CharWidth;       ///< Character Width
+    u32 CharHeight;      ///< Character Height
+    u32 HChars;          ///< Character Rows
+    u32 VChars;          ///< Character Columns
+    s16 *Additional;     ///< Additional Font Data
+    int pgcount;         /// Number of pages used in one call to gsKit_font_print_scaled
 };
 typedef struct gsFont GSFONT;
 
@@ -105,10 +105,10 @@ int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont);
 
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
-		      float scale, unsigned long color, const char *String);
+                             float scale, unsigned long color, const char *String);
 
 #define gsKit_font_print(gsGlobal, gsFont, X, Y, Z, color, String) \
-	gsKit_font_print_scaled(gsGlobal, gsFont, X, Y, Z, 1.0f, color, String);
+    gsKit_font_print_scaled(gsGlobal, gsFont, X, Y, Z, 1.0f, color, String);
 
 #ifdef __cplusplus
 }
