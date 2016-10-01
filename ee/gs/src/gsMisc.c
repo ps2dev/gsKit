@@ -13,22 +13,19 @@
 
 void gsKit_setup_tbw(GSTEXTURE *Texture)
 {
-	if(Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4)
-	{
-		Texture->TBW = (-GS_VRAM_TBWALIGN_CLUT)&(Texture->Width+GS_VRAM_TBWALIGN_CLUT-1);
-		if(Texture->TBW / 64 > 0)
-			Texture->TBW = (Texture->TBW / 64);
-		else
-			Texture->TBW = 1;
-	}
-	else
-	{
-		Texture->TBW = (-GS_VRAM_TBWALIGN)&(Texture->Width+GS_VRAM_TBWALIGN-1);
-		if(Texture->TBW / 64 > 0)
-			Texture->TBW = (Texture->TBW / 64);
-		else
-			Texture->TBW = 1;
-	}
+    if (Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4) {
+        Texture->TBW = (-GS_VRAM_TBWALIGN_CLUT) & (Texture->Width + GS_VRAM_TBWALIGN_CLUT - 1);
+        if (Texture->TBW / 64 > 0)
+            Texture->TBW = (Texture->TBW / 64);
+        else
+            Texture->TBW = 1;
+    } else {
+        Texture->TBW = (-GS_VRAM_TBWALIGN) & (Texture->Width + GS_VRAM_TBWALIGN - 1);
+        if (Texture->TBW / 64 > 0)
+            Texture->TBW = (Texture->TBW / 64);
+        else
+            Texture->TBW = 1;
+    }
 }
 
 void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)

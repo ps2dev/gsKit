@@ -42,32 +42,32 @@
 #define D_CTRL_RCYC_128 0x4
 #define D_CTRL_RCYC_256 0x5
 
-#define DMA_REG_CTRL	(volatile u32 *)0x1000E000
-#define DMA_REG_STAT	(volatile u32 *)0x1000E010
-#define DMA_REG_PCR	(volatile u32 *)0x1000E020
-#define DMA_REG_SQWC	(volatile u32 *)0x1000E030
-#define DMA_REG_RBSR	(volatile u32 *)0x1000E040
-#define DMA_REG_RBOR	(volatile u32 *)0x1000E050
+#define DMA_REG_CTRL (volatile u32 *)0x1000E000
+#define DMA_REG_STAT (volatile u32 *)0x1000E010
+#define DMA_REG_PCR (volatile u32 *)0x1000E020
+#define DMA_REG_SQWC (volatile u32 *)0x1000E030
+#define DMA_REG_RBSR (volatile u32 *)0x1000E040
+#define DMA_REG_RBOR (volatile u32 *)0x1000E050
 
 #define DMA_SET_CIS(A) *DMA_REG_STAT = (u32)(A)
 #define DMA_SET_CIM(A) *DMA_REG_STAT = (u32)((A) << 16)
 #define DMA_SET_CPCOND(A) *DMA_REG_PCR = (u32)(A)
 
-#define DMA_CHANNEL_VIF0	0x0
-#define DMA_CHANNEL_VIF1	0x1
-#define DMA_CHANNEL_GIF		0x2
-#define DMA_CHANNEL_FROMIPU	0x3
-#define DMA_CHANNEL_TOIPU	0x4
-#define DMA_CHANNEL_SIF0	0x5
-#define DMA_CHANNEL_SIF1	0x6
-#define DMA_CHANNEL_SIF2	0x7
-#define DMA_CHANNEL_FROMSPR	0x8
-#define DMA_CHANNEL_TOSPR	0x9
+#define DMA_CHANNEL_VIF0 0x0
+#define DMA_CHANNEL_VIF1 0x1
+#define DMA_CHANNEL_GIF 0x2
+#define DMA_CHANNEL_FROMIPU 0x3
+#define DMA_CHANNEL_TOIPU 0x4
+#define DMA_CHANNEL_SIF0 0x5
+#define DMA_CHANNEL_SIF1 0x6
+#define DMA_CHANNEL_SIF2 0x7
+#define DMA_CHANNEL_FROMSPR 0x8
+#define DMA_CHANNEL_TOSPR 0x9
 
-#define DMA_SET_CTRL(A,B,C,D,E,F) \
-    (u32)(A & 0x00000001) <<  0 | (u32)(B & 0x00000001) <<  1 | \
-    (u32)(C & 0x00000003) <<  2 | (u32)(D & 0x00000003) <<  4 | \
-    (u32)(E & 0x00000003) <<  6 | (u32)(F & 0x00000007) <<  8
+#define DMA_SET_CTRL(A, B, C, D, E, F)                            \
+    (u32)(A & 0x00000001) << 0 | (u32)(B & 0x00000001) << 1 |     \
+        (u32)(C & 0x00000003) << 2 | (u32)(D & 0x00000003) << 4 | \
+        (u32)(E & 0x00000003) << 6 | (u32)(F & 0x00000007) << 8
 
 #ifdef __cplusplus
 extern "C" {

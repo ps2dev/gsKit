@@ -24,35 +24,35 @@
 #define ALPHA_DST 1
 #define ALPHA_ZERO 2
 #define ALPHA_FIX 2
-#define ALPHA(A,B,C,D,FIX) ( (((u64)(A))&3) | ((((u64)(B))&3)<<2) | ((((u64)(C))&3)<<4) | ((((u64)(D))&3)<<6) | ((((u64)(FIX)))<<32UL) )//(A - B)*C >> 7 + D
+#define ALPHA(A, B, C, D, FIX) ((((u64)(A)) & 3) | ((((u64)(B)) & 3) << 2) | ((((u64)(C)) & 3) << 4) | ((((u64)(D)) & 3) << 6) | ((((u64)(FIX))) << 32UL))  //(A - B)*C >> 7 + D
 
-#define ALPHA_BLEND_NORMAL (ALPHA(ALPHA_SRC,ALPHA_DST,ALPHA_SRC,ALPHA_DST,0x00))
-#define ALPHA_BLEND_ADD_NOALPHA    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_FIX,ALPHA_DST,0x80))
-#define ALPHA_BLEND_ADD    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_SRC,ALPHA_DST,0x00))
+#define ALPHA_BLEND_NORMAL (ALPHA(ALPHA_SRC, ALPHA_DST, ALPHA_SRC, ALPHA_DST, 0x00))
+#define ALPHA_BLEND_ADD_NOALPHA (ALPHA(ALPHA_SRC, ALPHA_ZERO, ALPHA_FIX, ALPHA_DST, 0x80))
+#define ALPHA_BLEND_ADD (ALPHA(ALPHA_SRC, ALPHA_ZERO, ALPHA_SRC, ALPHA_DST, 0x00))
 
 #define GS_FONTM_PAGE_COUNT 2
 
 struct gsKit_fontm_unpack
 {
-	u32	size;
-	u32	data;
-	u32	ande;
-	u32	dif;
-	u32	shft;
-	u8	*ptr;
+    u32 size;
+    u32 data;
+    u32 ande;
+    u32 dif;
+    u32 shft;
+    u8 *ptr;
 };
 
 /// gsKit FONTM Header Structure
 /// This stores the vital data for unpacked FONTM glyphsets.
 struct gsKit_fontm_header
 {
-	u32	sig;
-	u32	version;
-	u32	bitsize;
-	u32	baseoffset;
-	u32	num_entries;
-	u32	eof;
-	u32	*offset_table;
+    u32 sig;
+    u32 version;
+    u32 bitsize;
+    u32 baseoffset;
+    u32 num_entries;
+    u32 eof;
+    u32 *offset_table;
 };
 typedef struct gsKit_fontm_header GSFONTMHDR;
 
@@ -61,15 +61,15 @@ typedef struct gsKit_fontm_header GSFONTMHDR;
 /// given font object, regardless of original format or type.
 struct gsFontM
 {
-	GSTEXTURE *Texture;     ///< Font Texture Object
-	GSFONTMHDR Header;      ///< FONTM Header
-	u32 Vram[GS_FONTM_PAGE_COUNT];	///< FONTM VRAM Allocation (Double Buffered)
-	u32 VramIdx;            ///< FONTM Current Double Buffer Index
-	u32 LastPage[GS_FONTM_PAGE_COUNT];	///< FONTM Last Uploaded Texture Page
-	u8 Align;               ///< FONTM Line Alignment
-	float Spacing;          ///< FONTM Glyph Spacing
-	void *TexBase;          ///< Glyphs Texture Base
-    int pgcount;            /// Number of pages used in one call to gsKit_font_print_scaled
+    GSTEXTURE *Texture;                 ///< Font Texture Object
+    GSFONTMHDR Header;                  ///< FONTM Header
+    u32 Vram[GS_FONTM_PAGE_COUNT];      ///< FONTM VRAM Allocation (Double Buffered)
+    u32 VramIdx;                        ///< FONTM Current Double Buffer Index
+    u32 LastPage[GS_FONTM_PAGE_COUNT];  ///< FONTM Last Uploaded Texture Page
+    u8 Align;                           ///< FONTM Line Alignment
+    float Spacing;                      ///< FONTM Glyph Spacing
+    void *TexBase;                      ///< Glyphs Texture Base
+    int pgcount;                        /// Number of pages used in one call to gsKit_font_print_scaled
 };
 typedef struct gsFontM GSFONTM;
 
@@ -86,10 +86,10 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM);
 void gsKit_fontm_unpack_raw(u8 *base, struct gsKit_fontm_unpack *oke);
 void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke);
 void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, float Y, int Z,
-		      float scale, unsigned long color, const char *String);
+                              float scale, unsigned long color, const char *String);
 
 #define gsKit_fontm_print(gsGlobal, gsFontM, X, Y, Z, color, String) \
-	gsKit_fontm_print_scaled(gsGlobal, gsFontM, X, Y, Z, 1.0f, color, String);
+    gsKit_fontm_print_scaled(gsGlobal, gsFontM, X, Y, Z, 1.0f, color, String);
 
 #ifdef __cplusplus
 }

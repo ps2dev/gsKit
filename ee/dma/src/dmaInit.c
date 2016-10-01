@@ -16,63 +16,60 @@
 #include <kernel.h>
 
 int dmaKit_init(u32 RELE, u32 MFD, u32 STS,
-		u32 STD, u32 RCYC, u16 fastwaitchannels)
+                u32 STD, u32 RCYC, u16 fastwaitchannels)
 {
-	#ifdef GSKIT_DEBUG
-	printf("Initializing the DMAC: RELE=%i MFD=%i STS=%i STD=%i RCYC=%i\n",
-		RELE, MFD, STS, STD, RCYC);
-	#endif
+#ifdef GSKIT_DEBUG
+    printf("Initializing the DMAC: RELE=%i MFD=%i STS=%i STD=%i RCYC=%i\n",
+           RELE, MFD, STS, STD, RCYC);
+#endif
 
-	*DMA_REG_CTRL = 0x00000000;
-	*DMA_REG_PCR  = 0x00000000;
-	*DMA_REG_SQWC = 0x00000000;
-	*DMA_REG_RBSR = 0x00000000;
-	*DMA_REG_RBOR = 0x00000000;
+    *DMA_REG_CTRL = 0x00000000;
+    *DMA_REG_PCR = 0x00000000;
+    *DMA_REG_SQWC = 0x00000000;
+    *DMA_REG_RBSR = 0x00000000;
+    *DMA_REG_RBOR = 0x00000000;
 
-	*DMA_REG_CTRL = DMA_SET_CTRL(1, RELE, MFD, STS, STD, RCYC);
+    *DMA_REG_CTRL = DMA_SET_CTRL(1, RELE, MFD, STS, STD, RCYC);
 
-	DMA_SET_CPCOND(fastwaitchannels);
+    DMA_SET_CPCOND(fastwaitchannels);
 
-	#ifdef GSKIT_DEBUG
-	printf("DMAC Initialized.\n");
-	#endif
+#ifdef GSKIT_DEBUG
+    printf("DMAC Initialized.\n");
+#endif
 
-	return 0;
+    return 0;
 }
 
 int dmaKit_chan_init(u32 channel)
 {
-	if(channel >= 0 && channel <= 9)
-	{
-		#ifdef GSKIT_DEBUG
-		printf("Initilizating DMA Channel %i - %s\n",channel, DMA_NAME[channel]);
-		#endif
+    if (channel >= 0 && channel <= 9) {
+#ifdef GSKIT_DEBUG
+        printf("Initilizating DMA Channel %i - %s\n", channel, DMA_NAME[channel]);
+#endif
 
-		*(volatile u32 *)DMA_CHCR[channel] = 0x00000000;
-		*(volatile u32 *)DMA_MADR[channel] = 0x00000000;
-		if(DMA_SIZE[channel] > 0)
-			*(volatile u32 *)DMA_SIZE[channel] = 0x00000000;
-		if(DMA_TADR[channel] > 0)
-			*(volatile u32 *)DMA_TADR[channel] = 0x00000000;
-		if(DMA_ASR0[channel] > 0)
-			*(volatile u32 *)DMA_ASR0[channel] = 0x00000000;
-		if(DMA_ASR1[channel] > 0)
-			*(volatile u32 *)DMA_ASR1[channel] = 0x00000000;
-		if(DMA_SADR[channel] > 0)
-			*(volatile u32 *)DMA_SADR[channel] = 0x00000000;
-		if(DMA_QWC[channel] > 0)
-			*(volatile u32 *)DMA_QWC[channel]  = 0x00000000;
-	}
-	else
-	{
-		printf("Invalid DMA Channel Specified: %i\n",channel);
-		printf("Failed to Initialize DMA Channel.\n");
-		return -1;
-	}
+        *(volatile u32 *)DMA_CHCR[channel] = 0x00000000;
+        *(volatile u32 *)DMA_MADR[channel] = 0x00000000;
+        if (DMA_SIZE[channel] > 0)
+            *(volatile u32 *)DMA_SIZE[channel] = 0x00000000;
+        if (DMA_TADR[channel] > 0)
+            *(volatile u32 *)DMA_TADR[channel] = 0x00000000;
+        if (DMA_ASR0[channel] > 0)
+            *(volatile u32 *)DMA_ASR0[channel] = 0x00000000;
+        if (DMA_ASR1[channel] > 0)
+            *(volatile u32 *)DMA_ASR1[channel] = 0x00000000;
+        if (DMA_SADR[channel] > 0)
+            *(volatile u32 *)DMA_SADR[channel] = 0x00000000;
+        if (DMA_QWC[channel] > 0)
+            *(volatile u32 *)DMA_QWC[channel] = 0x00000000;
+    } else {
+        printf("Invalid DMA Channel Specified: %i\n", channel);
+        printf("Failed to Initialize DMA Channel.\n");
+        return -1;
+    }
 
-	#ifdef GSKIT_DEBUG
-	printf("DMA Channel Initialized.\n");
-	#endif
+#ifdef GSKIT_DEBUG
+    printf("DMA Channel Initialized.\n");
+#endif
 
-	return 0;
+    return 0;
 }
