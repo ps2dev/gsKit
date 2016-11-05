@@ -704,6 +704,13 @@
         ((u64)(SLBG)	<< 7)	| \
         ((u64)(ALP)     << 8)
 
+/// Setting For Modes Related to Video Synchronization
+#define GS_SET_SMODE2(INT, FFMD, DPMS) \
+	*GS_SMODE2 = \
+	((u64)(INT)     << 0)   | \
+	((u64)(FFMD)    << 1)   | \
+	((u64)(DPMS)    << 2)
+
 /// GS PCRTC (Merge Circuit) Register Access Macro (Extended for EXTBUF External Digital In)
 #define GS_SET_PMODE_EXT(EN1,EN2,CRTMD,MMOD,AMOD,SLBG,ALP, NFLD, EXVWINS, EXVWINE, EVSYNCMD) \
         *GS_PMODE = \

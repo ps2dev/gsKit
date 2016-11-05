@@ -197,6 +197,10 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
+	// Fix 1080i frame mode
+	if ((gsGlobal->Mode == GS_MODE_DTV_1080I) && (gsGlobal->Field == GS_FRAME))
+		GS_SET_SMODE2(1, 1, 0);
+
 	gsGlobal->FirstFrame = GS_SETTING_ON;
 
 	if(gsGlobal->ZBuffering == GS_SETTING_OFF)
