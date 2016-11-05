@@ -93,6 +93,8 @@
 
 /// DTV 480 Progressive Scan (720x480)
 #define GS_MODE_DTV_480P  0x50
+/// DTV 576 Progressive Scan (720x576)
+#define GS_MODE_DTV_576P  0x53
 /// DTV 1080 Interlaced (1920x1080)
 #define GS_MODE_DTV_1080I 0x51
 /// DTV 720 Progressive Scan (1280x720)

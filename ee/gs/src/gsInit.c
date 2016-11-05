@@ -132,6 +132,12 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->DW = 1440;
 			gsGlobal->DH = 480; // though rare there are tv's that can handle an interlaced 480p source
 			break;
+		case GS_MODE_DTV_576P:
+			gsGlobal->StartX = 255;
+			gsGlobal->StartY = 44;
+			gsGlobal->DW = 1440;
+			gsGlobal->DH = 576;
+			break;
 		case GS_MODE_DTV_720P:
 			gsGlobal->StartX = 420;
 			gsGlobal->StartY = 40;
