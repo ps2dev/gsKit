@@ -391,6 +391,8 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Per_Queue = calloc(1,sizeof(GSQUEUE));
 	gsGlobal->dma_misc = (u64 *)((u32)memalign(64, 512) | 0x30000000);
 
+	FlushCache(0);
+
 	/* Generic Values */
 	if(configGetTvScreenType() == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
     else
