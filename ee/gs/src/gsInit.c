@@ -35,16 +35,16 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
 	switch (gsGlobal->Mode) {
 		case GS_MODE_NTSC:
-			gsGlobal->StartX = 652;
-			gsGlobal->StartY = 50;
-			gsGlobal->DW = 2560;
-			gsGlobal->DH = 448;
+			gsGlobal->StartX = 492;
+			gsGlobal->StartY = 34;
+			gsGlobal->DW = 2880;
+			gsGlobal->DH = 480;
 			break;
 		case GS_MODE_PAL:
-			gsGlobal->StartX = 680;
-			gsGlobal->StartY = 72;
-			gsGlobal->DW = 2560;
-			gsGlobal->DH = 512;
+			gsGlobal->StartX = 520;
+			gsGlobal->StartY = 40;
+			gsGlobal->DW = 2880;
+			gsGlobal->DH = 576;
 			break;
 		case GS_MODE_VGA_640_60:
 			gsGlobal->StartX = 280;
@@ -154,6 +154,14 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 
 	gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
 	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
+
+	// Keep the framebuffer in the center of the screen
+	gsGlobal->StartX += (gsGlobal->DW - ((gsGlobal->MagH + 1) * gsGlobal->Width )) / 2;
+	gsGlobal->StartY += (gsGlobal->DH - ((gsGlobal->MagV + 1) * gsGlobal->Height)) / 2;
+
+	// Calculate the actual display width and height
+	gsGlobal->DW = (gsGlobal->MagH + 1) * gsGlobal->Width;
+	gsGlobal->DH = (gsGlobal->MagV + 1) * gsGlobal->Height;
 
 	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
 		gsGlobal->MagV--;
