@@ -168,6 +168,23 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 	}
 }
 
+void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
+{
+	GS_SET_DISPLAY1(gsGlobal->StartX+x,		// X position in the display area (in VCK unit
+			gsGlobal->StartY+y,		// Y position in the display area (in Raster u
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+
+	GS_SET_DISPLAY2(gsGlobal->StartX+x,		// X position in the display area (in VCK units)
+			gsGlobal->StartY+y,		// Y position in the display area (in Raster units)
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+}
+
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;

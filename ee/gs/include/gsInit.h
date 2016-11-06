@@ -1067,6 +1067,8 @@ extern "C" {
 short int gsKit_detect_signal();
 /// Initialize Screen and GS Registers
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
+/// Position the framebuffer onto the display
+void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y);
 /// Initialize gsGlobal (With Specified Sizes (In Bytes) for the Persistent and Oneshot drawbuffers)
 //GSGLOBAL *gsKit_init_global_custom(u8 mode, int Os_AllocSize, int Per_AllocSize);
 GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize);
