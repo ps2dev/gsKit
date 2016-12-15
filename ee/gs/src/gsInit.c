@@ -35,16 +35,16 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
 	switch (gsGlobal->Mode) {
 		case GS_MODE_NTSC:
-			gsGlobal->StartX = 652;
-			gsGlobal->StartY = 26;
-			gsGlobal->DW = 2560;
-			gsGlobal->DH = 224;
+			gsGlobal->StartX = 492;
+			gsGlobal->StartY = 34;
+			gsGlobal->DW = 2880;
+			gsGlobal->DH = 480;
 			break;
 		case GS_MODE_PAL:
-			gsGlobal->StartX = 680;
-			gsGlobal->StartY = 37;
-			gsGlobal->DW = 2560;
-			gsGlobal->DH = 256;
+			gsGlobal->StartX = 520;
+			gsGlobal->StartY = 40;
+			gsGlobal->DW = 2880;
+			gsGlobal->DH = 576;
 			break;
 		case GS_MODE_VGA_640_60:
 			gsGlobal->StartX = 280;
@@ -132,6 +132,12 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->DW = 1440;
 			gsGlobal->DH = 480; // though rare there are tv's that can handle an interlaced 480p source
 			break;
+		case GS_MODE_DTV_576P:
+			gsGlobal->StartX = 255;
+			gsGlobal->StartY = 44;
+			gsGlobal->DW = 1440;
+			gsGlobal->DH = 576;
+			break;
 		case GS_MODE_DTV_720P:
 			gsGlobal->StartX = 420;
 			gsGlobal->StartY = 40;
@@ -140,20 +146,43 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			break;
 		case GS_MODE_DTV_1080I:
 			gsGlobal->StartX = 300;
-			gsGlobal->StartY = 120;
+			gsGlobal->StartY = 238;
 			gsGlobal->DW = 1920;
-			gsGlobal->DH = 540;
+			gsGlobal->DH = 1080;
 			break;
-	}
-
-	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FIELD)) {
-		gsGlobal->DH *= 2;
-		gsGlobal->StartY = (gsGlobal->StartY - 1) * 2;
 	}
 
 	gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
 	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
 
+	// Keep the framebuffer in the center of the screen
+	gsGlobal->StartX += (gsGlobal->DW - ((gsGlobal->MagH + 1) * gsGlobal->Width )) / 2;
+	gsGlobal->StartY += (gsGlobal->DH - ((gsGlobal->MagV + 1) * gsGlobal->Height)) / 2;
+
+	// Calculate the actual display width and height
+	gsGlobal->DW = (gsGlobal->MagH + 1) * gsGlobal->Width;
+	gsGlobal->DH = (gsGlobal->MagV + 1) * gsGlobal->Height;
+
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
+		gsGlobal->MagV--;
+	}
+}
+
+void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
+{
+	GS_SET_DISPLAY1(gsGlobal->StartX+x,		// X position in the display area (in VCK unit
+			gsGlobal->StartY+y,		// Y position in the display area (in Raster u
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+
+	GS_SET_DISPLAY2(gsGlobal->StartX+x,		// X position in the display area (in VCK units)
+			gsGlobal->StartY+y,		// Y position in the display area (in Raster units)
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
 }
 
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
@@ -190,6 +219,10 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
     GsPutIMR(0x0000F700); // Unmasks all of the GS interrupts
 
 	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
+
+	// Fix 1080i frame mode
+	if ((gsGlobal->Mode == GS_MODE_DTV_1080I) && (gsGlobal->Field == GS_FRAME))
+		GS_SET_SMODE2(1, 1, 0);
 
 	gsGlobal->FirstFrame = GS_SETTING_ON;
 
