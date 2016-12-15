@@ -1063,6 +1063,10 @@ typedef struct gsRegisters GSREG;
 extern "C" {
 #endif
 
+/// Checks the console's capabilities based on the ROM version (returns default video format: GS_MODE_NTSC or GS_MODE_PAL)
+short int gsKit_check_rom(void);
+/// Detect signal (returns GS_MODE_NTSC or GS_MODE_PAL)
+#define gsKit_detect_signal() gsKit_check_rom()
 /// Initialize Screen and GS Registers
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 /// Position the framebuffer onto the display

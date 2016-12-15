@@ -19,7 +19,7 @@
 
 static u8 modelSupportsGetGsDxDyOffset;
 
-static short int gsKit_check_rom(void)
+short int gsKit_check_rom(void)
 {
 	static int default_signal = -1;
 	char romname[15];
