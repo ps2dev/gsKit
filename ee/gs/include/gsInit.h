@@ -1063,8 +1063,6 @@ typedef struct gsRegisters GSREG;
 extern "C" {
 #endif
 
-/// Detect signal (returns GS_MODE_NTSC or GS_MODE_PAL)
-short int gsKit_detect_signal();
 /// Initialize Screen and GS Registers
 void gsKit_init_screen(GSGLOBAL *gsGlobal);
 /// Position the framebuffer onto the display

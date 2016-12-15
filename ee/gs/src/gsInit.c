@@ -17,22 +17,30 @@
 #include <kernel.h>
 #include <osd_config.h>
 
-short int gsKit_detect_signal(void)
+static u8 modelSupportsGetGsDxDyOffset;
+
+static short int gsKit_check_rom(void)
 {
-	char romname[14];
+	static int default_signal = -1;
+	char romname[15];
 
-	GetRomName((char *)romname);
+	if(default_signal < 0)
+	{
+		GetRomName((char *)romname);
+		romname[14] = '\0';
 
-	if (romname[4] == 'E') {
-		return GS_MODE_PAL;
+		//ROMVER string format: VVVVRTYYYYMMDD
+		default_signal = (romname[4] == 'E') ? GS_MODE_PAL : GS_MODE_NTSC;
+		modelSupportsGetGsDxDyOffset = (20010608 < atoi(&romname[6]));
 	}
-	else {
-		return GS_MODE_NTSC;
-	}
+
+	return default_signal;
 }
 
 void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
+	int gs_DX, gs_DY, gs_DW, gs_DH;
+
 	switch (gsGlobal->Mode) {
 		case GS_MODE_NTSC:
 			gsGlobal->StartX = 492;
@@ -154,6 +162,18 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 
 	gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
 	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
+
+	// For other video modes, other than NTSC and PAL: if this model supports the GetGsDxDy syscall, get the board-specific offsets.
+	if(gsGlobal->Mode != GS_MODE_NTSC && gsGlobal->Mode != GS_MODE_PAL)
+	{
+		gsKit_check_rom();
+		if(modelSupportsGetGsDxDyOffset)
+		{
+			_GetGsDxDyOffset(gsGlobal->Mode, &gs_DX, &gs_DY, &gs_DW, &gs_DH);
+			gsGlobal->StartX += gs_DX;
+			gsGlobal->StartY += gs_DY;
+		}
+	}
 
 	// Keep the framebuffer in the center of the screen
 	gsGlobal->StartX += (gsGlobal->DW - ((gsGlobal->MagH + 1) * gsGlobal->Width )) / 2;
@@ -439,7 +459,7 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
     gsGlobal->ZBuffering = GS_SETTING_ON;
 
     // Setup a mode automatically
-    gsGlobal->Mode = gsKit_detect_signal();
+    gsGlobal->Mode = gsKit_check_rom();
     gsGlobal->Interlace = GS_INTERLACED;
 	gsGlobal->Field = GS_FIELD;
     gsGlobal->Width = 640;
