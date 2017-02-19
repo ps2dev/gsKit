@@ -1,0 +1,42 @@
+language: c
+
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  ## Show things
+  - ls -l
+
+  ## Get docker images
+  - docker pull akuhak/ps2toolchain
+  - docker pull akuhak/ps2toolchain:new
+
+before_script:
+  ## Run DOCKER old
+  - docker run -d akuhak/ps2toolchain bash -c "while true; do sleep 5; done" > container_id
+  - docker exec -t $(cat container_id) bash -c "cd /; git clone https://github.com/ps2dev/ps2sdk"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk/; make --silent install"
+  - docker exec -t $(cat container_id) bash -c "cd /; git clone https://github.com/ps2dev/ps2sdk-ports/"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk-ports/zlib; make --silent install"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk-ports/libpng; make --silent install"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk-ports/libjpeg; make --silent install"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk-ports/libtiff; make --silent; make install"
+  - docker exec -t $(cat container_id) bash -c "cd /; git clone https://github.com/akuhak/gsKit"
+  ## Run DOCKER new
+  - docker run -d akuhak/ps2toolchain:new bash -c "while true; do sleep 5; done" > container_id2
+  - docker exec -t $(cat container_id2) bash -c "cd /; git clone https://github.com/akuhak/ps2sdk"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk/; git reset --hard origin/new_gcc; git checkout new_gcc"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk/; make --silent install"
+  - docker exec -t $(cat container_id2) bash -c "cd /; git clone https://github.com/sp193/ps2sdk-ports/"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk-ports/zlib; make --silent install"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk-ports/libpng; make --silent install"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk-ports/libjpeg; make --silent install"
+  - docker exec -t $(cat container_id2) bash -c "cd /ps2sdk-ports/libtiff; make --silent install"
+  - docker exec -t $(cat container_id2) bash -c "cd /; git clone https://github.com/akuhak/gsKit"
+
+script:
+  - docker exec -t $(cat container_id) bash -c "cd /gsKit/; ./setup.sh"
+  - docker exec -t $(cat container_id2) bash -c "cd /gsKit/; ./setup.sh"
+
