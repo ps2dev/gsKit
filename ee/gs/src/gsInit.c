@@ -320,7 +320,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
 
-	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0] / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
@@ -362,7 +362,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
 	*p_data++ = GS_COLCLAMP;
 
-	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1] / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
