@@ -138,6 +138,12 @@ int gsKit_add_vsync_handler(int (*vsync_callback)());
 /// Removes a vsync interrupt handler
 void gsKit_remove_vsync_handler(int callback_id);
 
+/// Installs a hsync interrupt handler (hblank_start)
+int gsKit_add_hsync_handler(int (*hsync_callback)());
+
+/// Removes a hsync interrupt handler
+void gsKit_remove_hsync_handler(int callback_id);
+
 /// Sets gsGlobal->EvenOrOdd depending on current field drawing
 void gsKit_get_field(GSGLOBAL *gsGlobal);
 
