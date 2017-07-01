@@ -502,14 +502,58 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 	gsGlobal->FirstFrame = GS_SETTING_OFF;
 }
 
+void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size)
+{
+	// Init pool 0
+	Queue->pool[0]		= (u64 *)((u32)memalign(64, size) | 0x30000000);
+	Queue->pool_max[0]	= (u64 *)((u32)Queue->pool[0] + size);
+
+	if (mode == GS_ONESHOT)
+	{
+		// Init pool 1
+		Queue->pool[1]		= (u64 *)((u32)memalign(64, size) | 0x30000000);
+		Queue->pool_max[1]	= (u64 *)((u32)Queue->pool[1] + size);
+	}
+
+	Queue->dma_tag		= Queue->pool[0];
+	Queue->pool_cur		= (u64 *)((u32)Queue->pool[0] + 16);
+	Queue->dbuf			= 0;
+	Queue->tag_size		= 0;
+	Queue->last_tag		= Queue->pool_cur;
+	Queue->last_type	= GIF_RESERVED;
+	Queue->mode			= mode;
+}
+
+void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
+{
+	if (Queue->pool[0] != NULL)
+	{
+		Queue->pool[0] = (u64 *)((u32)Queue->pool[0] ^ 0x30000000);
+		free(Queue->pool[0]);
+		Queue->pool[0] = NULL;
+	}
+
+	if (Queue->pool[1] != NULL)
+	{
+		Queue->pool[1] = (u64 *)((u32)Queue->pool[1] ^ 0x30000000);
+		free(Queue->pool[1]);
+		Queue->pool[1] = NULL;
+	}
+}
+
+void gsKit_queue_set(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
+{
+	gsGlobal->CurQueue = Queue;
+}
+
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode)
 {
 	if(mode == GS_PERSISTENT)
 	{
-		gsGlobal->CurQueue = gsGlobal->Per_Queue;
+		gsKit_queue_set(gsGlobal, gsGlobal->Per_Queue);
 	}
 	else
 	{
-		gsGlobal->CurQueue = gsGlobal->Os_Queue;
+		gsKit_queue_set(gsGlobal, gsGlobal->Os_Queue);
 	}
 }

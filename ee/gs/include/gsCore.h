@@ -206,7 +206,16 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal);
 /// Specific Draw Queue "Execution" (Kicks the Queue passed for the second argument)
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
 
-/// Switch Current Draw Queue (Between GS_ONESHOT and GS_PERSISTENT)
+/// Initialize a Draw Queue (Allocates memory for the Queue)
+void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size);
+
+/// Free Allocated Memory for Draw Queue
+void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+
+/// Set Current Draw Queue
+void gsKit_queue_set(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+
+/// Set Current Draw Queue (Between GS_ONESHOT and GS_PERSISTENT)
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode);
 
 #ifdef __cplusplus

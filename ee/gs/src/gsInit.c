@@ -474,26 +474,10 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->EvenOrOdd = 0;
 
 	gsGlobal->Os_AllocSize = Os_AllocSize;
-	gsGlobal->Os_Queue->dma_tag = gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	gsGlobal->Os_Queue->pool_cur = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + 16);
-	gsGlobal->Os_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + Os_AllocSize);
-	gsGlobal->Os_Queue->pool_max[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] + Os_AllocSize);
-	gsGlobal->Os_Queue->dbuf = 0;
-	gsGlobal->Os_Queue->tag_size = 0;
-	gsGlobal->Os_Queue->last_tag = gsGlobal->Os_Queue->pool_cur;
-	gsGlobal->Os_Queue->last_type = GIF_RESERVED;
-	gsGlobal->Os_Queue->mode = GS_ONESHOT;
+	gsKit_queue_init(gsGlobal, gsGlobal->Os_Queue, GS_ONESHOT, Os_AllocSize);
 
 	gsGlobal->Per_AllocSize = Per_AllocSize;
-	gsGlobal->Per_Queue->dma_tag = gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)memalign(64, Per_AllocSize) | 0x30000000);
-	gsGlobal->Per_Queue->pool_cur = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + 16);
-	gsGlobal->Per_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + Per_AllocSize);
-	gsGlobal->Per_Queue->dbuf = 0;
-	gsGlobal->Per_Queue->tag_size = 0;
-	gsGlobal->Per_Queue->last_tag = gsGlobal->Per_Queue->pool_cur;
-	gsGlobal->Per_Queue->last_type = GIF_RESERVED;
-	gsGlobal->Per_Queue->mode = GS_PERSISTENT;
+	gsKit_queue_init(gsGlobal, gsGlobal->Per_Queue, GS_PERSISTENT, Per_AllocSize);
 
 	gsGlobal->CurQueue = gsGlobal->Os_Queue;
 
@@ -539,14 +523,11 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 
 void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 {
-    gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] ^ 0x30000000);
-    gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] ^ 0x30000000);
-    gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] ^ 0x30000000);
+	gsKit_queue_free(gsGlobal, gsGlobal->Per_Queue);
+	gsKit_queue_free(gsGlobal, gsGlobal->Os_Queue);
+
     gsGlobal->dma_misc = (u64 *)((u32)gsGlobal->dma_misc ^ 0x30000000);
 
-    free(gsGlobal->Per_Queue->pool[0]);
-    free(gsGlobal->Os_Queue->pool[1]);
-    free(gsGlobal->Os_Queue->pool[0]);
     free(gsGlobal->dma_misc);
     free(gsGlobal->Per_Queue);
     free(gsGlobal->Os_Queue);
