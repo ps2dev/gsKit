@@ -44,6 +44,8 @@ int main(int argc, char *argv[])
 	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
 	gsGlobal->PrimAlpha = GS_BLEND_FRONT2BACK;
+	gsGlobal->PSM = GS_PSM_CT16;
+	gsGlobal->PSMZ = GS_PSMZ_16;
 
 	gsKit_init_screen(gsGlobal);
 
