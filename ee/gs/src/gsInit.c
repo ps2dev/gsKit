@@ -41,6 +41,9 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
 	int gs_DX, gs_DY, gs_DW, gs_DH;
 
+	gsGlobal->StartXOffset = 0;
+	gsGlobal->StartYOffset = 0;
+
 	switch (gsGlobal->Mode) {
 		case GS_MODE_NTSC:
 			gsGlobal->StartX = 492;
@@ -190,15 +193,20 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 
 void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
 {
-	GS_SET_DISPLAY1(gsGlobal->StartX+x,		// X position in the display area (in VCK unit
-			gsGlobal->StartY+y,		// Y position in the display area (in Raster u
+	gsGlobal->StartXOffset = x;
+	gsGlobal->StartYOffset = y;
+
+	GS_SET_DISPLAY1(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
 			gsGlobal->DH - 1);		// Display area height
 
-	GS_SET_DISPLAY2(gsGlobal->StartX+x,		// X position in the display area (in VCK units)
-			gsGlobal->StartY+y,		// Y position in the display area (in Raster units)
+	GS_SET_DISPLAY2(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
@@ -273,15 +281,17 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 			0,			// Upper Left X in Buffer
 			0);			// Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(gsGlobal->StartX,		// X position in the display area (in VCK unit
-			gsGlobal->StartY,		// Y position in the display area (in Raster u
+	GS_SET_DISPLAY1(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
 			gsGlobal->DH - 1);		// Display area height
 
-	GS_SET_DISPLAY2(gsGlobal->StartX,		// X position in the display area (in VCK units)
-			gsGlobal->StartY,		// Y position in the display area (in Raster units)
+	GS_SET_DISPLAY2(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
