@@ -138,6 +138,12 @@ int gsKit_add_vsync_handler(int (*vsync_callback)());
 /// Removes a vsync interrupt handler
 void gsKit_remove_vsync_handler(int callback_id);
 
+/// Installs a hsync interrupt handler (hblank_start)
+int gsKit_add_hsync_handler(int (*hsync_callback)());
+
+/// Removes a hsync interrupt handler
+void gsKit_remove_hsync_handler(int callback_id);
+
 /// Sets gsGlobal->EvenOrOdd depending on current field drawing
 void gsKit_get_field(GSGLOBAL *gsGlobal);
 
@@ -206,7 +212,16 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal);
 /// Specific Draw Queue "Execution" (Kicks the Queue passed for the second argument)
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
 
-/// Switch Current Draw Queue (Between GS_ONESHOT and GS_PERSISTENT)
+/// Initialize a Draw Queue (Allocates memory for the Queue)
+void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size);
+
+/// Free Allocated Memory for Draw Queue
+void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+
+/// Set Current Draw Queue
+void gsKit_queue_set(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
+
+/// Set Current Draw Queue (Between GS_ONESHOT and GS_PERSISTENT)
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode);
 
 #ifdef __cplusplus

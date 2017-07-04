@@ -41,6 +41,9 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
 	int gs_DX, gs_DY, gs_DW, gs_DH;
 
+	gsGlobal->StartXOffset = 0;
+	gsGlobal->StartYOffset = 0;
+
 	switch (gsGlobal->Mode) {
 		case GS_MODE_NTSC:
 			gsGlobal->StartX = 492;
@@ -190,15 +193,20 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 
 void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
 {
-	GS_SET_DISPLAY1(gsGlobal->StartX+x,		// X position in the display area (in VCK unit
-			gsGlobal->StartY+y,		// Y position in the display area (in Raster u
+	gsGlobal->StartXOffset = x;
+	gsGlobal->StartYOffset = y;
+
+	GS_SET_DISPLAY1(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
 			gsGlobal->DH - 1);		// Display area height
 
-	GS_SET_DISPLAY2(gsGlobal->StartX+x,		// X position in the display area (in VCK units)
-			gsGlobal->StartY+y,		// Y position in the display area (in Raster units)
+	GS_SET_DISPLAY2(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
@@ -236,7 +244,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
     *GS_CSR = 0x00000000; // Clean CSR registers
 
-    GsPutIMR(0x0000F700); // Unmasks all of the GS interrupts
+    GsPutIMR(0x00007300); // Unmasks VSync and HSync interrupts
 
 	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
@@ -273,15 +281,17 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 			0,			// Upper Left X in Buffer
 			0);			// Upper Left Y in Buffer
 
-	GS_SET_DISPLAY1(gsGlobal->StartX,		// X position in the display area (in VCK unit
-			gsGlobal->StartY,		// Y position in the display area (in Raster u
+	GS_SET_DISPLAY1(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
 			gsGlobal->DH - 1);		// Display area height
 
-	GS_SET_DISPLAY2(gsGlobal->StartX,		// X position in the display area (in VCK units)
-			gsGlobal->StartY,		// Y position in the display area (in Raster units)
+	GS_SET_DISPLAY2(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
 			gsGlobal->MagH,			// Horizontal Magnification
 			gsGlobal->MagV,			// Vertical Magnification
 			gsGlobal->DW - 1,	// Display area width
@@ -320,7 +330,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = 1;
 	*p_data++ = GS_PRMODECONT;
 
-	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[0] / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_1;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
@@ -362,7 +372,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 	*p_data++ = GS_SETREG_COLCLAMP( 255 );
 	*p_data++ = GS_COLCLAMP;
 
-	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1], gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[1] / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0 );
 	*p_data++ = GS_FRAME_2;
 
 	*p_data++ = GS_SETREG_XYOFFSET_1( gsGlobal->OffsetX,
@@ -474,26 +484,10 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->EvenOrOdd = 0;
 
 	gsGlobal->Os_AllocSize = Os_AllocSize;
-	gsGlobal->Os_Queue->dma_tag = gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)memalign(64, Os_AllocSize) | 0x30000000);
-	gsGlobal->Os_Queue->pool_cur = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + 16);
-	gsGlobal->Os_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] + Os_AllocSize);
-	gsGlobal->Os_Queue->pool_max[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] + Os_AllocSize);
-	gsGlobal->Os_Queue->dbuf = 0;
-	gsGlobal->Os_Queue->tag_size = 0;
-	gsGlobal->Os_Queue->last_tag = gsGlobal->Os_Queue->pool_cur;
-	gsGlobal->Os_Queue->last_type = GIF_RESERVED;
-	gsGlobal->Os_Queue->mode = GS_ONESHOT;
+	gsKit_queue_init(gsGlobal, gsGlobal->Os_Queue, GS_ONESHOT, Os_AllocSize);
 
 	gsGlobal->Per_AllocSize = Per_AllocSize;
-	gsGlobal->Per_Queue->dma_tag = gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)memalign(64, Per_AllocSize) | 0x30000000);
-	gsGlobal->Per_Queue->pool_cur = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + 16);
-	gsGlobal->Per_Queue->pool_max[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] + Per_AllocSize);
-	gsGlobal->Per_Queue->dbuf = 0;
-	gsGlobal->Per_Queue->tag_size = 0;
-	gsGlobal->Per_Queue->last_tag = gsGlobal->Per_Queue->pool_cur;
-	gsGlobal->Per_Queue->last_type = GIF_RESERVED;
-	gsGlobal->Per_Queue->mode = GS_PERSISTENT;
+	gsKit_queue_init(gsGlobal, gsGlobal->Per_Queue, GS_PERSISTENT, Per_AllocSize);
 
 	gsGlobal->CurQueue = gsGlobal->Os_Queue;
 
@@ -539,14 +533,11 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 
 void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 {
-    gsGlobal->Per_Queue->pool[0] = (u64 *)((u32)gsGlobal->Per_Queue->pool[0] ^ 0x30000000);
-    gsGlobal->Os_Queue->pool[1] = (u64 *)((u32)gsGlobal->Os_Queue->pool[1] ^ 0x30000000);
-    gsGlobal->Os_Queue->pool[0] = (u64 *)((u32)gsGlobal->Os_Queue->pool[0] ^ 0x30000000);
+	gsKit_queue_free(gsGlobal, gsGlobal->Per_Queue);
+	gsKit_queue_free(gsGlobal, gsGlobal->Os_Queue);
+
     gsGlobal->dma_misc = (u64 *)((u32)gsGlobal->dma_misc ^ 0x30000000);
 
-    free(gsGlobal->Per_Queue->pool[0]);
-    free(gsGlobal->Os_Queue->pool[1]);
-    free(gsGlobal->Os_Queue->pool[0]);
     free(gsGlobal->dma_misc);
     free(gsGlobal->Per_Queue);
     free(gsGlobal->Os_Queue);

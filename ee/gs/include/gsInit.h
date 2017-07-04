@@ -994,8 +994,10 @@ struct gsGlobal
 	int Aspect;          ///< Framebuffer Aspect Ratio (GS_ASPECT_4_3/GS_ASPECT_16_9)
 	int OffsetX;         ///< X Window Offset
 	int OffsetY;         ///< Y Window Offset
-	int StartX;          ///< X Starting Coordinate (Used for Placement Correction)
-	int StartY;          ///< Y Starting Coordinate (Used for Placement Correction)
+	int StartX;          ///< X Starting Coordinate (Used for Placement Correction) Default value
+	int StartY;          ///< Y Starting Coordinate (Used for Placement Correction) Default value
+	int StartXOffset;    ///< X Starting Coordinate (Used for Placement Correction) Additional correction
+	int StartYOffset;    ///< Y Starting Coordinate (Used for Placement Correction) Additional correction
 	int MagH;            ///< X Magnification Value (MAGH = DW / Width - 1)
 	int MagV;            ///< Y Magnification Value (MAGV = DH / Height - 1)
 	int DW;              ///< Total Display Area Width (DW = Width * (MAGH + 1))
