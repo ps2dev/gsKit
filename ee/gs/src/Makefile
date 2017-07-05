@@ -11,6 +11,7 @@
 
 EE_OBJS = 	gsCore.o \
 		gsFontM.o \
+		gsHires.o \
 		gsInit.o \
 		gsMisc.o \
 		gsPrimitive.o \

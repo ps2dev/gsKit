@@ -11,7 +11,7 @@
 
 include $(GSKITSRC)/ee/Rules.make
 
-EE_LIBS = -Xlinker --start-group
+EE_LIBS = -Xlinker --start-group $(EE_LIBS_EXTRA)
 
 ifdef LIBJPEG
 	EE_INCS += -I$(LIBJPEG)/include
