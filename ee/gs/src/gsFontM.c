@@ -73,12 +73,7 @@ int gsKit_fontm_upload(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
     gsFontM->Texture->PSM = GS_PSM_T4;
     gsFontM->Texture->ClutPSM = GS_PSM_CT32;
     gsFontM->Texture->Filter = GS_FILTER_LINEAR;
-
-	gsFontM->Texture->TBW = (-GS_VRAM_TBWALIGN_CLUT)&(gsFontM->Texture->Width+GS_VRAM_TBWALIGN_CLUT-1);
-    if(gsFontM->Texture->TBW / 64 > 0)
-        gsFontM->Texture->TBW = (gsFontM->Texture->TBW / 64);
-    else
-		gsFontM->Texture->TBW = 1;
+    gsKit_setup_tbw(gsFontM->Texture);
 
 	gsFontM->Texture->VramClut = gsKit_vram_alloc(gsGlobal, 4096, GSKIT_ALLOC_USERBUFFER);
 	int TexSize = gsKit_texture_size(gsFontM->Texture->Width, gsFontM->Texture->Height, gsFontM->Texture->PSM);
