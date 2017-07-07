@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
 							       "Testing 10\n");
 	while(1)
 	{
-		gsKit_sync_flip(gsGlobal);
 		gsKit_queue_exec(gsGlobal);
+		gsKit_sync_flip(gsGlobal);
 	}
 
 	return 0;
