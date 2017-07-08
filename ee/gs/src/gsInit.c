@@ -182,6 +182,11 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 	gsGlobal->StartX += (gsGlobal->DW - ((gsGlobal->MagH + 1) * gsGlobal->Width )) / 2;
 	gsGlobal->StartY += (gsGlobal->DH - ((gsGlobal->MagV + 1) * gsGlobal->Height)) / 2;
 
+	if (gsGlobal->Interlace == GS_INTERLACED) {
+		// Do not change odd/even start position in interlaced mode
+		gsGlobal->StartY &= ~1;
+	}
+
 	// Calculate the actual display width and height
 	gsGlobal->DW = (gsGlobal->MagH + 1) * gsGlobal->Width;
 	gsGlobal->DH = (gsGlobal->MagV + 1) * gsGlobal->Height;
@@ -195,6 +200,11 @@ void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
 {
 	gsGlobal->StartXOffset = x;
 	gsGlobal->StartYOffset = y;
+
+	if (gsGlobal->Interlace == GS_INTERLACED) {
+		// Do not change odd/even start position in interlaced mode
+		gsGlobal->StartYOffset &= ~1;
+	}
 
 	GS_SET_DISPLAY1(
 			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit

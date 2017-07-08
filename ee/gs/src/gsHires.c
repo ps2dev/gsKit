@@ -99,6 +99,7 @@ typedef struct {
 	SBuffer * TextBuffer;
 	SBuffer * CRTCBuffer;
 	GSQUEUE Queue;
+	GSQUEUE QueueIF; // Only for Interlaced Frame mode
 } SPass;
 
 
@@ -113,6 +114,7 @@ static volatile u32 hsync_count = 0;
 #define MAX_PASS_COUNT 4
 static u32 iPassCount;
 static volatile u32 iCurrentPass = 0;
+static volatile u32 iCurrentRenderField = 0;
 static SBuffer buffer[MAX_PASS_COUNT];
 static SPass  pass[MAX_PASS_COUNT];
 
@@ -143,10 +145,19 @@ static int hsync_callback()
 
 	for (iPass = 0; iPass < iPassCount; iPass++) {
 		if (hsync_count == (iYStart + pass[iPass].CRTCBuffer->scanline_begin)) {
+			if (iPass == 0) {
+				// We start rendering the first pass when the CRTS starts
+				// displaying the last pass of the previous field.
+				// So invert to get the current render field.
+				iCurrentRenderField = (((GSREG*)GS_CSR)->FIELD == 1) ? 0 : 1;
+			}
+
 			iCurrentPass = iPass;
 			iSignalSema(sema_hsync_id);
 
+#ifdef BG_DEBUG
 			GS_SET_BGCOLOR((iPass+1)*63, (iPass+1)*63, (iPass+1)*63);
+#endif
 
 			break;
 		}
@@ -156,7 +167,7 @@ static int hsync_callback()
 	return 0;
 }
 
-static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass)
+static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass, int yoff)
 {
 	u64 *p_data;
 	u64 *p_store;
@@ -174,7 +185,7 @@ static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass)
 	*p_data++ = GS_FRAME_1;
 	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, 0);
 	*p_data++ = GS_ZBUF_1;
-	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
+	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, yoff + gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
 	*p_data++ = GS_XYOFFSET_1;
 
 	// Context 2
@@ -184,7 +195,7 @@ static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass)
 	*p_data++ = GS_FRAME_2;
 	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, 0);
 	*p_data++ = GS_ZBUF_2;
-	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
+	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, yoff + gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
 	*p_data++ = GS_XYOFFSET_2;
 }
 
@@ -218,7 +229,15 @@ static void dma_to_gs_thread(void * data)
 		WaitSema(sema_hsync_id);
 
 		// Send current pass queue
-		gsKit_queue_send(gsGlobal, &pass[iCurrentPass].Queue);
+		if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
+			if (iCurrentRenderField == 1)
+				gsKit_queue_send(gsGlobal, &pass[iCurrentPass].Queue); // Odd
+			else
+				gsKit_queue_send(gsGlobal, &pass[iCurrentPass].QueueIF); // Even
+		}
+		else {
+			gsKit_queue_send(gsGlobal, &pass[iCurrentPass].Queue);
+		}
 
 		// Send current frame queue
 		WaitSema(sema_queue_id);
@@ -269,7 +288,7 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 	ee_sema_t sema;
 	u32 iPass;
 	u32 iBufferline;
-	u32 iPassSize;
+	u32 iPassHeight;
 	u32 iBpp;
 	u32 iHeightAlign;
 
@@ -312,8 +331,8 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 	}
 
 	// The size of a pass must be a multiple of 32 or 64 lines depending on the PSM
-	iPassSize = (gsGlobal->Height + (iPassCount-1)) / iPassCount;
-	iPassSize = (iPassSize + (iHeightAlign-1)) & ~(iHeightAlign-1);
+	iPassHeight = (gsGlobal->Height + (iPassCount-1)) / iPassCount;
+	iPassHeight = (iPassHeight + (iHeightAlign-1)) & ~(iHeightAlign-1);
 
 	// Double buffering is not used in multi pass rendering
 	// Force double buffering off
@@ -326,6 +345,16 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 
 	// This initialize the display and allocates 1 front buffer
 	gsKit_init_screen(gsGlobal);
+
+	// We split the front buffer in different passes
+	// Each pass needs to be aligned, so the total alignment requirements become:
+	// - iPassCount * 32 for 32/24 bit color buffers
+	// - iPassCount * 64 for 16    bit color buffers
+	if (gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM) < gsKit_texture_size(gsGlobal->Width, iPassHeight * iPassCount, gsGlobal->PSM)) {
+		int iAlign = gsKit_texture_size(gsGlobal->Width, iPassHeight * iPassCount, gsGlobal->PSM) - gsKit_texture_size(gsGlobal->Width, gsGlobal->Height, gsGlobal->PSM);
+		printf("gsKit_hires: Padding front buffer with %dKiB \n", iAlign/1024);
+		gsKit_vram_alloc(gsGlobal, iAlign, GSKIT_ALLOC_SYSBUFFER);
+	}
 
 	// Restore depth buffer setting
 	gsGlobal->ZBuffering = ZBuffering_backup;
@@ -341,7 +370,7 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 
 		// First and last line of buffer
 		buffer[iPass].bufferline_begin = iBufferline;
-		iBufferline += iPassSize;
+		iBufferline += iPassHeight;
 		if (iBufferline > gsGlobal->Height)
 			iBufferline = gsGlobal->Height;
 		buffer[iPass].bufferline_end = iBufferline - 1;
@@ -361,8 +390,6 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 			buffer[iPass].scanline_begin /= 2;
 			buffer[iPass].scanline_end   /= 2;
 		}
-
-		printf("Buffer %d @ %d: lines %d - %d\n", iPass, buffer[iPass].addr, buffer[iPass].bufferline_begin, buffer[iPass].bufferline_end);
 	}
 
 	if ((gsGlobal->ZBuffering == GS_SETTING_ON) && (iPassCount == 2)) {
@@ -412,10 +439,24 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 	}
 
 	// Create draw queues to setup the rendering for each pass
-	for (iPass = 0; iPass < iPassCount; iPass++) {
-		gsKit_queue_init(gsGlobal, &pass[iPass].Queue, GS_PERSISTENT, 1024);
-		gsKit_queue_set(gsGlobal, &pass[iPass].Queue);
-		gsKit_setpass(gsGlobal, &pass[iPass]);
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
+		for (iPass = 0; iPass < iPassCount; iPass++) {
+			// ODD lines
+			gsKit_queue_init(gsGlobal, &pass[iPass].Queue, GS_PERSISTENT, 1024);
+			gsKit_queue_set(gsGlobal, &pass[iPass].Queue);
+			gsKit_setpass(gsGlobal, &pass[iPass], 0);
+			// EVEN lines, half a pixel DOWN
+			gsKit_queue_init(gsGlobal, &pass[iPass].QueueIF, GS_PERSISTENT, 1024);
+			gsKit_queue_set(gsGlobal, &pass[iPass].QueueIF);
+			gsKit_setpass(gsGlobal, &pass[iPass], 8);
+		}
+	}
+	else {
+		for (iPass = 0; iPass < iPassCount; iPass++) {
+			gsKit_queue_init(gsGlobal, &pass[iPass].Queue, GS_PERSISTENT, 1024);
+			gsKit_queue_set(gsGlobal, &pass[iPass].Queue);
+			gsKit_setpass(gsGlobal, &pass[iPass], 0);
+		}
 	}
 
 	// Re-use the "per" queue from gsKit

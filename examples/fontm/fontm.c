@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
 
 	while(1)
 	{
-
                 if( y <= 10  && (x + width) < (gsGlobal->Width - 10))
                         x+=5;
                 else if( (y + height)  <  (VHeight - 10) && (x + width) >= (gsGlobal->Width - 10) )
@@ -136,9 +135,8 @@ int main(int argc, char *argv[])
 		gsKit_prim_sprite(gsGlobal, x, y, x + width, y + height, 4, BlueTrans);
 		gsKit_prim_sprite(gsGlobal, x, y2, x + width, y2 + height, 3, GreenTrans);
 
-		gsKit_sync_flip(gsGlobal);
-
 		gsKit_queue_exec(gsGlobal);
+		gsKit_sync_flip(gsGlobal);
 	}
 
 	return 0;

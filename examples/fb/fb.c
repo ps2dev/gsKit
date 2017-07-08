@@ -126,7 +126,7 @@ static void generate_frame(GSTEXTURE *tex)
 
 			pixels[y*stride + x] = color;
 		}
-           }
+	}
 }
 
 int main(int argc, char *argv[])
@@ -169,9 +169,12 @@ int main(int argc, char *argv[])
 
 	fb.Filter = GS_FILTER_LINEAR; /* enable bilinear filtering */
 
+	gsKit_setup_tbw(&fb);
+
 	generate_palette(&fb);
 
 #ifdef USEBMP
+	backtex.Delayed = 0;
 	gsKit_texture_bmp(gsGlobal, &backtex, "host:bsdgirl.bmp");
 #endif
 
@@ -238,11 +241,11 @@ int main(int argc, char *argv[])
 		/* upload new frame buffer */
 		gsKit_texture_upload(gsGlobal, &fb);
 
-        /* vsync and flip buffer */
-        gsKit_sync_flip(gsGlobal);
-
 		/* execute render queue */
 		gsKit_queue_exec(gsGlobal);
+
+		/* vsync and flip buffer */
+		gsKit_sync_flip(gsGlobal);
 	}
 
 	/* keep compilers happy (tm) */
