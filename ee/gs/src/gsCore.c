@@ -529,6 +529,9 @@ void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size)
 
 void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
+	if (Queue == NULL)
+		return;
+
 	if (Queue->pool[0] != NULL)
 	{
 		Queue->pool[0] = (u64 *)((u32)Queue->pool[0] ^ 0x30000000);
