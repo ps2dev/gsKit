@@ -421,15 +421,23 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBJPEG
 
+	FILE *file;
 	jpgData *jpg;
 
 	int TextureSize = 0;
 	int VramTextureSize = 0;
 
-	jpg = jpgOpen(Path, JPG_NORMAL);
-	if (jpg == NULL) {
+	file = fopen(Path, "r");
+	if(file == NULL) {
+		printf("jpeg: error opening %s\n", Path);
 		return -1;
-		printf("error opening %s\n", Path);
+	}
+
+	jpg = jpgOpenFILE(file, JPG_NORMAL);
+	if (jpg == NULL) {
+		printf("jpeg: error opening FILE\n");
+		fclose(file);
+		return -1;
 	}
 
 	Texture->Width =  jpg->width;
@@ -448,7 +456,7 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Mem = memalign(128,TextureSize);
 	jpgReadImage(jpg, (void *)Texture->Mem);
 	jpgClose(jpg);
-
+	fclose(file);
 
 	if(!Texture->Delayed)
 	{
