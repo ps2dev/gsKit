@@ -227,11 +227,11 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 {
 	u64	*p_data;
 	u64	*p_store;
-	int	size = 18;
+	int	size = 19;
 
 	if((gsGlobal->Dithering == GS_SETTING_ON) &&
 	   ((gsGlobal->PSM == GS_PSM_CT16) || (gsGlobal->PSM == GS_PSM_CT16S)))
-		size = 19;
+		size++;
 
     gsKit_set_buffer_attributes(gsGlobal);
 
@@ -430,6 +430,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
                 gsGlobal->DitherMatrix[14],gsGlobal->DitherMatrix[15]); // 4x4 dither matrix
 
 	*p_data++ = GS_DIMX;
+
+	*p_data++ = GS_SETREG_TEXA(0x80, 0, 0x80);
+	*p_data++ = GS_TEXA;
 
 	if((gsGlobal->Dithering == GS_SETTING_ON) && ((gsGlobal->PSM == GS_PSM_CT16) || (gsGlobal->PSM == GS_PSM_CT16S))) {
         *p_data++ = 1;
