@@ -6,23 +6,24 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 #
-# examples/Makefile - gsKit examples root makefile.
+# examples/pixelperfect/Makefile - Makefile for "pixelperfect" example.
 #
 
-SUBDIRS =
-SUBDIRS += basic
-SUBDIRS += bigtex
-SUBDIRS += texstream
-SUBDIRS += textures
-SUBDIRS += linuz-texture
-SUBDIRS += font
-SUBDIRS += alpha
-SUBDIRS += fontm
-SUBDIRS += png-texture
-SUBDIRS += vsync
-SUBDIRS += fb
-SUBDIRS += hires
-SUBDIRS += pixelperfect
+EE_BIN  = pixelperfect.elf
+EE_OBJS = pixelperfect.o
 
-include ../Rules.make
+all: $(EE_BIN)
 
+test: all
+	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
+
+reset: clean
+	ps2client -h $(PS2_IP) reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+install: all
+
+include ../../Makefile.pref
+include ../Makefile.global

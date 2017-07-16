@@ -93,7 +93,8 @@ int render(GSGLOBAL *gsGlobal)
 	// Create the view_screen matrix.
 	create_view_screen(view_screen, 16.0f/9.0f, -0.20f, 0.20f, -0.20f, 0.20f, 1.00f, 2000.00f);
 
-	gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+	if (gsGlobal->ZBuffering == GS_SETTING_ON)
+		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 	gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 128), 0);
 	gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_ON;
@@ -183,8 +184,8 @@ int render(GSGLOBAL *gsGlobal)
 
 int main(int argc, char *argv[])
 {
-	s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
-	//s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
+	//s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
+	s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6};
 #ifdef HIRES_MODE
 	GSGLOBAL *gsGlobal = gsKit_hires_init_global();
 #else
@@ -196,8 +197,8 @@ int main(int argc, char *argv[])
 #if 0
 	gsGlobal->Mode = GS_MODE_NTSC;
 	gsGlobal->Interlace = GS_INTERLACED;
-	gsGlobal->Field = GS_FIELD;
-	//gsGlobal->Field = GS_FRAME;
+	//gsGlobal->Field = GS_FIELD;
+	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width = 704;
 	gsGlobal->Height = 464;
 	iXOffset = -32;
@@ -207,8 +208,8 @@ int main(int argc, char *argv[])
 #if 0
 	gsGlobal->Mode = GS_MODE_PAL;
 	gsGlobal->Interlace = GS_INTERLACED;
-	gsGlobal->Field = GS_FIELD;
-	//gsGlobal->Field = GS_FRAME;
+	//gsGlobal->Field = GS_FIELD;
+	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width = 704;
 	gsGlobal->Height = 556;
 	iXOffset = -10;
@@ -251,10 +252,10 @@ int main(int argc, char *argv[])
 	//gsGlobal->Field = GS_FIELD;
 	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width  = 1920;
-	gsGlobal->Height = 1024;
+	gsGlobal->Height = 1080;
 	iXOffset = -66;
 	iYOffset = -201;
-	iPassCount = 4;
+	iPassCount = 3;
 #endif
 #if 0
 	gsGlobal->Mode = GS_MODE_VGA_1280_60;

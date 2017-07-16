@@ -183,7 +183,7 @@ static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass, int yoff)
 	*p_data++ = GS_SCISSOR_1;
 	*p_data++ = GS_SETREG_FRAME_1(pass->DrawBuffer->addr / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0);
 	*p_data++ = GS_FRAME_1;
-	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, 0);
+	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, (gsGlobal->ZBuffering == GS_SETTING_ON) ? 0 : 1);
 	*p_data++ = GS_ZBUF_1;
 	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, yoff + gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
 	*p_data++ = GS_XYOFFSET_1;
@@ -193,7 +193,7 @@ static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass, int yoff)
 	*p_data++ = GS_SCISSOR_2;
 	*p_data++ = GS_SETREG_FRAME_1(pass->DrawBuffer->addr / 8192, gsGlobal->Width / 64, gsGlobal->PSM, 0);
 	*p_data++ = GS_FRAME_2;
-	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, 0);
+	*p_data++ = GS_SETREG_ZBUF_1(pass->DepthBuffer->addr / 8192, gsGlobal->PSMZ, (gsGlobal->ZBuffering == GS_SETTING_ON) ? 0 : 1);
 	*p_data++ = GS_ZBUF_2;
 	*p_data++ = GS_SETREG_XYOFFSET_1(gsGlobal->OffsetX, yoff + gsGlobal->OffsetY + pass->DrawBuffer->bufferline_begin*16);
 	*p_data++ = GS_XYOFFSET_2;
@@ -355,6 +355,8 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 		printf("gsKit_hires: Padding front buffer with %dKiB \n", iAlign/1024);
 		gsKit_vram_alloc(gsGlobal, iAlign, GSKIT_ALLOC_SYSBUFFER);
 	}
+	// first useable address for textures
+	gsGlobal->TexturePointer = gsGlobal->CurrentPointer;
 
 	// Restore depth buffer setting
 	gsGlobal->ZBuffering = ZBuffering_backup;
@@ -534,9 +536,11 @@ void gsKit_hires_deinit_global(GSGLOBAL *gsGlobal)
 
 	for (iPass = 0; iPass < iPassCount; iPass++) {
 		gsKit_queue_free(gsGlobal, &pass[iPass].Queue);
+		gsKit_queue_free(gsGlobal, &pass[iPass].QueueIF);
 	}
 
 	gsKit_deinit_global(gsGlobal);
 
-	gsKit_vram_clear(gsGlobal);
+	gsGlobal->CurrentPointer = 0;
+	gsGlobal->TexturePointer = 0;
 }
