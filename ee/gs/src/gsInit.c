@@ -150,14 +150,14 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->DH = 576;
 			break;
 		case GS_MODE_DTV_720P:
-			gsGlobal->StartX = 420;
-			gsGlobal->StartY = 40;
+			gsGlobal->StartX = 306;
+			gsGlobal->StartY = 24;
 			gsGlobal->DW = 1280;
 			gsGlobal->DH = 720;
 			break;
 		case GS_MODE_DTV_1080I:
-			gsGlobal->StartX = 300;
-			gsGlobal->StartY = 238;
+			gsGlobal->StartX = 236;
+			gsGlobal->StartY = 38;
 			gsGlobal->DW = 1920;
 			gsGlobal->DH = 1080;
 			break;

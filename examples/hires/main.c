@@ -242,8 +242,8 @@ int main(int argc, char *argv[])
 	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width = 1280;
 	gsGlobal->Height = 720;//704;
-	iXOffset = -114;
-	iYOffset = -15;
+	iXOffset = 0;
+	iYOffset = 0;
 	iPassCount = 3;
 #endif
 #if 1
@@ -253,8 +253,8 @@ int main(int argc, char *argv[])
 	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width  = 1920;
 	gsGlobal->Height = 1080;
-	iXOffset = -66;
-	iYOffset = -201;
+	iXOffset = 0;
+	iYOffset = 0;
 	iPassCount = 3;
 #endif
 #if 0
