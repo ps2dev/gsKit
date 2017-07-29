@@ -254,7 +254,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
     *GS_CSR = 0x00000000; // Clean CSR registers
 
-    GsPutIMR(0x00007300); // Unmasks VSync and HSync interrupts
+    GsPutIMR(0x00007F00); // Masks all interrupts
 
 	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 

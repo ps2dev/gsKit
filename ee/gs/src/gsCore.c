@@ -163,6 +163,8 @@ int gsKit_add_vsync_handler(int (*vsync_callback)())
 	DIntr();
 	callback_id = AddIntcHandler(INTC_VBLANK_S, vsync_callback, 0);
 	EnableIntc(INTC_VBLANK_S);
+	// Unmask VSync interrupt
+	GsPutIMR(GsGetIMR() & ~0x0800);
 	EIntr();
 
 	return callback_id;
@@ -171,6 +173,8 @@ int gsKit_add_vsync_handler(int (*vsync_callback)())
 void gsKit_remove_vsync_handler(int callback_id)
 {
 	DIntr();
+	// Mask VSync interrupt
+	GsPutIMR(GsGetIMR() | 0x0800);
 	DisableIntc(INTC_VBLANK_S);
 	RemoveIntcHandler(INTC_VBLANK_S, callback_id);
 	EIntr();
@@ -183,6 +187,8 @@ int gsKit_add_hsync_handler(int (*hsync_callback)())
 	DIntr();
 	callback_id = AddIntcHandler(INTC_GS, hsync_callback, 0);
 	EnableIntc(INTC_GS);
+	// Unmask HSync interrupt
+	GsPutIMR(GsGetIMR() & ~0x0400);
 	EIntr();
 
 	return callback_id;
@@ -191,6 +197,8 @@ int gsKit_add_hsync_handler(int (*hsync_callback)())
 void gsKit_remove_hsync_handler(int callback_id)
 {
 	DIntr();
+	// Mask HSync interrupt
+	GsPutIMR(GsGetIMR() | 0x0400);
 	DisableIntc(INTC_GS);
 	RemoveIntcHandler(INTC_GS, callback_id);
 	EIntr();
