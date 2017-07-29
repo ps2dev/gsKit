@@ -184,8 +184,6 @@ int render(GSGLOBAL *gsGlobal)
 
 int main(int argc, char *argv[])
 {
-	//s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
-	s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6};
 #ifdef HIRES_MODE
 	GSGLOBAL *gsGlobal = gsKit_hires_init_global();
 #else
@@ -274,12 +272,7 @@ int main(int argc, char *argv[])
 	gsGlobal->PSM  = GS_PSM_CT16S;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
 
-	// Enable dithering
 	gsGlobal->Dithering = GS_SETTING_ON;
-	for(i = 0; i < 15; i++) {
-		gsGlobal->DitherMatrix[i] = dither_matrix[i];
-	}
-
 	gsGlobal->DoubleBuffering = GS_SETTING_ON;
 	gsGlobal->ZBuffering = GS_SETTING_ON;
 

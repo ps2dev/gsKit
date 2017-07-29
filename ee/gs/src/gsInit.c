@@ -455,8 +455,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 {
-    s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
-    //s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
+    //s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
+    s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
     int i = 0;
 
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));
