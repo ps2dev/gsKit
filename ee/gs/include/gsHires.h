@@ -28,6 +28,9 @@ void gsKit_hires_sync(GSGLOBAL *gsGlobal);
 /// Flips Draw Queue
 void gsKit_hires_flip(GSGLOBAL *gsGlobal);
 
+/// Set background texture, must be same size and PSM as display
+int  gsKit_hires_set_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex);
+
 /// Initialize Screen and GS Registers, for multi pass high resolution mode
 void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount);
 

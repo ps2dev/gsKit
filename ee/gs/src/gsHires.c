@@ -105,6 +105,7 @@ typedef struct {
 
 static GSQUEUE DrawQueue[2];
 static volatile u32 iCurrentDrawQueue = 0;
+static GSTEXTURE * pTexture = NULL;
 
 static u32 iYStart;
 static s32 hsync_callback_id = -1;
@@ -199,6 +200,61 @@ static void gsKit_setpass(GSGLOBAL *gsGlobal, const SPass * pass, int yoff)
 	*p_data++ = GS_XYOFFSET_2;
 }
 
+static void gsKit_setpass_background(GSGLOBAL *gsGlobal, const SPass * pass, GSTEXTURE * tex)
+{
+	u16 width = gsGlobal->Width;
+	u16 height = pass->DrawBuffer->bufferline_end - pass->DrawBuffer->bufferline_begin + 1;
+	void * mem = &((u16*)tex->Mem)[pass->DrawBuffer->bufferline_begin*width];
+
+	// Transfer the texture directly into the drawbuffer
+	gsKit_texture_send_inline(gsGlobal, mem, width, height, pass->DrawBuffer->addr, tex->PSM, tex->TBW, GS_CLUT_NONE);
+}
+
+static void gsKit_create_pass(GSGLOBAL *gsGlobal, const SPass * pass, GSQUEUE * Queue, int yoff)
+{
+	GSQUEUE * Queue_backup = gsGlobal->CurQueue;
+
+	// Create new queue (if not already created)
+	if (Queue->pool[0] == NULL)
+		gsKit_queue_init(gsGlobal, Queue, GS_PERSISTENT, 8*1024);
+	gsKit_queue_set(gsGlobal, Queue);
+	gsKit_queue_reset(Queue);
+
+	// Set the rendering context
+	gsKit_setpass(gsGlobal, pass, yoff);
+
+	// Clear depth buffer (and background)
+	if ((gsGlobal->ZBuffering == GS_SETTING_ON) || (pTexture == NULL))
+		gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00));
+
+	// Fill with background image
+	if (pTexture != NULL)
+		gsKit_setpass_background(gsGlobal, pass, pTexture);
+
+	// Restore previous queue
+	gsKit_queue_set(gsGlobal, Queue_backup);
+}
+
+static void gsKit_create_passes(GSGLOBAL *gsGlobal)
+{
+	u32 iPass;
+
+	// Create draw queues to setup the rendering for each pass
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
+		for (iPass = 0; iPass < iPassCount; iPass++) {
+			// ODD lines
+			gsKit_create_pass(gsGlobal, &pass[iPass], &pass[iPass].Queue, 0);
+			// EVEN lines, half a pixel DOWN
+			gsKit_create_pass(gsGlobal, &pass[iPass], &pass[iPass].QueueIF, 8);
+		}
+	}
+	else {
+		for (iPass = 0; iPass < iPassCount; iPass++) {
+			gsKit_create_pass(gsGlobal, &pass[iPass], &pass[iPass].Queue, 0);
+		}
+	}
+}
+
 static void gsKit_queue_send(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
 	if(Queue->tag_size == 0)
@@ -220,13 +276,14 @@ static void dma_to_gs_thread(void * data)
 	GSGLOBAL *gsGlobal = (GSGLOBAL *)data;
 	u32 iQueue;
 
-	// Make sure the sema count == 0
-	PollSema(sema_hsync_id);
-
 	while(1)
 	{
+		// Make sure the sema count == 0
+		PollSema(sema_hsync_id);
 		// Wait for CRTC
 		WaitSema(sema_hsync_id);
+
+		WaitSema(sema_queue_id);
 
 		// Send current pass queue
 		if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
@@ -240,9 +297,9 @@ static void dma_to_gs_thread(void * data)
 		}
 
 		// Send current frame queue
-		WaitSema(sema_queue_id);
 		iQueue = (iCurrentDrawQueue == 0) ? 1 : 0;
 		gsKit_queue_send(gsGlobal, &DrawQueue[iQueue]);
+
 		SignalSema(sema_queue_id);
 
 		// If this was the last pass, send vsync
@@ -280,6 +337,38 @@ void gsKit_hires_flip(GSGLOBAL *gsGlobal)
 
 	gsKit_queue_reset(&DrawQueue[iCurrentDrawQueue]);
 	gsKit_queue_set(gsGlobal, &DrawQueue[iCurrentDrawQueue]);
+}
+
+int gsKit_hires_set_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex)
+{
+	// Validate width
+	if (tex->Width != gsGlobal->Width)
+		return -1;
+
+	// Validate height
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
+		if (tex->Height != gsGlobal->Height*2)
+			return -1;
+	}
+	else {
+		if (tex->Height != gsGlobal->Height)
+			return -1;
+	}
+
+	// Validate PSM
+	if (tex->PSM != gsGlobal->PSM)
+		return -1;
+
+	// Accept background texture
+	pTexture = tex;
+	// (Re-)create pass queues
+	gsKit_hires_sync(gsGlobal);
+	WaitSema(sema_queue_id);
+	dmaKit_wait_fast();
+	gsKit_create_passes(gsGlobal);
+	SignalSema(sema_queue_id);
+
+	return 0;
 }
 
 void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
@@ -360,6 +449,8 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 
 	// Restore depth buffer setting
 	gsGlobal->ZBuffering = ZBuffering_backup;
+	if (gsGlobal->ZBuffering == GS_SETTING_ON)
+		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
 
 	//
 	// The front buffer is split into the number of passes
@@ -440,26 +531,8 @@ void gsKit_hires_init_screen(GSGLOBAL *gsGlobal, int passCount)
 		}
 	}
 
-	// Create draw queues to setup the rendering for each pass
-	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
-		for (iPass = 0; iPass < iPassCount; iPass++) {
-			// ODD lines
-			gsKit_queue_init(gsGlobal, &pass[iPass].Queue, GS_PERSISTENT, 1024);
-			gsKit_queue_set(gsGlobal, &pass[iPass].Queue);
-			gsKit_setpass(gsGlobal, &pass[iPass], 0);
-			// EVEN lines, half a pixel DOWN
-			gsKit_queue_init(gsGlobal, &pass[iPass].QueueIF, GS_PERSISTENT, 1024);
-			gsKit_queue_set(gsGlobal, &pass[iPass].QueueIF);
-			gsKit_setpass(gsGlobal, &pass[iPass], 8);
-		}
-	}
-	else {
-		for (iPass = 0; iPass < iPassCount; iPass++) {
-			gsKit_queue_init(gsGlobal, &pass[iPass].Queue, GS_PERSISTENT, 1024);
-			gsKit_queue_set(gsGlobal, &pass[iPass].Queue);
-			gsKit_setpass(gsGlobal, &pass[iPass], 0);
-		}
-	}
+	// (Re-)create pass queues
+	gsKit_create_passes(gsGlobal);
 
 	// Re-use the "per" queue from gsKit
 	DrawQueue[0] = *gsGlobal->Per_Queue;
