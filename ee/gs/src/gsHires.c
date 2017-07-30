@@ -339,6 +339,51 @@ void gsKit_hires_flip(GSGLOBAL *gsGlobal)
 	gsKit_queue_set(gsGlobal, &DrawQueue[iCurrentDrawQueue]);
 }
 
+static void gsKit_texture_to_interlaced_frame(GSTEXTURE * tex)
+{
+	int y;
+	int bpp;
+	int size;
+	u16 *tex_new;
+	u16 *tex_old;
+
+	switch (tex->PSM)
+	{
+		case GS_PSM_CT16S: bpp = 2; break;
+		case GS_PSM_CT24:  bpp = 3; break;
+		default: return; // not supported
+	};
+
+	size = tex->Width * tex->Height * bpp;
+	tex_new = (u16*)memalign(128, size);
+	tex_old = (u16*)tex->Mem;
+
+	for(y=0; y < tex->Height; y+=2) {
+		// Copy 0,2,4... to 0,1,2...
+		memcpy(&tex_new[(y/2)*tex->Width], &tex_old[y*tex->Width], tex->Width * bpp);
+		// Copy 1,3,5... to (height/2) + 0,1,2...
+		memcpy(&tex_new[((y+tex->Height)/2)*tex->Width], &tex_old[(y+1)*tex->Width], tex->Width * bpp);
+	}
+
+	free(tex->Mem);
+	tex->Mem = (void*)tex_new;
+}
+
+void gsKit_hires_prepare_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex)
+{
+	// Convert to same color format
+	if (tex->PSM != gsGlobal->PSM) {
+		if (gsGlobal->PSM == GS_PSM_CT16S)
+			gsKit_texture_to_psm16(tex);
+		else
+			return; // not supported
+	}
+
+	// Convert to interlaced (if needed)
+	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME))
+		gsKit_texture_to_interlaced_frame(tex);
+}
+
 int gsKit_hires_set_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex)
 {
 	// Validate width

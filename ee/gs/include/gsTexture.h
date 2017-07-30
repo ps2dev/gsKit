@@ -111,6 +111,7 @@ extern "C" {
 #endif
 u32  gsKit_texture_size_ee(int width, int height, int psm);
 u32  gsKit_texture_size(int width, int height, int psm);
+void gsKit_texture_to_psm16(GSTEXTURE *Texture);
 void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
@@ -197,7 +198,7 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 							x2, y2, z, u2, v2,	\
 							x3, y3, z, u3, v3,	\
 					 		x4, y4, z, u4, v4, color);
-					 
+
 #define gsKit_prim_quad_goraud_texture(gsGlobal, Texture,	x1, y1, u1, v1,		\
 							x2, y2, u2, v2,		\
 							x3, y3, u3, v3,		\

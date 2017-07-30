@@ -28,6 +28,9 @@ void gsKit_hires_sync(GSGLOBAL *gsGlobal);
 /// Flips Draw Queue
 void gsKit_hires_flip(GSGLOBAL *gsGlobal);
 
+/// Converts PSM and interlacing for use as background image
+void gsKit_hires_prepare_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex);
+
 /// Set background texture, must be same size and PSM as display
 int  gsKit_hires_set_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex);
 
