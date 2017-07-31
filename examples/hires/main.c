@@ -51,9 +51,9 @@ int light_type[4] = {
 int render(GSGLOBAL *gsGlobal)
 {
 #ifdef TEX_BG
+	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 	GSTEXTURE bigtex;
 #endif
-	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 	int i;
 
 	// Matrices to setup the 3D environment and camera
@@ -84,7 +84,7 @@ int render(GSGLOBAL *gsGlobal)
 #ifdef TEX_BG
 	bigtex.Filter = GS_FILTER_LINEAR;
 	bigtex.Delayed = 0;
-	gsKit_texture_bmp(gsGlobal, &bigtex, "host:bigtex.bmp");
+	gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
 #endif
 
 	printf("VRAM used: %dKiB\n", gsGlobal->CurrentPointer / 1024);
@@ -95,6 +95,19 @@ int render(GSGLOBAL *gsGlobal)
 
 	if (gsGlobal->ZBuffering == GS_SETTING_ON)
 		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+
+	// A,B,C,D,FIX = 0,1,0,1,0:
+	// A = 0 = Cs (Color Source)
+	// B = 1 = Cd (Color Destination)
+	// C = 0 = As (Alpha Source)
+	// D = 1 = Cd (Color Destination)
+	// FIX = not used
+	//
+	// Resulting color = (A-B)*C+D = (Cs-Cd)*As+Cd
+	// This will blend the source over the destination
+	// Note:
+	// - Alpha 0x00 = fully transparent
+	// - Alpha 0x80 = fully visible
 	gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 128), 0);
 	gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_ON;
@@ -134,8 +147,6 @@ int render(GSGLOBAL *gsGlobal)
 
 		// Convert floating point colours to fixed point.
 		draw_convert_rgbq(colors, vertex_count, temp_vertices, temp_colours, 0x80);
-
-		gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(128, 128, 128, 0, 0));
 
 #ifdef TEX_BG
 		if(bigtex.Vram != GSKIT_ALLOC_ERROR) {
