@@ -14,7 +14,9 @@
 
 
 #define HIRES_MODE
-#define TEX_BG
+//#define TEX_BG
+#define FHD_BG
+#define DYNAMIC_DITHERING
 
 
 VECTOR object_position = { 0.00f, 8.00f, 0.00f, 1.00f };
@@ -54,6 +56,9 @@ int render(GSGLOBAL *gsGlobal)
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 	GSTEXTURE bigtex;
 #endif
+#ifdef FHD_BG
+	GSTEXTURE fhdbg;
+#endif
 	int i;
 
 	// Matrices to setup the 3D environment and camera
@@ -85,6 +90,15 @@ int render(GSGLOBAL *gsGlobal)
 	bigtex.Filter = GS_FILTER_LINEAR;
 	bigtex.Delayed = 0;
 	gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
+#endif
+
+#ifdef FHD_BG
+	fhdbg.Filter = GS_FILTER_LINEAR;
+	fhdbg.Delayed = 1;
+	fhdbg.Vram = GSKIT_ALLOC_ERROR;
+	gsKit_texture_jpeg(gsGlobal, &fhdbg, "host:fhdbg.jpg");
+	gsKit_hires_prepare_bg(gsGlobal, &fhdbg);
+	gsKit_hires_set_bg(gsGlobal, &fhdbg);
 #endif
 
 	printf("VRAM used: %dKiB\n", gsGlobal->CurrentPointer / 1024);
@@ -148,6 +162,17 @@ int render(GSGLOBAL *gsGlobal)
 		// Convert floating point colours to fixed point.
 		draw_convert_rgbq(colors, vertex_count, temp_vertices, temp_colours, 0x80);
 
+#ifdef DYNAMIC_DITHERING
+		// Dithering:
+		// The standard 4x4 dithering matrix creates static noise to eliminate banding.
+		// This static noise is a little visible, and can be improved by changing the matrix every frame
+		// Keep adding 5 to get the most noisy pattern possible:
+		//   0, 5, 2, 7, 4, 1, 6, 3
+		for(i = 0; i < 15; i++)
+		    gsGlobal->DitherMatrix[i] = (gsGlobal->DitherMatrix[i] + 5) & 7;
+		gsKit_set_dither_matrix(gsGlobal);
+#endif
+
 #ifdef TEX_BG
 		if(bigtex.Vram != GSKIT_ALLOC_ERROR) {
 			gsKit_prim_sprite_texture(gsGlobal, &bigtex,
@@ -201,7 +226,6 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 #endif
 	int iPassCount;
-	int i;
 
 #if 0
 	gsGlobal->Mode = GS_MODE_NTSC;
