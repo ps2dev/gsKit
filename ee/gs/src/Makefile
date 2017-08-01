@@ -15,6 +15,7 @@ EE_OBJS = 	gsCore.o \
 		gsInit.o \
 		gsMisc.o \
 		gsPrimitive.o \
+		gsTexManager.o \
 		gsTexture.o \
 		gsVU1.o
 

@@ -150,14 +150,14 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			gsGlobal->DH = 576;
 			break;
 		case GS_MODE_DTV_720P:
-			gsGlobal->StartX = 420;
-			gsGlobal->StartY = 40;
+			gsGlobal->StartX = 306;
+			gsGlobal->StartY = 24;
 			gsGlobal->DW = 1280;
 			gsGlobal->DH = 720;
 			break;
 		case GS_MODE_DTV_1080I:
-			gsGlobal->StartX = 300;
-			gsGlobal->StartY = 238;
+			gsGlobal->StartX = 236;
+			gsGlobal->StartY = 38;
 			gsGlobal->DW = 1920;
 			gsGlobal->DH = 1080;
 			break;
@@ -254,7 +254,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
     *GS_CSR = 0x00000000; // Clean CSR registers
 
-    GsPutIMR(0x00007300); // Unmasks VSync and HSync interrupts
+    GsPutIMR(0x00007F00); // Masks all interrupts
 
 	SetGsCrt(gsGlobal->Interlace, gsGlobal->Mode, gsGlobal->Field);
 
@@ -455,8 +455,8 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 {
-    s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
-    //s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
+    //s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
+    s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6}; //different matrix
     int i = 0;
 
 	GSGLOBAL *gsGlobal = calloc(1,sizeof(GSGLOBAL));

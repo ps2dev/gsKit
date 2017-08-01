@@ -14,7 +14,9 @@
 
 
 #define HIRES_MODE
-#define TEX_BG
+//#define TEX_BG
+#define FHD_BG
+#define DYNAMIC_DITHERING
 
 
 VECTOR object_position = { 0.00f, 8.00f, 0.00f, 1.00f };
@@ -51,9 +53,12 @@ int light_type[4] = {
 int render(GSGLOBAL *gsGlobal)
 {
 #ifdef TEX_BG
+	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 	GSTEXTURE bigtex;
 #endif
-	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+#ifdef FHD_BG
+	GSTEXTURE fhdbg;
+#endif
 	int i;
 
 	// Matrices to setup the 3D environment and camera
@@ -84,7 +89,16 @@ int render(GSGLOBAL *gsGlobal)
 #ifdef TEX_BG
 	bigtex.Filter = GS_FILTER_LINEAR;
 	bigtex.Delayed = 0;
-	gsKit_texture_bmp(gsGlobal, &bigtex, "host:bigtex.bmp");
+	gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
+#endif
+
+#ifdef FHD_BG
+	fhdbg.Filter = GS_FILTER_LINEAR;
+	fhdbg.Delayed = 1;
+	fhdbg.Vram = GSKIT_ALLOC_ERROR;
+	gsKit_texture_jpeg(gsGlobal, &fhdbg, "host:fhdbg.jpg");
+	gsKit_hires_prepare_bg(gsGlobal, &fhdbg);
+	gsKit_hires_set_bg(gsGlobal, &fhdbg);
 #endif
 
 	printf("VRAM used: %dKiB\n", gsGlobal->CurrentPointer / 1024);
@@ -95,6 +109,19 @@ int render(GSGLOBAL *gsGlobal)
 
 	if (gsGlobal->ZBuffering == GS_SETTING_ON)
 		gsKit_set_test(gsGlobal, GS_ZTEST_ON);
+
+	// A,B,C,D,FIX = 0,1,0,1,0:
+	// A = 0 = Cs (Color Source)
+	// B = 1 = Cd (Color Destination)
+	// C = 0 = As (Alpha Source)
+	// D = 1 = Cd (Color Destination)
+	// FIX = not used
+	//
+	// Resulting color = (A-B)*C+D = (Cs-Cd)*As+Cd
+	// This will blend the source over the destination
+	// Note:
+	// - Alpha 0x00 = fully transparent
+	// - Alpha 0x80 = fully visible
 	gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0, 1, 0, 1, 128), 0);
 	gsGlobal->PrimAlphaEnable = GS_SETTING_OFF;
 	gsGlobal->PrimAAEnable = GS_SETTING_ON;
@@ -135,7 +162,16 @@ int render(GSGLOBAL *gsGlobal)
 		// Convert floating point colours to fixed point.
 		draw_convert_rgbq(colors, vertex_count, temp_vertices, temp_colours, 0x80);
 
-		gsKit_clear(gsGlobal, GS_SETREG_RGBAQ(128, 128, 128, 0, 0));
+#ifdef DYNAMIC_DITHERING
+		// Dithering:
+		// The standard 4x4 dithering matrix creates static noise to eliminate banding.
+		// This static noise is a little visible, and can be improved by changing the matrix every frame
+		// Keep adding 5 to get the most noisy pattern possible:
+		//   0, 5, 2, 7, 4, 1, 6, 3
+		for(i = 0; i < 15; i++)
+		    gsGlobal->DitherMatrix[i] = (gsGlobal->DitherMatrix[i] + 5) & 7;
+		gsKit_set_dither_matrix(gsGlobal);
+#endif
 
 #ifdef TEX_BG
 		if(bigtex.Vram != GSKIT_ALLOC_ERROR) {
@@ -184,15 +220,12 @@ int render(GSGLOBAL *gsGlobal)
 
 int main(int argc, char *argv[])
 {
-	//s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
-	s8 dither_matrix[16] = {4,2,5,3,0,6,1,7,5,3,4,2,1,7,0,6};
 #ifdef HIRES_MODE
 	GSGLOBAL *gsGlobal = gsKit_hires_init_global();
 #else
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 #endif
 	int iPassCount;
-	int i;
 
 #if 0
 	gsGlobal->Mode = GS_MODE_NTSC;
@@ -242,8 +275,8 @@ int main(int argc, char *argv[])
 	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width = 1280;
 	gsGlobal->Height = 720;//704;
-	iXOffset = -114;
-	iYOffset = -15;
+	iXOffset = 0;
+	iYOffset = 0;
 	iPassCount = 3;
 #endif
 #if 1
@@ -253,8 +286,8 @@ int main(int argc, char *argv[])
 	gsGlobal->Field = GS_FRAME;
 	gsGlobal->Width  = 1920;
 	gsGlobal->Height = 1080;
-	iXOffset = -66;
-	iYOffset = -201;
+	iXOffset = 0;
+	iYOffset = 0;
 	iPassCount = 3;
 #endif
 #if 0
@@ -274,12 +307,7 @@ int main(int argc, char *argv[])
 	gsGlobal->PSM  = GS_PSM_CT16S;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
 
-	// Enable dithering
 	gsGlobal->Dithering = GS_SETTING_ON;
-	for(i = 0; i < 15; i++) {
-		gsGlobal->DitherMatrix[i] = dither_matrix[i];
-	}
-
 	gsGlobal->DoubleBuffering = GS_SETTING_ON;
 	gsGlobal->ZBuffering = GS_SETTING_ON;
 

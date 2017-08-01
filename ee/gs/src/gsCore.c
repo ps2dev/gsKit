@@ -36,6 +36,12 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 	else
 	{
 		gsGlobal->CurrentPointer += size;
+
+		// Re-initialize the texture manager
+		// NOTE: this is here for compatibility, it's better not to use
+		//       gsKit_vram_alloc, and use gsKit_TexManager_bind instead.
+		gsKit_TexManager_init(gsGlobal);
+
 		#ifdef GSKIT_DEBUG
 		printf("CurrentPointer After:\t0x%08X\n", gsGlobal->CurrentPointer);
 		#endif
@@ -46,6 +52,11 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 void gsKit_vram_clear(GSGLOBAL *gsGlobal)
 {
     gsGlobal->CurrentPointer = gsGlobal->TexturePointer;
+
+	// Re-initialize the texture manager
+	// NOTE: this is here for compatibility, it's better not to use
+	//       gsKit_vram_alloc, and use gsKit_TexManager_bind instead.
+	gsKit_TexManager_init(gsGlobal);
 }
 
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)
@@ -163,6 +174,8 @@ int gsKit_add_vsync_handler(int (*vsync_callback)())
 	DIntr();
 	callback_id = AddIntcHandler(INTC_VBLANK_S, vsync_callback, 0);
 	EnableIntc(INTC_VBLANK_S);
+	// Unmask VSync interrupt
+	GsPutIMR(GsGetIMR() & ~0x0800);
 	EIntr();
 
 	return callback_id;
@@ -171,6 +184,8 @@ int gsKit_add_vsync_handler(int (*vsync_callback)())
 void gsKit_remove_vsync_handler(int callback_id)
 {
 	DIntr();
+	// Mask VSync interrupt
+	GsPutIMR(GsGetIMR() | 0x0800);
 	DisableIntc(INTC_VBLANK_S);
 	RemoveIntcHandler(INTC_VBLANK_S, callback_id);
 	EIntr();
@@ -183,6 +198,8 @@ int gsKit_add_hsync_handler(int (*hsync_callback)())
 	DIntr();
 	callback_id = AddIntcHandler(INTC_GS, hsync_callback, 0);
 	EnableIntc(INTC_GS);
+	// Unmask HSync interrupt
+	GsPutIMR(GsGetIMR() & ~0x0400);
 	EIntr();
 
 	return callback_id;
@@ -191,6 +208,8 @@ int gsKit_add_hsync_handler(int (*hsync_callback)())
 void gsKit_remove_hsync_handler(int callback_id)
 {
 	DIntr();
+	// Mask HSync interrupt
+	GsPutIMR(GsGetIMR() | 0x0400);
 	DisableIntc(INTC_GS);
 	RemoveIntcHandler(INTC_GS, callback_id);
 	EIntr();

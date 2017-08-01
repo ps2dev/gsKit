@@ -1,0 +1,301 @@
+//  ____     ___ |    / _____ _____
+// |  __    |    |___/    |     |
+// |___| ___|    |    \ __|__   |     gsKit Open Source Project.
+// ----------------------------------------------------------------------
+// Copyright 2017 - Rick "Maximus32" Gaiser <rgaiser@gmail.com>
+// Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>
+// Licenced under Academic Free License version 2.0
+// Review gsKit README & LICENSE files for further details.
+//
+// gsHires.c - Multi pass high resolution rendering
+//
+
+#include <stdio.h>
+#include <malloc.h>
+#include <kernel.h>
+#include "gsTexManager.h"
+
+
+//#define SANITY_CHECK
+
+
+struct SVramBlock {
+	unsigned int iStart;
+	unsigned int iSize;
+	unsigned int iUseCount;
+	unsigned int iUseCountPrev;
+
+	GSTEXTURE * tex;
+	struct SVramBlock * pNext;
+	struct SVramBlock * pPrev;
+};
+static struct SVramBlock * head = NULL;
+
+
+//---------------------------------------------------------------------------
+// Private functions
+
+//---------------------------------------------------------------------------
+static struct SVramBlock *
+_blockCreate(unsigned int start, unsigned int size)
+{
+	struct SVramBlock * block;
+
+	block = malloc(sizeof(struct SVramBlock));
+
+	block->iStart = start;
+	block->iSize = size;
+	block->iUseCount = 0;
+	block->iUseCountPrev = 0;
+
+	block->tex = NULL;
+	block->pNext = NULL;
+	block->pPrev = NULL;
+
+	return block;
+}
+
+//---------------------------------------------------------------------------
+static void
+_blockInsertAfter(struct SVramBlock * block, struct SVramBlock * next)
+{
+	next->pNext = block->pNext;
+	next->pPrev = block;
+	if(block->pNext != NULL)
+		block->pNext->pPrev = next;
+	block->pNext = next;
+}
+
+//---------------------------------------------------------------------------
+static struct SVramBlock *
+_blockRemove(struct SVramBlock * block)
+{
+	struct SVramBlock * next = block->pNext;
+
+	if(block->pPrev != NULL)
+		block->pPrev->pNext = block->pNext;
+	if(block->pNext != NULL)
+		block->pNext->pPrev = block->pPrev;
+
+	free(block);
+
+	return next;
+}
+
+//---------------------------------------------------------------------------
+static struct SVramBlock *
+_blockSplitFree(struct SVramBlock * block, unsigned int size)
+{
+	struct SVramBlock * pNewBlock;
+
+#ifdef SANITY_CHECK
+	if (block->tex != NULL)
+		return NULL;
+
+	if (block->iSize < size)
+		return NULL;
+
+	if (block->iSize == size)
+		return block;
+#endif
+
+	// Create second block with leftover size
+	pNewBlock = _blockCreate(block->iStart + size, block->iSize - size);
+	// Shrink first block
+	block->iSize = size;
+	// Insert second block after first block
+	_blockInsertAfter(block, pNewBlock);
+
+	return block;
+}
+
+//---------------------------------------------------------------------------
+static struct SVramBlock *
+_blockMergeFree(struct SVramBlock * block)
+{
+#ifdef SANITY_CHECK
+	if(block->tex != NULL)
+		return block;
+#endif
+
+	// Search backwards to the first free block
+	while ((block->pPrev != NULL) && (block->pPrev->tex == NULL))
+		block = block->pPrev;
+
+	// Merge free blocks
+	while((block->pNext != NULL) && (block->pNext->tex == NULL)) {
+		block->iSize += block->pNext->iSize;
+		_blockRemove(block->pNext);
+	}
+
+	return block;
+}
+
+//---------------------------------------------------------------------------
+// How often is this vram block used, mainly based on predictions
+unsigned int
+_blockGetWeight(struct SVramBlock * block)
+{
+	unsigned int weight = 0;
+
+	if ((block != NULL) && (block->tex != NULL)) {
+		if(block->iUseCount == block->iUseCountPrev) {
+			// Prediction:
+			// - This frame: done
+			// - Next frame: needed
+			weight += block->iUseCountPrev;
+		}
+		else if(block->iUseCount < block->iUseCountPrev) {
+			// Prediction:
+			// - This frame: needed
+			weight += block->iUseCountPrev - block->iUseCount;
+			// - Next frame: needed
+			weight += block->iUseCountPrev;
+		}
+		else {
+			// Prediction:
+			// - This frame: unsure
+			weight += 1;
+			// - Next frame: needed
+			weight += block->iUseCount;
+		}
+	}
+
+	return weight;
+}
+
+//---------------------------------------------------------------------------
+// Simple block allocator
+static struct SVramBlock *
+_blockAlloc(unsigned int size)
+{
+	struct SVramBlock * block = NULL;
+	unsigned int weight = 0;
+
+	// Locate free block
+	for (block = head; block != NULL; block = block->pNext) {
+		if ((block->tex == NULL) && (block->iSize >= size)) {
+			// Free block found (first fit)
+			break;
+		}
+	}
+
+	while (block == NULL) {
+		// Free blocks starting with the least used textures
+		for (block = head; block != NULL; block = block->pNext) {
+			if ((block->tex != NULL) && (_blockGetWeight(block) <= weight)) {
+				// Free block
+				block->tex = NULL;
+				block = _blockMergeFree(block);
+				if (block->iSize >= size) {
+					// Free block found (created)
+					break;
+				}
+			}
+		}
+		weight++;
+	}
+
+	// Split the block into the right size
+	block = _blockSplitFree(block, size);
+
+	return block;
+}
+
+//---------------------------------------------------------------------------
+// Public functions
+
+//---------------------------------------------------------------------------
+void
+gsKit_TexManager_init(GSGLOBAL * gsGlobal)
+{
+	struct SVramBlock * block = head;
+
+	// Delete all blocks (if present)
+	while(block != NULL)
+		block = _blockRemove(block);
+
+	// Allocate the initial free block
+	head = _blockCreate(gsGlobal->CurrentPointer, (4*1024*1024) - gsGlobal->CurrentPointer);
+}
+
+//---------------------------------------------------------------------------
+// FIXME: CLUT textures only work for 8bit textures with a 32bit clut
+unsigned int
+gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_retransfer)
+{
+	struct SVramBlock * block;
+	unsigned int transfer = force_retransfer;
+	unsigned int tsize;
+	unsigned int csize;
+
+	// Locate texture
+	for (block = head; block != NULL; block = block->pNext) {
+		if(block->tex == tex)
+			break;
+	}
+
+	tsize = gsKit_texture_size(tex->Width, tex->Height, tex->PSM);
+	csize = tex->Clut ? 256*4 : 0;
+
+	// Allocate new block if not already loaded
+	if (block == NULL) {
+		block = _blockAlloc(tsize + csize);
+		block->tex = tex;
+		block->iUseCount = 0;
+		block->iUseCountPrev = 1;
+
+		tex->Vram = block->iStart;
+		tex->VramClut = 0;
+		if (tex->Clut)
+			tex->VramClut = block->iStart + tsize;
+
+		transfer = 1;
+	}
+
+	if (transfer) {
+		gsKit_setup_tbw(tex);
+		SyncDCache(tex->Mem, (u8 *)(tex->Mem) + tsize);
+		gsKit_texture_send_inline(gsGlobal, tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
+		if (tex->Clut) {
+		    SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
+			gsKit_texture_send_inline(gsGlobal, tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
+		}
+	}
+
+	block->iUseCount++;
+
+	return transfer;
+}
+
+//---------------------------------------------------------------------------
+void
+gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
+{
+	struct SVramBlock * block;
+
+	// Locate texture
+	for (block = head; block != NULL; block = block->pNext) {
+		if(block->tex == tex) {
+			// Free block
+			block->tex = NULL;
+			block = _blockMergeFree(block);
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+void
+gsKit_TexManager_nextFrame(GSGLOBAL * gsGlobal)
+{
+	struct SVramBlock * block;
+
+	// Register use count
+	for(block = head; block != NULL; block = block->pNext) {
+		if(block->tex != NULL) {
+			block->iUseCountPrev = block->iUseCount;
+			block->iUseCount = 0;
+		}
+	}
+}
