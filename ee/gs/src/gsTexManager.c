@@ -222,10 +222,11 @@ gsKit_TexManager_init(GSGLOBAL * gsGlobal)
 //---------------------------------------------------------------------------
 // FIXME: CLUT textures only work for 8bit textures with a 32bit clut
 unsigned int
-gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_retransfer)
+gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
 	struct SVramBlock * block;
-	unsigned int transfer = force_retransfer;
+	unsigned int ttransfer = 0;
+	unsigned int ctransfer = 0;
 	unsigned int tsize;
 	unsigned int csize;
 
@@ -245,27 +246,42 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_r
 		block->iUseCount = 0;
 		block->iUseCountPrev = 1;
 
-		tex->Vram = block->iStart;
+		tex->Vram = 0;
 		tex->VramClut = 0;
-		if (tex->Clut)
-			tex->VramClut = block->iStart + tsize;
-
-		transfer = 1;
 	}
 
-	if (transfer) {
+	// (Re-)transfer texture if invalidated
+	if (tex->Vram == 0)
+		ttransfer = 1;
+
+	// (Re-)transfer clut if invalidated
+	if ((tex->Clut) && (tex->VramClut == 0))
+		ctransfer = 1;
+
+	if (ttransfer) {
+		tex->Vram = block->iStart;
 		gsKit_setup_tbw(tex);
 		SyncDCache(tex->Mem, (u8 *)(tex->Mem) + tsize);
 		gsKit_texture_send_inline(gsGlobal, tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
-		if (tex->Clut) {
-		    SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
-			gsKit_texture_send_inline(gsGlobal, tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
-		}
+	}
+
+	if (ctransfer) {
+		tex->VramClut = block->iStart + tsize;
+		SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
+		gsKit_texture_send_inline(gsGlobal, tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
 	}
 
 	block->iUseCount++;
 
-	return transfer;
+	return (ttransfer|ctransfer);
+}
+
+//---------------------------------------------------------------------------
+void
+gsKit_TexManager_invalidate(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
+{
+	tex->Vram = 0;
+	tex->VramClut = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -280,6 +296,8 @@ gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 			// Free block
 			block->tex = NULL;
 			block = _blockMergeFree(block);
+			tex->Vram = 0;
+			tex->VramClut = 0;
 			break;
 		}
 	}
