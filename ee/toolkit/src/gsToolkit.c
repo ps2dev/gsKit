@@ -254,7 +254,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			u8 tmp = clut[i].Blue;
 			clut[i].Blue = clut[i].Red;
 			clut[i].Red = tmp;
-			clut[i].Alpha = 0;
+			clut[i].Alpha = 0x80;
 		}
 
 	}
@@ -286,7 +286,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			u8 tmp = clut[i].Blue;
 			clut[i].Blue = clut[i].Red;
 			clut[i].Red = tmp;
-			clut[i].Alpha = 0;
+			clut[i].Alpha = 0x80;
 		}
 
 		// rotate clut
