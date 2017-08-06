@@ -23,6 +23,7 @@ SUBDIRS += vsync
 SUBDIRS += fb
 SUBDIRS += hires
 SUBDIRS += pixelperfect
+SUBDIRS += coverflow
 
 include ../Rules.make
 

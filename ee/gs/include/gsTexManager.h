@@ -22,12 +22,23 @@ extern "C" {
 #endif
 
 
+enum ETransferMode {
+	ETM_INLINE = 0,
+	ETM_DIRECT
+};
+
+
 /// Initialize the texture manager
 void gsKit_TexManager_init(GSGLOBAL * gsGlobal);
 
+/// Set the texture transfer mode (inline or direct)
+void gsKit_TexManager_setmode(GSGLOBAL * gsGlobal, enum ETransferMode mode);
+
 /// Bind a texture to VRAM, will automatically transfer the texture.
-/// If the texture has changed, then a transfer can be forced
-unsigned int gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_retransfer);
+unsigned int gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex);
+
+/// Invalidate a texture, will automatically transfer the texture on next bind call.
+void gsKit_TexManager_invalidate(GSGLOBAL * gsGlobal, GSTEXTURE * tex);
 
 /// Free the texture, this is mainly a performance optimization.
 /// The texture will be automatically freed if not used.

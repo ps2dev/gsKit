@@ -16,9 +16,6 @@
 #include "gsTexManager.h"
 
 
-//#define SANITY_CHECK
-
-
 struct SVramBlock {
 	unsigned int iStart;
 	unsigned int iSize;
@@ -30,6 +27,7 @@ struct SVramBlock {
 	struct SVramBlock * pPrev;
 };
 static struct SVramBlock * head = NULL;
+static enum ETransferMode trmode = ETM_INLINE;
 
 
 //---------------------------------------------------------------------------
@@ -88,17 +86,6 @@ _blockSplitFree(struct SVramBlock * block, unsigned int size)
 {
 	struct SVramBlock * pNewBlock;
 
-#ifdef SANITY_CHECK
-	if (block->tex != NULL)
-		return NULL;
-
-	if (block->iSize < size)
-		return NULL;
-
-	if (block->iSize == size)
-		return block;
-#endif
-
 	// Create second block with leftover size
 	pNewBlock = _blockCreate(block->iStart + size, block->iSize - size);
 	// Shrink first block
@@ -113,11 +100,6 @@ _blockSplitFree(struct SVramBlock * block, unsigned int size)
 static struct SVramBlock *
 _blockMergeFree(struct SVramBlock * block)
 {
-#ifdef SANITY_CHECK
-	if(block->tex != NULL)
-		return block;
-#endif
-
 	// Search backwards to the first free block
 	while ((block->pPrev != NULL) && (block->pPrev->tex == NULL))
 		block = block->pPrev;
@@ -220,12 +202,20 @@ gsKit_TexManager_init(GSGLOBAL * gsGlobal)
 }
 
 //---------------------------------------------------------------------------
+void
+gsKit_TexManager_setmode(GSGLOBAL * gsGlobal, enum ETransferMode mode)
+{
+	trmode = mode;
+}
+
+//---------------------------------------------------------------------------
 // FIXME: CLUT textures only work for 8bit textures with a 32bit clut
 unsigned int
-gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_retransfer)
+gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
 	struct SVramBlock * block;
-	unsigned int transfer = force_retransfer;
+	unsigned int ttransfer = 0;
+	unsigned int ctransfer = 0;
 	unsigned int tsize;
 	unsigned int csize;
 
@@ -245,27 +235,48 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex, unsigned int force_r
 		block->iUseCount = 0;
 		block->iUseCountPrev = 1;
 
-		tex->Vram = block->iStart;
+		tex->Vram = 0;
 		tex->VramClut = 0;
-		if (tex->Clut)
-			tex->VramClut = block->iStart + tsize;
-
-		transfer = 1;
 	}
 
-	if (transfer) {
+	// (Re-)transfer texture if invalidated
+	if (tex->Vram == 0)
+		ttransfer = 1;
+
+	// (Re-)transfer clut if invalidated
+	if ((tex->Clut) && (tex->VramClut == 0))
+		ctransfer = 1;
+
+	if (ttransfer) {
+		tex->Vram = block->iStart;
 		gsKit_setup_tbw(tex);
 		SyncDCache(tex->Mem, (u8 *)(tex->Mem) + tsize);
-		gsKit_texture_send_inline(gsGlobal, tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
-		if (tex->Clut) {
-		    SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
+		if (trmode == ETM_INLINE)
+			gsKit_texture_send_inline(gsGlobal, tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
+		else
+			gsKit_texture_send(tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
+	}
+
+	if (ctransfer) {
+		tex->VramClut = block->iStart + tsize;
+		SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
+		if (trmode == ETM_INLINE)
 			gsKit_texture_send_inline(gsGlobal, tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
-		}
+		else
+			gsKit_texture_send(tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
 	}
 
 	block->iUseCount++;
 
-	return transfer;
+	return (ttransfer|ctransfer);
+}
+
+//---------------------------------------------------------------------------
+void
+gsKit_TexManager_invalidate(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
+{
+	tex->Vram = 0;
+	tex->VramClut = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -280,6 +291,8 @@ gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 			// Free block
 			block->tex = NULL;
 			block = _blockMergeFree(block);
+			tex->Vram = 0;
+			tex->VramClut = 0;
 			break;
 		}
 	}
