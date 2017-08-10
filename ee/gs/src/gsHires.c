@@ -279,11 +279,17 @@ static void dma_to_gs_thread(void * data)
 	while(1)
 	{
 		// Make sure the sema count == 0
-		PollSema(sema_hsync_id);
+		while (PollSema(sema_hsync_id) >= 0)
+			;
+
 		// Wait for CRTC
 		WaitSema(sema_hsync_id);
 
 		WaitSema(sema_queue_id);
+
+#ifdef BG_DEBUG
+		GS_SET_BGCOLOR(128,0,0);
+#endif
 
 		// Send current pass queue
 		if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
@@ -300,6 +306,10 @@ static void dma_to_gs_thread(void * data)
 		iQueue = (iCurrentDrawQueue == 0) ? 1 : 0;
 		gsKit_queue_send(gsGlobal, &DrawQueue[iQueue]);
 
+#ifdef BG_DEBUG
+		GS_SET_BGCOLOR(0,128,0);
+#endif
+
 		SignalSema(sema_queue_id);
 
 		// If this was the last pass, send vsync
@@ -311,7 +321,8 @@ static void dma_to_gs_thread(void * data)
 void gsKit_hires_sync(GSGLOBAL *gsGlobal)
 {
 	// Make sure the sema count == 0
-	PollSema(sema_vsync_id);
+	while (PollSema(sema_vsync_id) >= 0)
+		;
 
 	// Wait for vsync
 	WaitSema(sema_vsync_id);

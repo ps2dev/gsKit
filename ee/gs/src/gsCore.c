@@ -494,9 +494,9 @@ void gsKit_queue_reset(GSQUEUE *Queue)
 		if(Queue->mode == GS_ONESHOT)
 		{
 			Queue->dbuf  ^= 1;
-			Queue->dma_tag = Queue->pool[Queue->dbuf];
 		}
 
+		Queue->dma_tag = Queue->pool[Queue->dbuf];
 		Queue->pool_cur = Queue->dma_tag + 16;
 		Queue->last_type = GIF_RESERVED;
 		Queue->last_tag = Queue->pool_cur;
