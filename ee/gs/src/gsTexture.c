@@ -47,29 +47,125 @@ u32  gsKit_texture_size_ee(int width, int height, int psm)
 
 u32  gsKit_texture_size(int width, int height, int psm)
 {
-	if(psm == GS_PSM_T8 || psm == GS_PSM_T4)
+	int widthBlocks, heightBlocks;
+	int widthAlign, heightAlign;
 
-		width = (-GS_VRAM_TBWALIGN_CLUT)&(width+GS_VRAM_TBWALIGN_CLUT-1);
-	else
-		width = (-GS_VRAM_TBWALIGN)&(width+GS_VRAM_TBWALIGN-1);
-
-	height = (-GS_VRAM_TBWALIGN)&(height+GS_VRAM_TBWALIGN-1);
-
-#ifdef DEBUG
-	printf("Width: %d - Height: %d\n", width, height);
-#endif
-
+	// Calculate the number of blocks width and height
+	// A block is 256 bytes in size
 	switch (psm) {
-		case GS_PSM_CT32:  return (width*height*4);
-		case GS_PSM_CT24:  return (width*height*4);
-		case GS_PSM_CT16:  return (width*height*2);
-		case GS_PSM_CT16S: return (width*height*2);
-		case GS_PSM_T8:    return (width*height  );
-		case GS_PSM_T4:    return (width*height/2);
-		default: printf("gsKit: unsupported PSM %d\n", psm);
+		case GS_PSM_CT32:
+		case GS_PSM_CT24:
+			// 1 block = 8x8 pixels
+			widthBlocks  = (width  + 7) / 8;
+			heightBlocks = (height + 7) / 8;
+			break;
+		case GS_PSM_CT16:
+		case GS_PSM_CT16S:
+			// 1 block = 16x8 pixels
+			widthBlocks  = (width  + 15) / 16;
+			heightBlocks = (height +  7) /  8;
+			break;
+		case GS_PSM_T8:
+			// 1 block = 16x16 pixels
+			widthBlocks  = (width  + 15) / 16;
+			heightBlocks = (height + 15) / 16;
+			break;
+		case GS_PSM_T4:
+			// 1 block = 32x16 pixels
+			widthBlocks  = (width  + 31) / 32;
+			heightBlocks = (height + 15) / 16;
+			break;
+		default:
+			printf("gsKit: unsupported PSM %d\n", psm);
+			return -1;
 	}
 
-	return -1;
+	// Calculate the minimum block alignment
+	if(psm == GS_PSM_CT32 || psm == GS_PSM_CT24 || psm == GS_PSM_T8) {
+		// 8x4 blocks in a page.
+		// block traversing order:
+		// 0145....
+		// 2367....
+		// ........
+		// ........
+		if(widthBlocks <= 2 && heightBlocks <= 1) {
+			widthAlign = 1;
+			heightAlign = 1;
+		}
+		else if(widthBlocks <= 4 && heightBlocks <= 2) {
+			widthAlign = 2;
+			heightAlign = 2;
+		}
+		else if(widthBlocks <= 8 && heightBlocks <= 4) {
+			widthAlign = 4;
+			heightAlign = 4;
+		}
+		else {
+			widthAlign = 8;
+			heightAlign = 4;
+		}
+	}
+	else if(psm == GS_PSM_CT16 || psm == GS_PSM_T4) {
+		// 4x8 blocks in a page.
+		// block traversing order:
+		// 02..
+		// 13..
+		// 46..
+		// 57..
+		// ....
+		// ....
+		// ....
+		// ....
+		if(widthBlocks <= 1 && heightBlocks <= 2) {
+			widthAlign = 1;
+			heightAlign = 1;
+		}
+		else if(widthBlocks <= 2 && heightBlocks <= 4) {
+			widthAlign = 2;
+			heightAlign = 2;
+		}
+		else if(widthBlocks <= 4 && heightBlocks <= 8) {
+			widthAlign = 4;
+			heightAlign = 4;
+		}
+		else {
+			widthAlign = 4;
+			heightAlign = 8;
+		}
+	}
+	else /* if(psm == GS_PSM_CT16S) */ {
+		// 4x8 blocks in a page.
+		// block traversing order:
+		// 02..
+		// 13..
+		// ....
+		// ....
+		// 46..
+		// 57..
+		// ....
+		// ....
+		if(widthBlocks <= 1 && heightBlocks <= 2) {
+			widthAlign = 1;
+			heightAlign = 1;
+		}
+		else if(widthBlocks <= 2 && heightBlocks <= 2) {
+			widthAlign = 2;
+			heightAlign = 2;
+		}
+		else if(widthBlocks <= 2 && heightBlocks <= 8) {
+			widthAlign = 2;
+			heightAlign = 8;
+		}
+		else {
+			widthAlign = 4;
+			heightAlign = 8;
+		}
+	}
+
+	widthBlocks  = (-widthAlign)  & (widthBlocks  + widthAlign  - 1);
+	heightBlocks = (-heightAlign) & (heightBlocks + heightAlign - 1);
+
+	return widthBlocks * heightBlocks * 256;
 }
 
 static inline u8
