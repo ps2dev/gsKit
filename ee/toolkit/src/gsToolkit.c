@@ -28,6 +28,51 @@
 #include <png.h>
 #endif
 
+static int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
+{
+	if(!Texture->Delayed)
+	{
+		Texture->Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM), GSKIT_ALLOC_USERBUFFER);
+		if(Texture->Vram == GSKIT_ALLOC_ERROR)
+		{
+			printf("VRAM Allocation Failed. Will not upload texture.\n");
+			return -1;
+		}
+
+		if(Texture->Clut != NULL)
+		{
+			if(Texture->PSM == GS_PSM_T4)
+				Texture->VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(8, 2, GS_PSM_CT32), GSKIT_ALLOC_USERBUFFER);
+			else
+				Texture->VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(16, 16, GS_PSM_CT32), GSKIT_ALLOC_USERBUFFER);
+
+			if(Texture->VramClut == GSKIT_ALLOC_ERROR)
+			{
+				printf("VRAM CLUT Allocation Failed. Will not upload texture.\n");
+				return -1;
+			}
+		}
+
+		// Upload texture
+		gsKit_texture_upload(gsGlobal, Texture);
+		// Free texture
+		free(Texture->Mem);
+		Texture->Mem = NULL;
+		// Free texture CLUT
+		if(Texture->Clut != NULL)
+		{
+			free(Texture->Clut);
+			Texture->Clut = NULL;
+		}
+	}
+	else
+	{
+		gsKit_setup_tbw(Texture);
+	}
+
+	return 0;
+}
+
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBPNG
@@ -168,25 +213,7 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
 	fclose(File);
 
-	if(!Texture->Delayed)
-	{
-		u32 VramTextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
-		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-		if(Texture->Vram == GSKIT_ALLOC_ERROR)
-		{
-			printf("VRAM Allocation Failed. Will not upload texture.\n");
-			return -1;
-		}
-
-		gsKit_texture_upload(gsGlobal, Texture);
-		free(Texture->Mem);
-	}
-	else
-	{
-		gsKit_setup_tbw(Texture);
-	}
-
-	return 0;
+	return gsKit_texture_finish(gsGlobal, Texture);
 #else
 	printf("ERROR: gsKit_texture_png unimplemented.\n");
 	return -1;
@@ -233,7 +260,6 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		Texture->ClutPSM = GS_PSM_CT32;
 
 		memset(Texture->Clut, 0, gsKit_texture_size_ee(8, 2, GS_PSM_CT32));
-		Texture->VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(8, 2, GS_PSM_CT32), GSKIT_ALLOC_USERBUFFER);
 		fseek(File, 54, SEEK_SET);
 		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
 		{
@@ -265,7 +291,6 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		Texture->ClutPSM = GS_PSM_CT32;
 
 		memset(Texture->Clut, 0, gsKit_texture_size_ee(16, 16, GS_PSM_CT32));
-		Texture->VramClut = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(16, 16, GS_PSM_CT32), GSKIT_ALLOC_USERBUFFER);
 		fseek(File, 54, SEEK_SET);
 		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
 		{
@@ -320,7 +345,6 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	fseek(File, Bitmap.FileHeader.Offset, SEEK_SET);
 
 	u32 TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
-	u32 VramTextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 
 	Texture->Mem = memalign(128,TextureSize);
 
@@ -397,35 +421,16 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	fclose(File);
 
-	if(!Texture->Delayed)
-	{
-		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-		if(Texture->Vram == GSKIT_ALLOC_ERROR)
-		{
-			printf("VRAM Allocation Failed. Will not upload texture.\n");
-			return -1;
-		}
-
-		gsKit_texture_upload(gsGlobal, Texture);
-		free(Texture->Mem);
-	}
-	else
-	{
-		gsKit_setup_tbw(Texture);
-	}
-
-	return 0;
+	return gsKit_texture_finish(gsGlobal, Texture);
 }
 
 int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBJPEG
-
 	FILE *file;
 	jpgData *jpg;
 
 	int TextureSize = 0;
-	int VramTextureSize = 0;
 
 	file = fopen(Path, "r");
 	if(file == NULL) {
@@ -448,7 +453,6 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Clut = NULL;
 
 	TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
-	VramTextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	#ifdef DEBUG
 	printf("Texture Size = %i\n",TextureSize);
 	#endif
@@ -458,30 +462,10 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	jpgClose(jpg);
 	fclose(file);
 
-	if(!Texture->Delayed)
-	{
-		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-		if(Texture->Vram == GSKIT_ALLOC_ERROR)
-		{
-			printf("VRAM Allocation Failed. Will not upload texture.\n");
-			return -1;
-		}
-		gsKit_texture_upload(gsGlobal, Texture);
-
-		free(Texture->Mem);
-	}
-	else
-	{
-		gsKit_setup_tbw(Texture);
-	}
-
-	return 0;
-
+	return gsKit_texture_finish(gsGlobal, Texture);
 #else
-
 	printf("ERROR: gsKit_texture_jpeg unimplemented.\n");
 	return -1;
-
 #endif
 }
 
@@ -489,7 +473,6 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBTIFF
 	int TextureSize = 0;
-	int VramTextureSize = 0;
 
 	TIFF* tif = TIFFOpen(Path, "r");
 	if(tif == NULL)
@@ -506,7 +489,6 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &Texture->Width);
 	TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &Texture->Height);
 	TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
-	VramTextureSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 
 	#ifdef GSKIT_DEBUG
 	printf("Texture Size = %i\n",TextureSize);
@@ -532,30 +514,11 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	fclose(File);
 */
-	if(!Texture->Delayed)
-	{
-		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramTextureSize, GSKIT_ALLOC_USERBUFFER);
-		if(Texture->Vram == GSKIT_ALLOC_ERROR)
-		{
-			printf("VRAM Allocation Failed. Will not upload texture.\n");
-			return -1;
-		}
-		gsKit_texture_upload(gsGlobal, Texture);
 
-		free(Texture->Mem);
-	}
-	else
-	{
-		gsKit_setup_tbw(Texture);
-	}
-
-	return 0;
-
+	return gsKit_texture_finish(gsGlobal, Texture);
 #else
-
 	printf("ERROR: gsKit_texture_tiff unimplimented.\n");
 	return -1;
-
 #endif
 }
 
@@ -568,7 +531,6 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 	int FileSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
-	int VramFileSize = gsKit_texture_size(Texture->Width, Texture->Height, Texture->PSM);
 	Texture->Mem = memalign(128, FileSize);
 
 	if(Texture->PSM != GS_PSM_T8 && Texture->PSM != GS_PSM_T4)
@@ -584,24 +546,7 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	}
 	fclose(File);
 
-	if(!Texture->Delayed)
-	{
-		Texture->Vram = gsKit_vram_alloc(gsGlobal, VramFileSize, GSKIT_ALLOC_USERBUFFER);
-		if(Texture->Vram == GSKIT_ALLOC_ERROR)
-		{
-			printf("VRAM Allocation Failed. Will not upload texture.\n");
-			return -1;
-		}
-		gsKit_texture_upload(gsGlobal, Texture);
-
-		free(Texture->Mem);
-	}
-	else
-	{
-		gsKit_setup_tbw(Texture);
-	}
-
-	return 0;
+	return gsKit_texture_finish(gsGlobal, Texture);
 }
 
 int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
