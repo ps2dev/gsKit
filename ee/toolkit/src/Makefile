@@ -11,8 +11,6 @@
 
 EE_OBJS = gsToolkit.o
 
-EE_CFLAGS += -O2
-
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBGSKIT_TOOLKIT) $(EE_OBJS)
 
