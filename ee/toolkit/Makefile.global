@@ -11,8 +11,6 @@
 
 include $(GSKITSRC)/ee/Rules.make
 
-EE_LIBS = -Xlinker --start-group
-
 ifdef LIBJPEG
     EE_INCS += -I$(LIBJPEG)/include
     EE_CFLAGS += -DHAVE_LIBJPEG
@@ -43,13 +41,9 @@ ifdef GSKIT_DEBUG
 endif
 
 EE_LIBS += -lgskit -ldmakit
-EE_LIBS += -lc -lkernel
-
-EE_LIBS += -Xlinker --end-group
 
 # include dir
 EE_INCS += -I$(GSKITSRC)/ee/gs/include -I$(GSKITSRC)/ee/dma/include
-EE_CFLAGS += -fno-builtin-printf
 EE_INCS += -I$(GSKITSRC)/ee/toolkit/include
 
 # linker flags

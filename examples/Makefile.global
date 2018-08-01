@@ -11,8 +11,6 @@
 
 include $(GSKITSRC)/ee/Rules.make
 
-EE_LIBS = -Xlinker --start-group $(EE_LIBS_EXTRA)
-
 ifdef LIBJPEG
 	EE_INCS += -I$(LIBJPEG)/include
 	EE_CFLAGS += -DHAVE_LIBJPEG
@@ -38,16 +36,25 @@ endif
 
 EE_LIBS += -lgskit_toolkit
 EE_LIBS += -lgskit -ldmakit
-EE_LIBS += -lc -lkernel
-
-EE_LIBS += -Xlinker --end-group
 
 # include dir
 EE_INCS += -I$(GSKITSRC)/ee/gs/include -I$(GSKITSRC)/ee/dma/include
-EE_CFLAGS += -fno-builtin-printf
 EE_INCS += -I$(GSKITSRC)/ee/toolkit/include
 
 # linker flags
 EE_LIB_DIRS += -L$(GSKITSRC)/lib
 EE_LIB_DIRS += -L$(PS2SDK)/ee/lib
 EE_LDFLAGS += $(EE_LIB_DIRS)
+
+all: $(EE_BIN)
+
+test: all
+	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
+
+reset: clean
+	ps2client -h $(PS2_IP) reset
+
+clean:
+	rm -f $(EE_OBJS) $(EE_BIN)
+
+install: all

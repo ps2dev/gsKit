@@ -13,18 +13,5 @@
 EE_BIN  = coverflow.elf
 EE_OBJS = coverflow.o
 
-all: $(EE_BIN)
-
-test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
-
-reset: clean
-	ps2client -h $(PS2_IP) reset
-
-clean:
-	rm -f $(EE_OBJS) $(EE_BIN)
-
-install: all
-
 include ../../Makefile.pref
 include ../Makefile.global
