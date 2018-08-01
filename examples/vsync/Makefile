@@ -11,20 +11,6 @@
 
 EE_BIN  = vsync.elf
 EE_OBJS = vsync.o
-EE_CFLAGS += -g
-
-all: $(EE_BIN)
-
-test: all
-	ps2client -h $(PS2_IP) -t 1 execee host:$(EE_BIN)
-
-reset: clean
-	ps2client -h $(PS2_IP) reset
-
-clean:
-	rm -f $(EE_OBJS) $(EE_BIN)
-
-install: all
 
 include ../../Makefile.pref
 include ../Makefile.global
