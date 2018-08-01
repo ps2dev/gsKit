@@ -320,7 +320,6 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	dmaKit_send_chain(DMA_CHANNEL_GIF, p_store, p_size);
 	dmaKit_wait_fast();	//Wait for the DMA transfer to complete, before freeing the GIF packet buffer.
 	free(p_store);
-
 }
 
 void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut)
@@ -403,7 +402,6 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 		*p_data++ = 0;
 		*p_data++ = GS_TEXFLUSH;
 	}
-
 }
 
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
@@ -427,6 +425,17 @@ void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 	}
 }
 
+static inline void gsKit_set_tw_th(const GSTEXTURE *Texture, int *tw, int *th)
+{
+	*tw = 31 - (lzw(Texture->Width) + 1);
+	if(Texture->Width > (1<<*tw))
+		(*tw)++;
+
+	*th = 31 - (lzw(Texture->Height) + 1);
+	if(Texture->Height > (1<<*th))
+		(*th)++;
+}
+
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2, u64 color)
@@ -438,24 +447,18 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 	int qsize = 4;
 	int bsize = 64;
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
+	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int iu1 = gsKit_float_to_int_u(Texture, u1);
+	int iu2 = gsKit_float_to_int_u(Texture, u2);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_SPRITE_TEXTURED);
 
@@ -502,19 +505,14 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 	int ix1 = x1;
 	int ix2 = x2;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
 	u64 Tex0;
 	if(Texture->VramClut == 0)
@@ -583,12 +581,12 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 		*p_data++ = color;
 
-		*p_data++ = GS_SETREG_UV( ((int)(u1 * 16.0f)), iv1 );
-		*p_data++ = GS_SETREG_XYZ2( ((int)(x1 * 16.0f) + gsGlobal->OffsetX), iy1, iz1 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, u1), iv1 );
+		*p_data++ = GS_SETREG_XYZ2( gsKit_float_to_int_x(gsGlobal, x1), iy1, iz1 );
 
 		fu1 = leftuwidth;
 
-		*p_data++ = GS_SETREG_UV( ((int)(fu1 * 16.0f)), iv2 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, fu1), iv2 );
 		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->OffsetX, iy2, iz2 );
 
 		*p_data++ = 0;
@@ -601,14 +599,14 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 		*p_data++ = color;
 
-		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, fu1), iv1 );
+		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
 
 		fu1 += ustripwidth;
 		ix1 += 64;
 
-		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy2, iz2 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, fu1), iv2 );
+		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->OffsetX, iy2, iz2 );
 
 		*p_data++ = 0;
 	}
@@ -622,19 +620,18 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 		*p_data++ = color;
 
-		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv1);
-		*p_data++ = GS_SETREG_XYZ2((ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, fu1), iv1 );
+		*p_data++ = GS_SETREG_XYZ2( (ix1 << 4) + gsGlobal->OffsetX, iy1, iz1 );
 
 		fu1 += rightuwidth;
 		rightwidth += ix1;
 
-		*p_data++ = GS_SETREG_UV(((int)(fu1 * 16.0f)), iv2);
-		*p_data++ = GS_SETREG_XYZ2(((int)(rightwidth * 16.0f) + gsGlobal->OffsetX), iy2, iz2 );
+		*p_data++ = GS_SETREG_UV( gsKit_float_to_int_u(Texture, fu1), iv2 );
+		*p_data++ = GS_SETREG_XYZ2( gsKit_float_to_int_x(gsGlobal, rightwidth), iy2, iz2 );
 
 		*p_data++ = 0;
 
 	}
-
 }
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -648,27 +645,22 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int qsize = 5;
 	int bsize = 80;
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
-
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iu3 = (int)(u3 * 16.0f);
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
-	int iv3 = (int)(v3 * 16.0f);
+	int iu1 = gsKit_float_to_int_u(Texture, u1);
+	int iu2 = gsKit_float_to_int_u(Texture, u2);
+	int iu3 = gsKit_float_to_int_u(Texture, u3);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	int iv3 = gsKit_float_to_int_v(Texture, v3);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_TEXTURED);
 
@@ -704,6 +696,7 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu3, iv3 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 }
+
 void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
@@ -716,27 +709,22 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 	int qsize = 6;
 	int bsize = 96;
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
-
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iu3 = (int)(u3 * 16.0f);
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
-	int iv3 = (int)(v3 * 16.0f);
+	int iu1 = gsKit_float_to_int_u(Texture, u1);
+	int iu2 = gsKit_float_to_int_u(Texture, u2);
+	int iu3 = gsKit_float_to_int_u(Texture, u3);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	int iv3 = gsKit_float_to_int_v(Texture, v3);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_TEXTURED);
 
@@ -765,14 +753,15 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 	*p_data++ = GS_SETREG_UV( iu1, iv1 );
 	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
 
-  *p_data++ = color2;
+	*p_data++ = color2;
 	*p_data++ = GS_SETREG_UV( iu2, iv2 );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 
-  *p_data++ = color3;
+	*p_data++ = color3;
 	*p_data++ = GS_SETREG_UV( iu3, iv3 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 }
+
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color)
 {
@@ -783,20 +772,15 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int count;
 	int vertexdata[segments*4];
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (segments * 4); count+=4)
 	{
-		vertexdata[count] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
-		vertexdata[count+1] =  (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
-		vertexdata[count+2] =  (int)((*TriStrip++) * 16.0f);
-		vertexdata[count+3] =  (int)((*TriStrip++) * 16.0f);
+		vertexdata[count+0] = gsKit_float_to_int_x(gsGlobal, *TriStrip++);
+		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriStrip++);
+		vertexdata[count+2] = gsKit_float_to_int_u(Texture,  *TriStrip++);
+		vertexdata[count+3] = gsKit_float_to_int_v(Texture,  *TriStrip++);
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -835,7 +819,6 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		*p_data++ = GS_SETREG_XYZ2( vertexdata[count], vertexdata[count+1], iz );
 		*p_data++ = GS_XYZ2;
 	}
-
 }
 
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
@@ -848,21 +831,16 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 	int count;
 	int vertexdata[segments*5];
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (segments * 5); count+=5)
 	{
-		vertexdata[count] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetX;
-		vertexdata[count+1] = (int)((*TriStrip++) * 16.0f) + gsGlobal->OffsetY;
-		vertexdata[count+2] = (int)((*TriStrip++) * 16.0f);
-		vertexdata[count+3] = (int)((*TriStrip++) * 16.0f);
-		vertexdata[count+4] = (int)((*TriStrip++) * 16.0f);
+		vertexdata[count+0] = gsKit_float_to_int_x(gsGlobal, *TriStrip++);
+		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriStrip++);
+		vertexdata[count+2] = (int)((*TriStrip++) * 16.0f); // z
+		vertexdata[count+3] = gsKit_float_to_int_u(Texture,  *TriStrip++);
+		vertexdata[count+4] = gsKit_float_to_int_v(Texture,  *TriStrip++);
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -913,20 +891,15 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int count;
 	int vertexdata[verticies*4];
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (verticies * 4); count+=4)
 	{
-		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
-		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
-		vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
-		vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
+		vertexdata[count+0] = gsKit_float_to_int_x(gsGlobal, *TriFan++);
+		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriFan++);
+		vertexdata[count+2] = gsKit_float_to_int_u(Texture,  *TriFan++);
+		vertexdata[count+3] = gsKit_float_to_int_v(Texture,  *TriFan++);
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -977,21 +950,16 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int count;
 	int vertexdata[verticies*5];
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
-
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (verticies * 5); count+=5)
 	{
-		vertexdata[count] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetX;
-		vertexdata[count+1] =  (int)((*TriFan++) * 16.0f) + gsGlobal->OffsetY;
-		vertexdata[count+2] =  (int)((*TriFan++) * 16.0f);
-		vertexdata[count+3] =  (int)((*TriFan++) * 16.0f);
-		vertexdata[count+4] =  (int)((*TriFan++) * 16.0f);
+		vertexdata[count+0] = gsKit_float_to_int_x(gsGlobal, *TriFan++);
+		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriFan++);
+		vertexdata[count+2] = (int)((*TriFan++) * 16.0f); // z
+		vertexdata[count+3] = gsKit_float_to_int_u(Texture,  *TriFan++);
+		vertexdata[count+4] = gsKit_float_to_int_v(Texture,  *TriFan++);
 	}
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
@@ -1045,33 +1013,26 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int qsize = 6;
 	int bsize = 96;
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
-	int ix4 = (int)(x4 * 16.0f) + gsGlobal->OffsetX;
-
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
-	int iy4 = (int)(y4 * 16.0f) + gsGlobal->OffsetY;
-
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iu3 = (int)(u3 * 16.0f);
-	int iu4 = (int)(u4 * 16.0f);
-
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
-	int iv3 = (int)(v3 * 16.0f);
-	int iv4 = (int)(v4 * 16.0f);
+	int iu1 = gsKit_float_to_int_u(Texture, u1);
+	int iu2 = gsKit_float_to_int_u(Texture, u2);
+	int iu3 = gsKit_float_to_int_u(Texture, u3);
+	int iu4 = gsKit_float_to_int_u(Texture, u4);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	int iv3 = gsKit_float_to_int_v(Texture, v3);
+	int iv4 = gsKit_float_to_int_v(Texture, v4);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_TEXTURED);
 
@@ -1124,33 +1085,26 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int qsize = 7;
 	int bsize = 112;
 
-	int tw = 31 - (lzw(Texture->Width) + 1);
-	if(Texture->Width > (1<<tw))
-		tw++;
+	int tw, th;
+	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int th = 31 - (lzw(Texture->Height) + 1);
-	if(Texture->Height > (1<<th))
-		th++;
+	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
+	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	int ix1 = (int)(x1 * 16.0f) + gsGlobal->OffsetX;
-	int ix2 = (int)(x2 * 16.0f) + gsGlobal->OffsetX;
-	int ix3 = (int)(x3 * 16.0f) + gsGlobal->OffsetX;
-	int ix4 = (int)(x4 * 16.0f) + gsGlobal->OffsetX;
-
-	int iy1 = (int)(y1 * 16.0f) + gsGlobal->OffsetY;
-	int iy2 = (int)(y2 * 16.0f) + gsGlobal->OffsetY;
-	int iy3 = (int)(y3 * 16.0f) + gsGlobal->OffsetY;
-	int iy4 = (int)(y4 * 16.0f) + gsGlobal->OffsetY;
-
-	int iu1 = (int)(u1 * 16.0f);
-	int iu2 = (int)(u2 * 16.0f);
-	int iu3 = (int)(u3 * 16.0f);
-	int iu4 = (int)(u4 * 16.0f);
-
-	int iv1 = (int)(v1 * 16.0f);
-	int iv2 = (int)(v2 * 16.0f);
-	int iv3 = (int)(v3 * 16.0f);
-	int iv4 = (int)(v4 * 16.0f);
+	int iu1 = gsKit_float_to_int_u(Texture, u1);
+	int iu2 = gsKit_float_to_int_u(Texture, u2);
+	int iu3 = gsKit_float_to_int_u(Texture, u3);
+	int iu4 = gsKit_float_to_int_u(Texture, u4);
+	int iv1 = gsKit_float_to_int_v(Texture, v1);
+	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	int iv3 = gsKit_float_to_int_v(Texture, v3);
+	int iv4 = gsKit_float_to_int_v(Texture, v4);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_TEXTURED);
 
@@ -1178,15 +1132,15 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu1, iv1 );
 	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
 
-  *p_data++ = color2;
+	*p_data++ = color2;
 	*p_data++ = GS_SETREG_UV( iu2, iv2 );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 
-  *p_data++ = color3;
+	*p_data++ = color3;
 	*p_data++ = GS_SETREG_UV( iu3, iv3 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 
-  *p_data++ = color4;
+	*p_data++ = color4;
 	*p_data++ = GS_SETREG_UV( iu4, iv4 );
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 }
