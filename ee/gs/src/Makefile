@@ -19,7 +19,7 @@ EE_OBJS = 	gsCore.o \
 		gsTexture.o \
 		gsVU1.o
 
-EE_CFLAGS += -Wno-unused -O2
+EE_CFLAGS += -Wno-unused
 
 all: $(EE_OBJS)
 	$(EE_AR) rcs $(LIBGSKIT) $(EE_OBJS)
