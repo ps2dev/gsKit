@@ -11,7 +11,7 @@
 
 EE_BIN  = hires.elf
 EE_OBJS = main.o
-EE_LIBS = -ldraw -lgraph -lmath3d -lmf -lpacket -ldma
+EE_LIBS_EXTRA = -ldraw -lgraph -lmath3d -lmf -lpacket -ldma
 
 include ../../Makefile.pref
 include ../Makefile.global
