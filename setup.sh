@@ -4,8 +4,15 @@ echo "Welcome to the setup script for gsKit."
 echo "This script will attempt to automatically detect the presence of LIBPNG, LIBJPEG, LIBTIFF and ZLIB, and will set up all required environmental variables."
 echo "If your libraries are not stored in $PS2SDK/ports, please specify the location of the libraries manually."
 
+## Determine GNU Make command.
+if command -v gmake >/dev/null; then
+	GNUMAKE=gmake
+else
+	GNUMAKE=make
+fi
+
 echo "Performing pre-install cleanup."
-make clean --silent
+$GNUMAKE clean --silent
 
 echo "Libraries:"
 
@@ -42,8 +49,8 @@ else
 fi
 
 echo "Building gsKit."
-make --silent
+$GNUMAKE --silent
 echo "Installing gsKit."
-make install --silent
+$GNUMAKE install --silent
 echo "Performing post-install cleanup."
-make clean --silent
+$GNUMAKE clean --silent
