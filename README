@@ -35,10 +35,10 @@
 
  gsKit also includes a library named dmaKit. dmaKit provides C 
  routines for DMAC usage by gsKit. The aim of this library is also
- for eventual inclusion in PS2SDK. For now, it will remain part of the
+ for eventual inclusion in [PS2SDK](https://github.com/ps2dev/ps2sdk). For now, it will remain part of the
  gsKit project while it matures.
 
- This library is designed for intergration into the PS2SDK when it 
+ This library is designed for integration into the PS2SDK when it 
  becomes mature. As such, it is also designed to link and compile
  against the PS2SDK. Support for PS2LIB and other support libraries is
  untested.
@@ -60,6 +60,23 @@
  gsKit/ee/dma/include	- dmaKit include files.
  gsKit/ee/dms/src	- dmaKit source files.
  gsKit/vu1		- VU1 assembly files.
+
+Installation
+-----------------------------------------------------------------------
+
+1. Install PS2Toolchain
+In order to install `gsKit`, you must have previously installed the [PS2Toolchain](https://github.com/ps2dev/ps2toolchain) 
+(which automatically install also the [PS2SDK](https://github.com/ps2dev/ps2sdk))
+
+2. Edit your login script
+Add this to your login script (example: `~/.bash_profile`)  
+`export GSKIT=$PS2DEV/gsKit`
+
+NOTE: You should have already defined in your login script the `$PS2DEV` variable
+
+3. Compile and Install
+Run the next command
+`make && make install`
 
  Important Notes
  -----------------------------------------------------------------------
