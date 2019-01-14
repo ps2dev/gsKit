@@ -496,7 +496,7 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	Texture->Mem = memalign(128,TextureSize);
 
-	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, (long unsigned int *)Texture->Mem, 0))
+	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, Texture->Mem, 0))
 	{
 		printf("Error Reading TIFF Data\n");
 		TIFFClose(tif);
