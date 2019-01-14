@@ -1,0 +1,42 @@
+language: cpp
+
+services:
+  - docker
+
+sudo: required
+
+env:
+  - MATRIX_EVAL="PS2DOCKER=akuhak/ps2toolchain PS2FORK=ps2dev PS2BRANCH=master"
+  - MATRIX_EVAL="PS2DOCKER=ps2homebrew/ps2toolchain PS2FORK=uyjulian PS2BRANCH=uyjworking"
+
+matrix:
+  allow_failures:
+    - env:
+        - MATRIX_EVAL="PS2DOCKER=ps2homebrew/ps2toolchain PS2FORK=uyjulian PS2BRANCH=uyjworking"
+
+before_install:
+    - eval "${MATRIX_EVAL}"
+
+before_script:
+  # Get docker image
+  - docker pull ${PS2DOCKER}:latest
+  - docker ps
+
+  # Run DOCKER, run!
+  - docker run -d ${PS2DOCKER} bash -c "while true; do sleep 5; done" > container_id
+
+  # Configure ps2sdk
+  - docker exec -t $(cat container_id) bash -c "ls -l"
+  - docker exec -t $(cat container_id) bash -c "cd /; git clone https://github.com/${PS2FORK}/ps2sdk -b ${PS2BRANCH}"
+  - docker exec -t $(cat container_id) bash -c "cd /ps2sdk/; make install --silent"
+
+  # installing ports
+  - docker exec -t $(cat container_id) bash -c "cd /; git clone https://github.com/ps2dev/ps2sdk-ports; cd /ps2sdk-ports/; make libtiff libpng libjpeg freetype2"
+
+  - docker exec -t $(cat container_id) bash -c "mkdir -p /gsKit/;"
+  - docker cp $TRAVIS_BUILD_DIR/. $(cat container_id):/gsKit/
+
+script:
+  # It is difficult to export variables into Docker image, so I use setup.sh for this
+#  - docker exec -t $(cat container_id) bash -c "export LIBJPEG=$PS2SDK/ports && export LIBPNG=$PS2SDK/ports && export ZLIB=$PS2SDK/ports && export LIBTIFF=$PS2SDK/ports && cd /gsKit/ && make"
+  - docker exec -t $(cat container_id) bash -c "cd /gsKit/; ./setup.sh && make"
