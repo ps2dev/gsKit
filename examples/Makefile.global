@@ -38,7 +38,7 @@ endif
 
 EE_LIBS += -lgskit_toolkit
 EE_LIBS += -lgskit -ldmakit
-
+EE_LIBS += -lc -lkenrel
 EE_LIBS += -Xlinker --end-group
 
 # include dir

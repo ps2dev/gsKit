@@ -39,4 +39,4 @@ before_script:
 script:
   # It is difficult to export variables into Docker image, so I use setup.sh for this
 #  - docker exec -t $(cat container_id) bash -c "export LIBJPEG=$PS2SDK/ports && export LIBPNG=$PS2SDK/ports && export ZLIB=$PS2SDK/ports && export LIBTIFF=$PS2SDK/ports && cd /gsKit/ && make"
-  - docker exec -t $(cat container_id) bash -c "cd /gsKit/; ./setup.sh && make"
+  - docker exec -t $(cat container_id) bash -c "cd /gsKit/; ./setup.sh && make GSKIT_DEBUG=1"
