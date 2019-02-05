@@ -24,7 +24,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 	int ix = gsKit_float_to_int_x(gsGlobal, x);
 	int iy = gsKit_float_to_int_y(gsGlobal, y);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_POINT);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_POINT);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -53,7 +53,7 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x
 	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
 	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_LINE);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_LINE);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -83,7 +83,7 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
 	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_LINE);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_LINE);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -185,7 +185,7 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
 	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_SPRITE);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_SPRITE);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -220,7 +220,7 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
 	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE);
 
 	*p_data++ = GIF_TAG_TRIANGLE(0);
 	*p_data++ = GIF_TAG_TRIANGLE_REGS;
@@ -397,7 +397,7 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
 	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_GOURAUD);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE_GOURAUD);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -441,7 +441,7 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
 	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	p_store = p_data = gsKit_heap_alloc( gsGlobal, qsize, bsize, GIF_PRIM_QUAD);
+	p_store = p_data = gsKit_heap_alloc( gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
@@ -485,7 +485,7 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
 	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_GOURAUD);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD_GOURAUD);
 
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{

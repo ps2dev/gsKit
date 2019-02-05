@@ -460,7 +460,7 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 	int iv1 = gsKit_float_to_int_v(Texture, v1);
 	int iv2 = gsKit_float_to_int_v(Texture, v2);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_SPRITE_TEXTURED);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_SPRITE_TEXTURED);
 
 	*p_data++ = GIF_TAG_SPRITE_TEXTURED(0);
 	*p_data++ = GIF_TAG_SPRITE_TEXTURED_REGS(gsGlobal->PrimContext);
@@ -662,7 +662,7 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int iv2 = gsKit_float_to_int_v(Texture, v2);
 	int iv3 = gsKit_float_to_int_v(Texture, v3);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_TEXTURED);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE_TEXTURED);
 
 	*p_data++ = GIF_TAG_TRIANGLE_TEXTURED(0);
 	*p_data++ = GIF_TAG_TRIANGLE_TEXTURED_REGS(gsGlobal->PrimContext);
@@ -726,7 +726,7 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 	int iv2 = gsKit_float_to_int_v(Texture, v2);
 	int iv3 = gsKit_float_to_int_v(Texture, v3);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_TRIANGLE_TEXTURED);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE_TEXTURED);
 
 	*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(0);
 	*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(gsGlobal->PrimContext);
@@ -1034,7 +1034,7 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int iv3 = gsKit_float_to_int_v(Texture, v3);
 	int iv4 = gsKit_float_to_int_v(Texture, v4);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_TEXTURED);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD_TEXTURED);
 
 	*p_data++ = GIF_TAG_QUAD_TEXTURED(0);
 	*p_data++ = GIF_TAG_QUAD_TEXTURED_REGS(gsGlobal->PrimContext);
@@ -1106,7 +1106,7 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	int iv3 = gsKit_float_to_int_v(Texture, v3);
 	int iv4 = gsKit_float_to_int_v(Texture, v4);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_PRIM_QUAD_TEXTURED);
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD_TEXTURED);
 
 	*p_data++ = GIF_TAG_QUAD_GORAUD_TEXTURED(0);
 	*p_data++ = GIF_TAG_QUAD_GORAUD_TEXTURED_REGS(gsGlobal->PrimContext);
