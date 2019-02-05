@@ -28,7 +28,10 @@
 #include <png.h>
 #endif
 
-static int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
+extern int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
+
+#ifdef F_gsKit_texture_finish
+int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 {
 	if(!Texture->Delayed)
 	{
@@ -72,7 +75,9 @@ static int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 
 	return 0;
 }
+#endif
 
+#ifdef F_gsKit_texture_png
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBPNG
@@ -219,7 +224,9 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return -1;
 #endif
 }
+#endif
 
+#ifdef F_gsKit_texture_bmp
 int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	GSBITMAP Bitmap;
@@ -423,7 +430,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	return gsKit_texture_finish(gsGlobal, Texture);
 }
+#endif
 
+#ifdef F_gsKit_texture_jpeg
 int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 #ifdef HAVE_LIBJPEG
@@ -521,7 +530,9 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	return -1;
 #endif
 }
+#endif
 
+#ifdef F_gsKit_texture_raw
 int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	FILE* File = fopen(Path, "rb");
@@ -548,13 +559,17 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	return gsKit_texture_finish(gsGlobal, Texture);
 }
+#endif
 
+#ifdef F_gsKit_texture_tga
 int gsKit_texture_tga(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
 	printf("ERROR: gsKit_texture_tga unimplimented.\n");
 	return -1;
 }
+#endif
 
+#ifdef F_gsKit_texture_fnt_raw
 int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	u32 *data = (u32*)gsFont->RawData;
@@ -607,7 +622,9 @@ int gsKit_texture_fnt_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	free(gsFont->Texture->Mem);
 	return 0;
 }
+#endif
 
+#ifdef F_gsKit_texture_fnt
 // TODO:fix
 /*
 int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
@@ -703,6 +720,9 @@ int gsKit_texture_fnt(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	return 0;
 }
 */
+#endif
+
+#ifdef F_gsKit_init_font
 GSFONT *gsKit_init_font(u8 type, char *path)
 {
     char *tmp = NULL;
@@ -748,7 +768,9 @@ GSFONT *gsKit_init_font(u8 type, char *path)
     return gsFont;
 
 }
+#endif
 
+#ifdef F_gsKit_init_font_raw
 GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size)
 {
 
@@ -761,7 +783,9 @@ GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size)
 
 	return gsFont;
 }
+#endif
 
+#ifdef F_gsKit_font_upload_raw
 int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	int i;
@@ -782,7 +806,9 @@ int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 	return -1; //type unknown
 }
+#endif
 
+#ifdef F_gsKit_font_upload
 int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	int i;
@@ -859,8 +885,9 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 
 	return -1;
 }
+#endif
 
-
+#ifdef F_gsKit_font_print_scaled
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
                       float scale, unsigned long color, const char *String)
 {
@@ -958,3 +985,5 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		gsGlobal->PrimAlpha=oldalpha;
 	}
 }
+#endif
+
