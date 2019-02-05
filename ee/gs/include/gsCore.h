@@ -200,6 +200,12 @@ void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel);
 /// Sets the Texture Filtering Parameters
 void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode);
 
+/// Sets the Dither Matrix Setting
+void gsKit_set_dither_matrix(GSGLOBAL *gsGlobal);
+
+/// Enables/Disables dithering, with the gsGlobal Dithering option.
+void gsKit_set_dither(GSGLOBAL *gsGlobal);
+
 /// Append the Current Queue with a GS_FINISH Register
 GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal);
 
