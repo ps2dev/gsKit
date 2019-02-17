@@ -10,20 +10,21 @@
 #
 
 SUBDIRS =
+SUBDIRS += alpha
 SUBDIRS += basic
 SUBDIRS += bigtex
+SUBDIRS += coverflow
+SUBDIRS += fb
+SUBDIRS += font
+SUBDIRS += fontm
+SUBDIRS += hires
+SUBDIRS += linuz-texture
+SUBDIRS += modetest
+SUBDIRS += pixelperfect
+SUBDIRS += png-texture
 SUBDIRS += texstream
 SUBDIRS += textures
-SUBDIRS += linuz-texture
-SUBDIRS += font
-SUBDIRS += alpha
-SUBDIRS += fontm
-SUBDIRS += png-texture
 SUBDIRS += vsync
-SUBDIRS += fb
-SUBDIRS += hires
-SUBDIRS += pixelperfect
-SUBDIRS += coverflow
 
 include ../Rules.make
 
