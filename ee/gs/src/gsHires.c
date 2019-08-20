@@ -13,6 +13,7 @@
 #include <gsKit.h>
 #include "gsInline.h"
 #include <kernel.h>
+#include <malloc.h>
 
 
 /*

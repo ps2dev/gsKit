@@ -15,6 +15,7 @@
 #include "gsInline.h"
 
 #include <kernel.h>
+#include <malloc.h>
 
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 {

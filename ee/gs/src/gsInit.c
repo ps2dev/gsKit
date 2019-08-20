@@ -14,6 +14,8 @@
 #include "gsKit.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
 #include <kernel.h>
 #include <osd_config.h>
 

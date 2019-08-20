@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 #include <kernel.h>
 
 #include "gsKit.h"
