@@ -17,7 +17,11 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <string.h>
+#include <malloc.h>
+#include <fileio.h>
 
 #include "gsKit.h"
 #include "gsInline.h"
