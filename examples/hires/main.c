@@ -162,6 +162,12 @@ int render(GSGLOBAL *gsGlobal)
 		// Convert floating point colours to fixed point.
 		draw_convert_rgbq(colors, vertex_count, temp_vertices, temp_colours, 0x80);
 
+#ifndef HIRES_MODE
+		// HIRES mode automatically clears the screen
+		// So only clear the screen in normal mode
+		gsKit_clear(gsGlobal, 0);
+#endif
+
 #ifdef DYNAMIC_DITHERING
 		// Dithering:
 		// The standard 4x4 dithering matrix creates static noise to eliminate banding.
