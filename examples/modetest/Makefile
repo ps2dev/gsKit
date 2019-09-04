@@ -11,7 +11,7 @@
 
 EE_BIN  = modetest.elf
 EE_OBJS = modetest.o pad.o
-EE_LIBS = -lpad
+EE_LIBS_EXTRA = -lpad
 
 include ../../Makefile.pref
 include ../Makefile.global
