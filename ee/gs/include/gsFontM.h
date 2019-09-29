@@ -30,7 +30,7 @@
 #define ALPHA_BLEND_ADD_NOALPHA    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_FIX,ALPHA_DST,0x80))
 #define ALPHA_BLEND_ADD    (ALPHA(ALPHA_SRC,ALPHA_ZERO,ALPHA_SRC,ALPHA_DST,0x00))
 
-#define GS_FONTM_PAGE_COUNT 2
+#define GS_FONTM_PAGE_COUNT 8
 
 struct gsKit_fontm_unpack
 {
@@ -61,15 +61,12 @@ typedef struct gsKit_fontm_header GSFONTMHDR;
 /// given font object, regardless of original format or type.
 struct gsFontM
 {
-	GSTEXTURE *Texture;     ///< Font Texture Object
+	GSTEXTURE *Texture[GS_FONTM_PAGE_COUNT]; ///< Font Texture Objects
 	GSFONTMHDR Header;      ///< FONTM Header
-	u32 Vram[GS_FONTM_PAGE_COUNT];	///< FONTM VRAM Allocation (Double Buffered)
 	u32 VramIdx;            ///< FONTM Current Double Buffer Index
-	u32 LastPage[GS_FONTM_PAGE_COUNT];	///< FONTM Last Uploaded Texture Page
 	u8 Align;               ///< FONTM Line Alignment
 	float Spacing;          ///< FONTM Glyph Spacing
 	void *TexBase;          ///< Glyphs Texture Base
-    int pgcount;            /// Number of pages used in one call to gsKit_font_print_scaled
 };
 typedef struct gsFontM GSFONTM;
 
@@ -78,8 +75,10 @@ typedef struct gsFontM GSFONTM;
 extern "C" {
 #endif
 
-/// Initialize Font Object
+/// Create Font Object
 GSFONTM *gsKit_init_fontm();
+/// Free Font Object
+void gsKit_free_fontm(GSGLOBAL *gsGlobal, GSFONTM *gsFontM);
 
 int gsKit_fontm_upload(GSGLOBAL *gsGlobal, GSFONTM *gsFontM);
 int gsKit_fontm_unpack(GSFONTM *gsFontM);
