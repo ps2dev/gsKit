@@ -209,7 +209,6 @@ gsKit_TexManager_setmode(GSGLOBAL * gsGlobal, enum ETransferMode mode)
 }
 
 //---------------------------------------------------------------------------
-// FIXME: CLUT textures only work for 8bit textures with a 32bit clut
 unsigned int
 gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
@@ -217,7 +216,9 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 	unsigned int ttransfer = 0;
 	unsigned int ctransfer = 0;
 	unsigned int tsize;
-	unsigned int csize;
+	unsigned int csize = 0;
+	unsigned int cwidth = 16;
+	unsigned int cheight = 16;
 
 	// Locate texture
 	for (block = head; block != NULL; block = block->pNext) {
@@ -226,7 +227,11 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 	}
 
 	tsize = gsKit_texture_size(tex->Width, tex->Height, tex->PSM);
-	csize = tex->Clut ? 256*4 : 0;
+	if (tex->Clut != NULL) {
+		cwidth  = (tex->PSM == GS_PSM_T8) ? 16 : 8;
+		cheight = (tex->PSM == GS_PSM_T8) ? 16 : 2;
+		csize   = gsKit_texture_size(cwidth, cheight, tex->ClutPSM);
+	}
 
 	// Allocate new block if not already loaded
 	if (block == NULL) {
@@ -261,9 +266,9 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 		tex->VramClut = block->iStart + tsize;
 		SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
 		if (trmode == ETM_INLINE)
-			gsKit_texture_send_inline(gsGlobal, tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
+			gsKit_texture_send_inline(gsGlobal, tex->Clut, cwidth, cheight, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
 		else
-			gsKit_texture_send(tex->Clut, 16, 16, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
+			gsKit_texture_send(tex->Clut, cwidth, cheight, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
 	}
 
 	block->iUseCount++;
