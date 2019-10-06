@@ -54,19 +54,16 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	Sprite.Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(Sprite.Width, Sprite.Height, Sprite.PSM), GSKIT_ALLOC_USERBUFFER);
-
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 
 	while(1)
 	{
 		gsKit_clear(gsGlobal, White);
 
-		gsKit_texture_send_inline(gsGlobal, Sprite.Mem, Sprite.Width, Sprite.Height, Sprite.Vram, Sprite.PSM, Sprite.TBW, GS_CLUT_NONE);
-
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 #ifdef HAVE_LIBPNG
+		gsKit_TexManager_bind(gsGlobal, &Sprite);
 		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
 								50.0f,  // Y2
 								0.0f,  // U1
@@ -84,6 +81,8 @@ int main(int argc, char *argv[])
 		gsKit_sync_flip(gsGlobal);
 
 		gsKit_queue_exec(gsGlobal);
+
+		gsKit_TexManager_nextFrame(gsGlobal);
 	}
 
 	return 0;

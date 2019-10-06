@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
 
 	gsKit_init_screen(gsGlobal);
 #ifdef HAVE_LIBTIFF
+	Sprite.Delayed = 1;
 	if(gsKit_texture_tiff(gsGlobal, &Sprite, "host:alpha.tiff") < 0)
 	{
 		printf("Loading Failed!\n");
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 #ifdef HAVE_LIBTIFF
+		gsKit_TexManager_bind(gsGlobal, &Sprite);
 		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
 								50.0f,  // Y2
 								0.0f,  // U1
@@ -100,6 +102,8 @@ int main(int argc, char *argv[])
 		gsKit_queue_exec(gsGlobal);
 
 		gsKit_queue_reset(gsGlobal->Per_Queue);
+
+		gsKit_TexManager_nextFrame(gsGlobal);
 	}
 
 	return 0;

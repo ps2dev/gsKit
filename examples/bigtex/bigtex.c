@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
         bigtex.Height = 480;
         bigtex.PSM = GS_PSM_CT24;
         bigtex.Filter = GS_FILTER_NEAREST;
+        bigtex.Delayed = 1;
 
 	// gsKit_texture_raw(gsGlobal, &bigtex, "host:bigtex.raw");
 	gsKit_texture_bmp(gsGlobal, &bigtex, "host:bigtex.bmp");
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
 
 		gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 
+		gsKit_TexManager_bind(gsGlobal, &bigtex);
 		gsKit_prim_sprite_striped_texture(gsGlobal, &bigtex, x,  // X1
 		// gsKit_prim_sprite_texture(gsGlobal, &bigtex, x,  // X1
 							     0.0f,  // Y2
@@ -71,6 +73,8 @@ int main(int argc, char *argv[])
 		gsKit_queue_exec(gsGlobal);
 
 		gsKit_sync_flip(gsGlobal);
+
+		gsKit_TexManager_nextFrame(gsGlobal);
 
 		if(shrinkx)
 		{
