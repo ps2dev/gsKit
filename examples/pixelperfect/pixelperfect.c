@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 	gsKit_fontm_upload(gsGlobal, gsFontM);
 
 	// Load textures
-	tx128.Delayed = 0;
-	tx132.Delayed = 0;
+	tx128.Delayed = 1;
+	tx132.Delayed = 1;
 	gsKit_texture_png(gsGlobal, &tx128, "host:128x128.png");
 	gsKit_texture_png(gsGlobal, &tx132, "host:132x132.png");
 
@@ -95,70 +95,75 @@ int main(int argc, char *argv[])
 		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 20, 190, 2, 0.5f, Black, "GS_FILTER_LINEAR");
 
 		tx128.Filter = GS_FILTER_NEAREST;
+		gsKit_TexManager_bind(gsGlobal, &tx128);
 		gsKit_prim_sprite_texture(gsGlobal, &tx128,
-								fOffsetX+ 20.0f, // X1
-								fOffsetY+ 40.0f, // Y2
-								fOffsetU+  0.0f, // U1
-								fOffsetV+  0.0f, // V1
-								fOffsetX+tx128.Width  + 20.0f, // X2
-								fOffsetY+tx128.Height + 40.0f, // Y2
-								fOffsetU+tx128.Width,  // U2
-								fOffsetV+tx128.Height, // V2
-								2,
-								TexCol);
+			fOffsetX+ 20.0f, // X1
+			fOffsetY+ 40.0f, // Y2
+			fOffsetU+  0.0f, // U1
+			fOffsetV+  0.0f, // V1
+			fOffsetX+tx128.Width  + 20.0f, // X2
+			fOffsetY+tx128.Height + 40.0f, // Y2
+			fOffsetU+tx128.Width,  // U2
+			fOffsetV+tx128.Height, // V2
+			2,
+			TexCol);
 
 		tx132.Filter = GS_FILTER_NEAREST;
+		gsKit_TexManager_bind(gsGlobal, &tx132);
 		gsKit_prim_sprite_texture(gsGlobal, &tx132,
-								fOffsetX+170.0f, // X1
-								fOffsetY+ 40.0f, // Y2
-								fOffsetU+  2.0f, // U1
-								fOffsetV+  2.0f, // V1
-								fOffsetX+tx132.Width  - 4.0f + 170.0f, // X2
-								fOffsetY+tx132.Height - 4.0f +  40.0f, // Y2
-								fOffsetU+tx132.Width  - 2.0f, // U2
-								fOffsetV+tx132.Height - 2.0f, // V2
-								2,
-								TexCol);
+			fOffsetX+170.0f, // X1
+			fOffsetY+ 40.0f, // Y2
+			fOffsetU+  2.0f, // U1
+			fOffsetV+  2.0f, // V1
+			fOffsetX+tx132.Width  - 4.0f + 170.0f, // X2
+			fOffsetY+tx132.Height - 4.0f +  40.0f, // Y2
+			fOffsetU+tx132.Width  - 2.0f, // U2
+			fOffsetV+tx132.Height - 2.0f, // V2
+			2,
+			TexCol);
 
 		tx128.Filter = GS_FILTER_LINEAR;
+		gsKit_TexManager_bind(gsGlobal, &tx128);
 		gsKit_prim_sprite_texture(gsGlobal, &tx128,
-								fOffsetX+ 20.0f, // X1
-								fOffsetY+210.0f, // Y2
-								fOffsetU+  0.0f, // U1
-								fOffsetV+  0.0f, // V1
-								fOffsetX+tx128.Width  +  20.0f, // X2
-								fOffsetY+tx128.Height + 210.0f, // Y2
-								fOffsetU+tx128.Width,  // U2
-								fOffsetV+tx128.Height, // V2
-								2,
-								TexCol);
+			fOffsetX+ 20.0f, // X1
+			fOffsetY+210.0f, // Y2
+			fOffsetU+  0.0f, // U1
+			fOffsetV+  0.0f, // V1
+			fOffsetX+tx128.Width  +  20.0f, // X2
+			fOffsetY+tx128.Height + 210.0f, // Y2
+			fOffsetU+tx128.Width,  // U2
+			fOffsetV+tx128.Height, // V2
+			2,
+			TexCol);
 
 		tx132.Filter = GS_FILTER_LINEAR;
+		gsKit_TexManager_bind(gsGlobal, &tx132);
 		gsKit_prim_sprite_texture(gsGlobal, &tx132,
-								fOffsetX+170.0f, // X1
-								fOffsetY+210.0f, // Y2
-								fOffsetU+  2.0f, // U1
-								fOffsetV+  2.0f, // V1
-								fOffsetX+tx132.Width  - 4.0f + 170.0f, // X2
-								fOffsetY+tx132.Height - 4.0f + 210.0f, // Y2
-								fOffsetU+tx132.Width  - 2.0f, // U2
-								fOffsetV+tx132.Height - 2.0f, // V2
-								2,
-								TexCol);
+			fOffsetX+170.0f, // X1
+			fOffsetY+210.0f, // Y2
+			fOffsetU+  2.0f, // U1
+			fOffsetV+  2.0f, // V1
+			fOffsetX+tx132.Width  - 4.0f + 170.0f, // X2
+			fOffsetY+tx132.Height - 4.0f + 210.0f, // Y2
+			fOffsetU+tx132.Width  - 2.0f, // U2
+			fOffsetV+tx132.Height - 2.0f, // V2
+			2,
+			TexCol);
 
 		// Magnified to 350x350 pixels
 		tx132.Filter = GS_FILTER_LINEAR;
+		gsKit_TexManager_bind(gsGlobal, &tx132);
 		gsKit_prim_sprite_texture(gsGlobal, &tx132,
-								fOffsetX+320.0f, // X1
-								fOffsetY+ 40.0f, // Y2
-								fOffsetU+  2.0f, // U1
-								fOffsetV+  2.0f, // V1
-								fOffsetX+350.0f + 320.0f, // X2
-								fOffsetY+350.0f +  40.0f, // Y2
-								fOffsetU+tx132.Width  - 2.0f, // U2
-								fOffsetV+tx132.Height - 2.0f, // V2
-								2,
-								TexCol);
+			fOffsetX+320.0f, // X1
+			fOffsetY+ 40.0f, // Y2
+			fOffsetU+  2.0f, // U1
+			fOffsetV+  2.0f, // V1
+			fOffsetX+350.0f + 320.0f, // X2
+			fOffsetY+350.0f +  40.0f, // Y2
+			fOffsetU+tx132.Width  - 2.0f, // U2
+			fOffsetV+tx132.Height - 2.0f, // V2
+			2,
+			TexCol);
 
 		sprintf(tempstr, "fOffsetXY = %.3f %.3f", fOffsetX, fOffsetY);
 		gsKit_fontm_print_scaled(gsGlobal, gsFontM, 20, 400, 2, 0.5f, Black, tempstr);
@@ -167,6 +172,7 @@ int main(int argc, char *argv[])
 
 		gsKit_queue_exec(gsGlobal);
 		gsKit_sync_flip(gsGlobal);
+		gsKit_TexManager_nextFrame(gsGlobal);
 	}
 
 	return 0;
