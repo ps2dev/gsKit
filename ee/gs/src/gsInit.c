@@ -165,6 +165,13 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 			break;
 	}
 
+	if((gsGlobal->Mode == GS_MODE_NTSC || gsGlobal->Mode == GS_MODE_PAL) && (gsGlobal->Interlace == GS_NONINTERLACED)) {
+		// NTSC 240p instead of 480i
+		// PAL  288p instead of 576i
+		gsGlobal->StartY /= 2;
+		gsGlobal->DH /= 2;
+	}
+
 	gsGlobal->MagH = (gsGlobal->DW / gsGlobal->Width) - 1; // gsGlobal->DW should be a multiple of the screen width
 	gsGlobal->MagV = (gsGlobal->DH / gsGlobal->Height) - 1; // gsGlobal->DH should be a multiple of the screen height
 
