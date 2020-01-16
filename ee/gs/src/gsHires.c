@@ -148,7 +148,7 @@ static int hsync_callback()
 	for (iPass = 0; iPass < iPassCount; iPass++) {
 		if (hsync_count == (iYStart + pass[iPass].CRTCBuffer->scanline_begin)) {
 			if (iPass == 0) {
-				// We start rendering the first pass when the CRTS starts
+				// We start rendering the first pass when the CRTC starts
 				// displaying the last pass of the previous field.
 				// So invert to get the current render field.
 				iCurrentRenderField = (((GSREG*)GS_CSR)->FIELD == 1) ? 0 : 1;
@@ -651,7 +651,10 @@ void gsKit_hires_deinit_global(GSGLOBAL *gsGlobal)
 	if (hsync_callback_id >= 0)
 		gsKit_remove_hsync_handler(hsync_callback_id);
 
+	WaitSema(sema_queue_id);
+
 	TerminateThread(ThreadId);
+	DeleteThread(ThreadId);
 
 	if (sema_queue_id >= 0)
 		DeleteSema(sema_queue_id);
@@ -662,6 +665,7 @@ void gsKit_hires_deinit_global(GSGLOBAL *gsGlobal)
 	if (sema_hsync_id >= 0)
 		DeleteSema(sema_hsync_id);
 
+	dmaKit_wait_fast();
 	gsKit_queue_free(gsGlobal, &DrawQueue[1]);
 
 	for (iPass = 0; iPass < iPassCount; iPass++) {
@@ -670,7 +674,4 @@ void gsKit_hires_deinit_global(GSGLOBAL *gsGlobal)
 	}
 
 	gsKit_deinit_global(gsGlobal);
-
-	gsGlobal->CurrentPointer = 0;
-	gsGlobal->TexturePointer = 0;
 }
