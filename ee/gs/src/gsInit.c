@@ -474,9 +474,7 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->Clamp = calloc(1,sizeof(GSCLAMP));
 	gsGlobal->Os_Queue = calloc(1,sizeof(GSQUEUE));
 	gsGlobal->Per_Queue = calloc(1,sizeof(GSQUEUE));
-	gsGlobal->dma_misc = (u64 *)((u32)memalign(64, 512) | 0x30000000);
-
-	FlushCache(0);
+	gsGlobal->dma_misc = gsKit_alloc_ucab(512);
 
 	/* Generic Values */
 	if(configGetTvScreenType() == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
@@ -558,9 +556,7 @@ void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 	gsKit_queue_free(gsGlobal, gsGlobal->Per_Queue);
 	gsKit_queue_free(gsGlobal, gsGlobal->Os_Queue);
 
-    gsGlobal->dma_misc = (u64 *)((u32)gsGlobal->dma_misc ^ 0x30000000);
-
-    free(gsGlobal->dma_misc);
+    gsKit_free_ucab(gsGlobal->dma_misc);
     free(gsGlobal->Per_Queue);
     free(gsGlobal->Os_Queue);
     free(gsGlobal->Clamp);

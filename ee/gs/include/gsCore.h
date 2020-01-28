@@ -218,6 +218,12 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal);
 /// Specific Draw Queue "Execution" (Kicks the Queue passed for the second argument)
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue);
 
+/// Allocate UCAB buffer in GSQUEUE, internal use only
+void *gsKit_alloc_ucab(int size);
+
+/// Free UCAB buffer in GSQUEUE, internal use only
+void gsKit_free_ucab(void *p);
+
 /// Initialize a Draw Queue (Allocates memory for the Queue)
 void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size);
 
