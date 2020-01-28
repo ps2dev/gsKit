@@ -525,16 +525,40 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 	gsGlobal->FirstFrame = GS_SETTING_OFF;
 }
 
+void *gsKit_alloc_ucab(int size)
+{
+	// Allocate aligned memory
+	u8 *p = memalign(64, size);
+
+	// Flush the data cache
+	SyncDCache(p, p+size-1);
+
+	// Convert normal to UCAB memory
+	p = (u8*)((u32)p | 0x30000000);
+
+	// Return memory to UCAB area
+	return p;
+}
+
+void gsKit_free_ucab(void *p)
+{
+	// Convert UCAB to normal memory
+	p = (u64 *)((u32)p & ~0x30000000);
+
+	// Free normal memory
+	free(p);
+}
+
 void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size)
 {
 	// Init pool 0
-	Queue->pool[0]		= (u64 *)((u32)memalign(64, size) | 0x30000000);
+	Queue->pool[0]		= gsKit_alloc_ucab(size);
 	Queue->pool_max[0]	= (u64 *)((u32)Queue->pool[0] + size);
 
 	if (mode == GS_ONESHOT)
 	{
 		// Init pool 1
-		Queue->pool[1]		= (u64 *)((u32)memalign(64, size) | 0x30000000);
+		Queue->pool[1]		= gsKit_alloc_ucab(size);
 		Queue->pool_max[1]	= (u64 *)((u32)Queue->pool[1] + size);
 	}
 
@@ -554,15 +578,13 @@ void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 
 	if (Queue->pool[0] != NULL)
 	{
-		Queue->pool[0] = (u64 *)((u32)Queue->pool[0] ^ 0x30000000);
-		free(Queue->pool[0]);
+		gsKit_free_ucab(Queue->pool[0]);
 		Queue->pool[0] = NULL;
 	}
 
 	if (Queue->pool[1] != NULL)
 	{
-		Queue->pool[1] = (u64 *)((u32)Queue->pool[1] ^ 0x30000000);
-		free(Queue->pool[1]);
+		gsKit_free_ucab(Queue->pool[1]);
 		Queue->pool[1] = NULL;
 	}
 }
