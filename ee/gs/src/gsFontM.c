@@ -96,8 +96,13 @@ void gsKit_free_fontm(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 		free(gsFontM->Texture[pgindx]);
 		gsFontM->Texture[pgindx] = NULL;
 	}
-	free(gsFontM->TexBase);
-	gsFontM->TexBase = NULL;
+
+	if (gsFontM->Header.offset_table != NULL)
+		free(gsFontM->Header.offset_table);
+
+	if (gsFontM->TexBase != NULL)
+		free(gsFontM->TexBase);
+
 	free(gsFontM);
 }
 
