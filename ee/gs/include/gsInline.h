@@ -31,7 +31,7 @@ static inline void *_gsKit_heap_alloc(GSQUEUE *q, int qsize, int bsize, int type
 		*(u64 *)q->dma_tag = DMA_TAG(q->tag_size, 0, DMA_CNT, 0, 0, 0);
 		q->tag_size = 0;
 		q->dma_tag = q->pool_cur;
-		(u8*)q->pool_cur += 16;
+		q->pool_cur = (u8*)q->pool_cur + 16;
 	}
 
 	if(type == GIF_AD || type != q->last_type || q->same_obj >= GS_GIF_BLOCKSIZE)
@@ -49,7 +49,7 @@ static inline void *_gsKit_heap_alloc(GSQUEUE *q, int qsize, int bsize, int type
 	q->last_type = type;
 	q->tag_size += qsize;
 	void *p_heap = q->pool_cur;
-	(u8*)q->pool_cur += bsize;
+	q->pool_cur = (u8*)q->pool_cur + bsize;
 
 	return p_heap;
 }
@@ -83,9 +83,9 @@ static inline void *_gsKit_heap_alloc_dma(GSQUEUE *q, int qsize, int bsize)
 	q->same_obj = 0;
 
 	void *p_heap = q->pool_cur;
-	(u8*)q->pool_cur += bsize;
+	q->pool_cur = (u8*)q->pool_cur + bsize;
 	q->dma_tag = q->pool_cur;
-	(u8*)q->pool_cur += 16;
+	q->pool_cur = (u8*)q->pool_cur + 16;
 
 	return p_heap;
 }
