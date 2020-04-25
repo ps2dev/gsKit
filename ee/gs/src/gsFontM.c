@@ -19,9 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 #include <malloc.h>
-#include <fileio.h>
 
 #include "gsKit.h"
 #include "gsInline.h"
@@ -96,8 +96,13 @@ void gsKit_free_fontm(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 		free(gsFontM->Texture[pgindx]);
 		gsFontM->Texture[pgindx] = NULL;
 	}
-	free(gsFontM->TexBase);
-	gsFontM->TexBase = NULL;
+
+	if (gsFontM->Header.offset_table != NULL)
+		free(gsFontM->Header.offset_table);
+
+	if (gsFontM->TexBase != NULL)
+		free(gsFontM->TexBase);
+
 	free(gsFontM);
 }
 
@@ -130,27 +135,27 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	void *packed;
 	void *unpacked;
 
-	int FontMFile = fioOpen("rom0:FONTM", O_RDONLY);
+	int FontMFile = open("rom0:FONTM", O_RDONLY);
 	if(FontMFile < 0)
 	{
 		printf("Failed to open FONTM from ROM0\n");
 		return -1;
 	}
 
-	int PackedSize = fioLseek(FontMFile, 0, SEEK_END);
+	int PackedSize = lseek(FontMFile, 0, SEEK_END);
 
-	fioLseek(FontMFile, 0, SEEK_SET);
+	lseek(FontMFile, 0, SEEK_SET);
 
 	packed = malloc(PackedSize);
 
-	if(fioRead(FontMFile, packed, PackedSize) != PackedSize)
+	if(read(FontMFile, packed, PackedSize) != PackedSize)
 	{
 		printf("Error Reading Packed FONTM Data\n");
-		fioClose(FontMFile);
+		close(FontMFile);
 		return -1;
 	}
 
-	fioClose(FontMFile);
+	close(FontMFile);
 
 	struct gsKit_fontm_unpack updata;
 
@@ -165,11 +170,11 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 
 /*
 	// Use this to dump the unpacked fontm file to host:
-	int DumpFile = fioOpen("host:fontm.dump", O_RDWR);
+	int DumpFile = open("host:fontm.dump", O_RDWR);
 
-	fioWrite(DumpFile, unpacked, updata.size);
+	write(DumpFile, unpacked, updata.size);
 
-	fioClose(DumpFile);
+	close(DumpFile);
 */
 
 	gsFontM->Header.sig = *(u32 *)unpacked;
