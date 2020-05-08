@@ -271,6 +271,10 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		fseek(File, 54, SEEK_SET);
 		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
 		{
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
 			printf("BMP: Could not load bitmap: %s\n", Path);
 			fclose(File);
 			return -1;
@@ -373,6 +377,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 				free(Texture->Clut);
 				Texture->Clut = NULL;
 			}
+			fclose(File);
 			return -1;
 		}
 
@@ -401,7 +406,8 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 				free(Texture->Clut);
 				Texture->Clut = NULL;
 			}
-			return -2;
+			fclose(File);
+			return -1;
 		}
 
 		fread(image, FTexSize, 1, File);
@@ -433,16 +439,25 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 				free(Texture->Clut);
 				Texture->Clut = NULL;
 			}
-			return -3;
+			fclose(File);
+			return -1;
 		}
 
 		if (fread(image, FTexSize, 1, File) != 1)
 		{
-			printf("BMP: Read failed!\n");
-			printf("BMP: Size %d\n", FTexSize);
+			if (Texture->Mem) {
+				free(Texture->Mem);
+				Texture->Mem = NULL;
+			}
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			printf("BMP: Read failed!, Size %d\n", FTexSize);
 			free(image);
 			image = NULL;
 			fclose(File);
+			return -1;
 		}
 		for (y = Texture->Height - 1; y >= 0; y--)
 		{
