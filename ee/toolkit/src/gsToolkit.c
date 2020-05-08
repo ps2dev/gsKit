@@ -240,19 +240,19 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	FILE* File = fopen(Path, "rb");
 	if (File == NULL)
 	{
-		printf("Failed to load bitmap: %s\n", Path);
+		printf("BMP: Failed to load bitmap: %s\n", Path);
 		return -1;
 	}
 	if (fread(&Bitmap.FileHeader, sizeof(Bitmap.FileHeader), 1, File) <= 0)
 	{
-		printf("Could not load bitmap: %s\n", Path);
+		printf("BMP: Could not load bitmap: %s\n", Path);
 		fclose(File);
 		return -1;
 	}
 
 	if (fread(&Bitmap.InfoHeader, sizeof(Bitmap.InfoHeader), 1, File) <= 0)
 	{
-		printf("Could not load bitmap: %s\n", Path);
+		printf("BMP: Could not load bitmap: %s\n", Path);
 		fclose(File);
 		return -1;
 	}
@@ -271,7 +271,11 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		fseek(File, 54, SEEK_SET);
 		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
 		{
-			printf("Could not load bitmap: %s\n", Path);
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			printf("BMP: Could not load bitmap: %s\n", Path);
 			fclose(File);
 			return -1;
 		}
@@ -302,7 +306,11 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		fseek(File, 54, SEEK_SET);
 		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
 		{
-			printf("Could not load bitmap: %s\n", Path);
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			printf("BMP: Could not load bitmap: %s\n", Path);
 			fclose(File);
 			return -1;
 		}
@@ -359,61 +367,112 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	if(Bitmap.InfoHeader.BitCount == 24)
 	{
 		image = memalign(128, FTexSize);
-		if (image == NULL) return -1;
+		if (image == NULL) {
+			printf("BMP: Failed to allocate memory\n");
+			if (Texture->Mem) {
+				free(Texture->Mem);
+				Texture->Mem = NULL;
+			}
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			fclose(File);
+			return -1;
+		}
+
 		fread(image, FTexSize, 1, File);
-		p = (void *)((u32)Texture->Mem | 0x30000000);
-		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
-			for (x=0; x<Texture->Width; x++) {
-				p[(y*Texture->Width+x)*3+2] = image[(cy*Texture->Width+x)*3+0];
-				p[(y*Texture->Width+x)*3+1] = image[(cy*Texture->Width+x)*3+1];
-				p[(y*Texture->Width+x)*3+0] = image[(cy*Texture->Width+x)*3+2];
+		p = (void *)((u32)Texture->Mem);
+		for (y = Texture->Height - 1, cy = 0; y >= 0; y--, cy++) {
+			for (x = 0; x < Texture->Width; x++) {
+				p[(y * Texture->Width + x) * 3 + 2] = image[(cy * Texture->Width + x) * 3 + 0];
+				p[(y * Texture->Width + x) * 3 + 1] = image[(cy * Texture->Width + x) * 3 + 1];
+				p[(y * Texture->Width + x) * 3 + 0] = image[(cy * Texture->Width + x) * 3 + 2];
 			}
 		}
 		free(image);
+		image = NULL;
 	}
 	else if(Bitmap.InfoHeader.BitCount == 16)
 	{
 		image = memalign(128, FTexSize);
-		if (image == NULL) return -2;
+		if (image == NULL) {
+			printf("BMP: Failed to allocate memory\n");
+			if (Texture->Mem) {
+				free(Texture->Mem);
+				Texture->Mem = NULL;
+			}
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			fclose(File);
+			return -1;
+		}
 
 		fread(image, FTexSize, 1, File);
 
-		p = (void *)((u32)Texture->Mem | 0x30000000);
-		for (y=Texture->Height-1,cy=0; y>=0; y--,cy++) {
-			for (x=0; x<Texture->Width; x++) {
+		p = (void *)((u32)Texture->Mem);
+		for (y = Texture->Height - 1, cy = 0; y >= 0; y--, cy++) {
+			for (x = 0; x < Texture->Width; x++) {
 				u16 value;
-				value=*(u16*)&image[(cy*Texture->Width+x)*2];
-				value=(value&0x8000) | value<<10 | (value&0x3E0) | (value&0x7C00)>>10;	//ARGB -> ABGR
+				value = *(u16*)&image[(cy * Texture->Width + x) * 2];
+				value = (value & 0x8000) | value << 10 | (value & 0x3E0) | (value & 0x7C00) >> 10;	//ARGB -> ABGR
 
-				*(u16*)&p[(y*Texture->Width+x)*2]=value;
+				*(u16*)&p[(y * Texture->Width + x) * 2] = value;
 			}
 		}
 		free(image);
+		image = NULL;
 	}
-	else if(Bitmap.InfoHeader.BitCount == 8 || Bitmap.InfoHeader.BitCount == 4 )
+	else if(Bitmap.InfoHeader.BitCount == 8 || Bitmap.InfoHeader.BitCount == 4)
 	{
-		char *tex = (char *)((u32)Texture->Mem | 0x30000000);
+		char *tex = (char *)((u32)Texture->Mem);
 		image = memalign(128,FTexSize);
+		if (image == NULL) {
+			printf("BMP: Failed to allocate memory\n");
+			if (Texture->Mem) {
+				free(Texture->Mem);
+				Texture->Mem = NULL;
+			}
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			fclose(File);
+			return -1;
+		}
+
 		if (fread(image, FTexSize, 1, File) != 1)
 		{
-			printf("Read failed!\n");
-			printf("Size %d\n", FTexSize);
+			if (Texture->Mem) {
+				free(Texture->Mem);
+				Texture->Mem = NULL;
+			}
+			if (Texture->Clut) {
+				free(Texture->Clut);
+				Texture->Clut = NULL;
+			}
+			printf("BMP: Read failed!, Size %d\n", FTexSize);
 			free(image);
+			image = NULL;
 			fclose(File);
+			return -1;
 		}
-		for (y=Texture->Height-1; y>=0; y--)
+		for (y = Texture->Height - 1; y >= 0; y--)
 		{
 			if(Bitmap.InfoHeader.BitCount == 8)
-				memcpy(&tex[y*Texture->Width], &image[(Texture->Height-y-1)*Texture->Width], Texture->Width);
+				memcpy(&tex[y * Texture->Width], &image[(Texture->Height - y - 1) * Texture->Width], Texture->Width);
 			else
-				memcpy(&tex[y*(Texture->Width/2)], &image[(Texture->Height-y-1)*(Texture->Width/2)], Texture->Width / 2);
+				memcpy(&tex[y * (Texture->Width / 2)], &image[(Texture->Height - y - 1) * (Texture->Width / 2)], Texture->Width / 2);
 		}
 		free(image);
+		image = NULL;
 
 		if(Bitmap.InfoHeader.BitCount == 4)
 		{
 			int byte;
-			u8 *tmpdst = (u8 *)((u32)Texture->Mem | 0x30000000);
+			u8 *tmpdst = (u8 *)((u32)Texture->Mem);
 			u8 *tmpsrc = (u8 *)tex;
 
 			for(byte = 0; byte < FTexSize; byte++)
@@ -424,7 +483,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	}
 	else
 	{
-		printf("Unknown BMP bit depth format %d\n", Bitmap.InfoHeader.BitCount);
+		printf("BMP: Unknown bit depth format %d\n", Bitmap.InfoHeader.BitCount);
 	}
 
 	fclose(File);
