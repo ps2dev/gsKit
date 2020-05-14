@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  repository_dispatch:
+    types: [run_build]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: fjtrujy/ps2dev:ps2sdk-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    # - name: Install dependencies
+    #   run: |
+    #     apk add gcc musl-dev
+
+    - name: Compile project
+      run: |
+        make clean all install
