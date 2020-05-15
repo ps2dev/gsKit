@@ -1,4 +1,6 @@
-FROM fjtrujy/ps2dev:ps2sdk-latest
+ARG BASE_DOCKER_IMAGE
+
+FROM $BASE_DOCKER_IMAGE
 
 ENV GSKIT=$PS2DEV/gsKit
 

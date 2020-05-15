@@ -7,6 +7,9 @@
  Licenced under Academic Free License version 2.0
  -----------------------------------------------------------------------
 
+![CI](https://github.com/ps2dev/gsKit/workflows/CI/badge.svg)
+![CI-Docker](https://github.com/ps2dev/gsKit/workflows/CI-Docker/badge.svg)
+
  Introduction
  -----------------------------------------------------------------------
 
