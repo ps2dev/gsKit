@@ -2,10 +2,10 @@ FROM fjtrujy/ps2dev:ps2sdk-latest
 
 ENV GSKIT=$PS2DEV/gsKit
 
-COPY . /src/gskit
+COPY . /src
 
 RUN apk add build-base git
-RUN cd /src/gskit && make all install clean
+RUN cd /src && make all install clean
 
 # Second stage of Dockerfile
 FROM alpine:latest  
