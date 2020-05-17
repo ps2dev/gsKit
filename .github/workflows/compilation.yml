@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ps2dev/ps2sdk:latest
+    container: ps2dev/ps2sdk-ports:latest
     steps:
     - uses: actions/checkout@v2
 
