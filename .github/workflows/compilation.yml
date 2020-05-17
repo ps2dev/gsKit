@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ${{ github.repository_owner }}/ps2sdk:latest
+    container: ps2dev/ps2sdk:latest
     steps:
     - uses: actions/checkout@v2
 
