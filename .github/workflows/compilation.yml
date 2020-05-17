@@ -18,14 +18,24 @@ jobs:
         apk add build-base git
 
     - name: Compile project
+      env:
+        ZLIB: $PS2SDK/ports
+        LIBJPEG: $PS2SDK/ports
+        LIBPNG: $PS2SDK/ports
+        LIBTIFF: $PS2SDK/ports
       run: |
         make clean all install
 
     - name: Compile samples
       if: ${{ success() }}
+      env:
+        ZLIB: $PS2SDK/ports
+        LIBJPEG: $PS2SDK/ports
+        LIBPNG: $PS2SDK/ports
+        LIBTIFF: $PS2SDK/ports
       run: |
         cd examples/
-        make clean all install
+        make clean all
 
     - name: Upload artifacts
       if: ${{ success() }}
