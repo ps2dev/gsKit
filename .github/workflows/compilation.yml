@@ -17,29 +17,23 @@ jobs:
       run: |
         apk add build-base git
 
-    - name: Compile project
+    - name: Compile project with everything enabled
       env:
-        ZLIB: $PS2SDK/ports
-        LIBJPEG: $PS2SDK/ports
-        LIBPNG: $PS2SDK/ports
-        LIBTIFF: $PS2SDK/ports
+        GSKIT_DEBUG: 1
+        ZLIB: ${PS2SDK}/ports
+        LIBTIFF: ${PS2SDK}/ports
+        LIBJPEG: ${PS2SDK}/ports
+        LIBPNG: ${PS2SDK}/ports
       run: |
         make clean all install
-
-    - name: Compile samples
-      if: ${{ success() }}
-      env:
-        ZLIB: $PS2SDK/ports
-        LIBJPEG: $PS2SDK/ports
-        LIBPNG: $PS2SDK/ports
-        LIBTIFF: $PS2SDK/ports
-      run: |
-        cd examples/
-        make clean all
+    
+    - name: Get short SHA
+      id: slug
+      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
     - name: Upload artifacts
       if: ${{ success() }}
       uses: actions/upload-artifact@v2
       with:
-        name: gsKit-samples-${GITHUB_SHA::8}
-        path: examples/
+        name: gsKit-samples-${{ steps.slug.outputs.sha8 }}
+        path: examples
