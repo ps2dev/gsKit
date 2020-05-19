@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ${{ github.repository_owner }}/ps2sdk:latest
+    container: ps2dev/ps2sdk-ports:latest
     steps:
     - uses: actions/checkout@v2
 
@@ -17,6 +17,23 @@ jobs:
       run: |
         apk add build-base git
 
-    - name: Compile project
+    - name: Compile project with everything enabled
+      env:
+        GSKIT_DEBUG: 1
+        ZLIB: ${PS2SDK}/ports
+        LIBTIFF: ${PS2SDK}/ports
+        LIBJPEG: ${PS2SDK}/ports
+        LIBPNG: ${PS2SDK}/ports
       run: |
         make clean all install
+    
+    - name: Get short SHA
+      id: slug
+      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: gsKit-samples-${{ steps.slug.outputs.sha8 }}
+        path: examples

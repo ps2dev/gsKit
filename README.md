@@ -10,8 +10,8 @@
  -----------------------------------------------------------------------
 ```
 
-![CI](https://github.com/ps2dev/gsKit/workflows/CI/badge.svg)
-![CI-Docker](https://github.com/ps2dev/gsKit/workflows/CI-Docker/badge.svg)
+[![CI](https://github.com/ps2dev/gsKit/workflows/CI/badge.svg)](https://github.com/ps2dev/gsKit/actions?query=workflow%3ACI)
+[![CI-Docker](https://github.com/ps2dev/gsKit/workflows/CI-Docker/badge.svg)](https://github.com/ps2dev/gsKit/actions?query=workflow%3ACI-Docker)
 
  ## Introduction
  
