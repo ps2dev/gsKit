@@ -58,10 +58,10 @@ $(EE_OBJS_DIR):
 
 ifeq ($(use_cpp), true)
 $(EE_BIN): $(EE_OBJS)
-	$(EE_CXX) $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
+	$(EE_CXX) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
 else
 $(EE_BIN): $(EE_OBJS)
-	$(EE_CC) $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
+	$(EE_CC) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
 endif
 
 $(EE_LIB): $(EE_OBJS)
