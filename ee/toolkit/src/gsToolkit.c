@@ -10,6 +10,7 @@
 //
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <malloc.h>
 
@@ -17,7 +18,7 @@
 #include "gsToolkit.h"
 
 #ifdef HAVE_LIBJPEG
-#include <libjpg.h>
+#include <jpeglib.h>
 #endif
 
 #ifdef HAVE_LIBTIFF
@@ -493,30 +494,28 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 #endif
 
 #ifdef F_gsKit_texture_jpeg
-int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
-{
 #ifdef HAVE_LIBJPEG
-	FILE *file;
-	jpgData *jpg;
-
+// Max memory we want to use by png is 2 MB half of the VRAM, how every pixel is 4 bytes, then 2 * 1024 * 1024 / 4
+#define MAX_JPEG_MATRIX_SIZE 524288
+static int  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_struct *jinfo, struct jpeg_error_mgr *jerr)
+{
 	int TextureSize = 0;
+	float downScale = (float)jinfo->image_width * (float)jinfo->image_height / MAX_JPEG_MATRIX_SIZE;
+	jinfo->scale_denom = ceil(downScale);
 
-	file = fopen(Path, "r");
-	if(file == NULL) {
-		printf("jpeg: error opening %s\n", Path);
+	// Set proper color format
+	jinfo->out_color_space = JCS_EXT_RGBX;
+
+	jpeg_start_decompress(jinfo);
+
+	if (!Texture) {
+		jpeg_abort_decompress(jinfo);
 		return -1;
 	}
 
-	jpg = jpgOpenFILE(file, JPG_NORMAL);
-	if (jpg == NULL) {
-		printf("jpeg: error opening FILE\n");
-		fclose(file);
-		return -1;
-	}
-
-	Texture->Width =  jpg->width;
-	Texture->Height = jpg->height;
-	Texture->PSM = GS_PSM_CT24;
+	Texture->Width =  jinfo->output_width;
+	Texture->Height = jinfo->output_height;
+	Texture->PSM = GS_PSM_CT32;
 	Texture->Filter = GS_FILTER_NEAREST;
 	Texture->VramClut = 0;
 	Texture->Clut = NULL;
@@ -525,12 +524,60 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	#ifdef DEBUG
 	printf("Texture Size = %i\n",TextureSize);
 	#endif
-
 	Texture->Mem = memalign(128,TextureSize);
-	jpgReadImage(jpg, (void *)Texture->Mem);
-	jpgClose(jpg);
-	fclose(file);
 
+	unsigned int row_stride = TextureSize/Texture->Height;
+	unsigned char *row_pointer = (unsigned char *)Texture->Mem;
+	while (jinfo->output_scanline < jinfo->output_height) {
+		jpeg_read_scanlines(jinfo, (JSAMPARRAY)&row_pointer, 1);
+		row_pointer += row_stride;
+	}
+
+	jpeg_finish_decompress(jinfo);
+
+	return 0;
+}
+#endif
+
+int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+{
+#ifdef HAVE_LIBJPEG
+	FILE *fp;
+	int ret;
+	unsigned int magic = 0;
+	struct jpeg_decompress_struct jinfo;
+	struct jpeg_error_mgr jerr;
+
+	if ((fp = fopen(Path, "rb")) <= 0) {
+		printf("jpeg: error opening FILE\n");
+		return -1;
+	}
+
+	fread(&magic, 1, sizeof(unsigned int), fp);
+	fseek(fp, 0, SEEK_SET);
+
+	if (magic != 0xE0FFD8FF && magic != 0xE1FFD8FF && magic != 0xDBFFD8FF) {
+		printf("jpeg: error file is not a JPG file\n");
+		fclose(fp);
+		return -1;
+	}
+
+	jinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&jinfo);
+	jpeg_stdio_src(&jinfo, fp);
+	jpeg_read_header(&jinfo, 1);
+
+	ret = _ps2_load_JPEG_generic(Texture, &jinfo, &jerr);
+	if (ret < 0)
+		return ret;
+
+	jpeg_destroy_decompress(&jinfo);
+
+	fclose(fp);
+
+	#if DEBUG
+	printf("jpeg: File image readed, allocating VRAM\n");
+	#endif
 	return gsKit_texture_finish(gsGlobal, Texture);
 #else
 	printf("ERROR: gsKit_texture_jpeg unimplemented.\n");
