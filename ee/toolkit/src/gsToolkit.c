@@ -499,12 +499,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 #define MAX_JPEG_MATRIX_SIZE 524288
 static int  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_struct *jinfo, struct jpeg_error_mgr *jerr)
 {
-	int TextureSize = 0;
+	int textureSize = 0;
 	float downScale = (float)jinfo->image_width * (float)jinfo->image_height / MAX_JPEG_MATRIX_SIZE;
 	jinfo->scale_denom = ceil(downScale);
-
-	// Set proper color format
-	jinfo->out_color_space = JCS_EXT_RGBX;
 
 	jpeg_start_decompress(jinfo);
 
@@ -515,18 +512,18 @@ static int  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_st
 
 	Texture->Width =  jinfo->output_width;
 	Texture->Height = jinfo->output_height;
-	Texture->PSM = GS_PSM_CT32;
+	Texture->PSM = GS_PSM_CT24;
 	Texture->Filter = GS_FILTER_NEAREST;
 	Texture->VramClut = 0;
 	Texture->Clut = NULL;
 
-	TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
+	textureSize = jinfo->output_width*jinfo->output_height*jinfo->out_color_components;
 	#ifdef DEBUG
-	printf("Texture Size = %i\n",TextureSize);
+	printf("Texture Size = %i\n",textureSize);
 	#endif
-	Texture->Mem = memalign(128,TextureSize);
+	Texture->Mem = memalign(128, textureSize);
 
-	unsigned int row_stride = TextureSize/Texture->Height;
+	unsigned int row_stride = textureSize/Texture->Height;
 	unsigned char *row_pointer = (unsigned char *)Texture->Mem;
 	while (jinfo->output_scanline < jinfo->output_height) {
 		jpeg_read_scanlines(jinfo, (JSAMPARRAY)&row_pointer, 1);
@@ -553,26 +550,23 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
-	fread(&magic, 1, sizeof(unsigned int), fp);
-	fseek(fp, 0, SEEK_SET);
-
-	if (magic != 0xE0FFD8FF && magic != 0xE1FFD8FF && magic != 0xDBFFD8FF) {
-		printf("jpeg: error file is not a JPG file\n");
-		fclose(fp);
-		return -1;
-	}
-
 	jinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&jinfo);
 	jpeg_stdio_src(&jinfo, fp);
-	jpeg_read_header(&jinfo, 1);
+	if(!jpeg_read_header(&jinfo, TRUE)) {
+		jpeg_destroy_decompress(&jinfo);
+		fclose(fp);
+		return -2;
+	}
 
 	ret = _ps2_load_JPEG_generic(Texture, &jinfo, &jerr);
-	if (ret < 0)
+	if (ret < 0) {
+		jpeg_destroy_decompress(&jinfo);
+		fclose(fp);
 		return ret;
+	}
 
 	jpeg_destroy_decompress(&jinfo);
-
 	fclose(fp);
 
 	#if DEBUG
