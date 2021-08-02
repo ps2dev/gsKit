@@ -15,6 +15,7 @@
 
 #include <tamtypes.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "dmaKit.h"
 

@@ -496,14 +496,38 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 #ifdef F_gsKit_texture_jpeg
 #ifdef HAVE_LIBJPEG
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;    /* "public" fields */
+
+  jmp_buf setjmp_buffer;        /* for return to caller */
+};
+
+typedef struct my_error_mgr *my_error_ptr;
+
+METHODDEF(void)
+my_error_exit(j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr)cinfo->err;
+
+  /* Always display the message. */
+  /* We could postpone this until after returning, if we chose. */
+  (*cinfo->err->output_message) (cinfo);
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
 // Following official documentation max width or height of the texture is 1024
 #define MAX_TEXTURE 1024
-static void  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_struct *cinfo, struct jpeg_error_mgr *jerr)
+static void  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_struct *cinfo, struct my_error_mgr *jerr, bool scale_down)
 {
 	int textureSize = 0;
-	unsigned int longer = cinfo->image_width > cinfo->image_height ? cinfo->image_width : cinfo->image_height;
-	float downScale = (float)longer / (float)MAX_TEXTURE;
-	cinfo->scale_denom = ceil(downScale);
+	if (scale_down) {
+		unsigned int longer = cinfo->image_width > cinfo->image_height ? cinfo->image_width : cinfo->image_height;
+		float downScale = (float)longer / (float)MAX_TEXTURE;
+		cinfo->scale_denom = ceil(downScale);
+	}
 
 	jpeg_start_decompress(cinfo);
 
@@ -532,36 +556,12 @@ static void  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_s
 	jpeg_finish_decompress(cinfo);
 }
 
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;    /* "public" fields */
-
-  jmp_buf setjmp_buffer;        /* for return to caller */
-};
-
-typedef struct my_error_mgr *my_error_ptr;
-
-METHODDEF(void)
-my_error_exit(j_common_ptr cinfo)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr)cinfo->err;
-
-  /* Always display the message. */
-  /* We could postpone this until after returning, if we chose. */
-  (*cinfo->err->output_message) (cinfo);
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
 #endif
 
-int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
+int  gsKit_texture_jpeg_scale(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path, bool scale_down)
 {
 #ifdef HAVE_LIBJPEG
 	FILE *fp;
-	int ret;
-	unsigned int magic = 0;
 	struct jpeg_decompress_struct cinfo;
 	struct my_error_mgr jerr;
 
@@ -594,7 +594,7 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	jpeg_stdio_src(&cinfo, fp);
 	jpeg_read_header(&cinfo, TRUE);
 
-	_ps2_load_JPEG_generic(Texture, &cinfo, &jerr);
+	_ps2_load_JPEG_generic(Texture, &cinfo, &jerr, scale_down);
 	
 	jpeg_destroy_decompress(&cinfo);
 	fclose(fp);
@@ -607,6 +607,10 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	printf("ERROR: gsKit_texture_jpeg unimplemented.\n");
 	return -1;
 #endif
+}
+
+int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path) {
+	return gsKit_texture_jpeg_scale(gsGlobal, Texture, Path, false);
 }
 
 int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
