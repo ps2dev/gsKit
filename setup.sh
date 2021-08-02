@@ -16,7 +16,7 @@ $GNUMAKE clean --silent
 
 echo "Libraries:"
 
-if [ -f $PS2SDK/ports/include/libjpg.h ];
+if [ -f $PS2SDK/ports/include/jpeglib.h ];
 then
 	echo -e "\tLIBJPEG detected."
 	export LIBJPEG=$PS2SDK/ports

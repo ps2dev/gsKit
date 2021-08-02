@@ -10,14 +10,16 @@
 //
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <math.h>
 
 #include "gsKit.h"
 #include "gsToolkit.h"
 
 #ifdef HAVE_LIBJPEG
-#include <libjpg.h>
+#include <jpeglib.h>
 #endif
 
 #ifdef HAVE_LIBTIFF
@@ -493,49 +495,122 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 #endif
 
 #ifdef F_gsKit_texture_jpeg
-int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
-{
 #ifdef HAVE_LIBJPEG
-	FILE *file;
-	jpgData *jpg;
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;    /* "public" fields */
 
-	int TextureSize = 0;
+  jmp_buf setjmp_buffer;        /* for return to caller */
+};
 
-	file = fopen(Path, "r");
-	if(file == NULL) {
-		printf("jpeg: error opening %s\n", Path);
-		return -1;
+typedef struct my_error_mgr *my_error_ptr;
+
+METHODDEF(void)
+my_error_exit(j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr)cinfo->err;
+
+  /* Always display the message. */
+  /* We could postpone this until after returning, if we chose. */
+  (*cinfo->err->output_message) (cinfo);
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+// Following official documentation max width or height of the texture is 1024
+#define MAX_TEXTURE 1024
+static void  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_struct *cinfo, struct my_error_mgr *jerr, bool scale_down)
+{
+	int textureSize = 0;
+	if (scale_down) {
+		unsigned int longer = cinfo->image_width > cinfo->image_height ? cinfo->image_width : cinfo->image_height;
+		float downScale = (float)longer / (float)MAX_TEXTURE;
+		cinfo->scale_denom = ceil(downScale);
 	}
 
-	jpg = jpgOpenFILE(file, JPG_NORMAL);
-	if (jpg == NULL) {
-		printf("jpeg: error opening FILE\n");
-		fclose(file);
-		return -1;
-	}
+	jpeg_start_decompress(cinfo);
 
-	Texture->Width =  jpg->width;
-	Texture->Height = jpg->height;
-	Texture->PSM = GS_PSM_CT24;
+	int psm = cinfo->out_color_components == 3 ? GS_PSM_CT24 : GS_PSM_CT32;
+
+	Texture->Width =  cinfo->output_width;
+	Texture->Height = cinfo->output_height;
+	Texture->PSM = psm;
 	Texture->Filter = GS_FILTER_NEAREST;
 	Texture->VramClut = 0;
 	Texture->Clut = NULL;
 
-	TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
+	textureSize = cinfo->output_width*cinfo->output_height*cinfo->out_color_components;
 	#ifdef DEBUG
-	printf("Texture Size = %i\n",TextureSize);
+	printf("Texture Size = %i\n",textureSize);
 	#endif
+	Texture->Mem = memalign(128, textureSize);
 
-	Texture->Mem = memalign(128,TextureSize);
-	jpgReadImage(jpg, (void *)Texture->Mem);
-	jpgClose(jpg);
-	fclose(file);
+	unsigned int row_stride = textureSize/Texture->Height;
+	unsigned char *row_pointer = (unsigned char *)Texture->Mem;
+	while (cinfo->output_scanline < cinfo->output_height) {
+		jpeg_read_scanlines(cinfo, (JSAMPARRAY)&row_pointer, 1);
+		row_pointer += row_stride;
+	}
 
+	jpeg_finish_decompress(cinfo);
+}
+
+#endif
+
+int  gsKit_texture_jpeg_scale(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path, bool scale_down)
+{
+#ifdef HAVE_LIBJPEG
+	FILE *fp;
+	struct jpeg_decompress_struct cinfo;
+	struct my_error_mgr jerr;
+
+	if (Texture == NULL) {
+		printf("jpeg: error Texture is NULL\n");
+		return -1;
+	}
+
+	if ((fp = fopen(Path, "rb")) <= 0) {
+		printf("jpeg: error opening FILE\n");
+		return -1;
+	}
+
+	/* We set up the normal JPEG error routines, then override error_exit. */
+	cinfo.err = jpeg_std_error(&jerr.pub);
+	jerr.pub.error_exit = my_error_exit;
+	/* Establish the setjmp return context for my_error_exit to use. */
+	if (setjmp(jerr.setjmp_buffer)) {
+		/* If we get here, the JPEG code has signaled an error.
+		* We need to clean up the JPEG object, close the input file, and return.
+		*/
+		jpeg_destroy_decompress(&cinfo);
+		fclose(fp);
+		if (Texture->Mem)
+			free(Texture->Mem);
+		printf("jpeg: error during processing file\n");
+		return -1;
+	}
+	jpeg_create_decompress(&cinfo);
+	jpeg_stdio_src(&cinfo, fp);
+	jpeg_read_header(&cinfo, TRUE);
+
+	_ps2_load_JPEG_generic(Texture, &cinfo, &jerr, scale_down);
+	
+	jpeg_destroy_decompress(&cinfo);
+	fclose(fp);
+
+	#if DEBUG
+	printf("jpeg: File image readed, allocating VRAM\n");
+	#endif
 	return gsKit_texture_finish(gsGlobal, Texture);
 #else
 	printf("ERROR: gsKit_texture_jpeg unimplemented.\n");
 	return -1;
 #endif
+}
+
+int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path) {
+	return gsKit_texture_jpeg_scale(gsGlobal, Texture, Path, false);
 }
 
 int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
