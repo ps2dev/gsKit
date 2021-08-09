@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[])
 {
-	u64 White, Black, BlackFont, WhiteFont, RedFont, GreenFont, BlueFont, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
+	u64 Black, WhiteFont, RedFont, GreenFont, BlueFont;
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 
 	GSFONT *gsFont = gsKit_init_font(GSKIT_FTYPE_BMP_DAT, "host:dejavu.bmp");
@@ -30,18 +30,10 @@ int main(int argc, char *argv[])
 	dmaKit_chan_init(DMA_CHANNEL_GIF);
 
 	Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
-	White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
-
 	WhiteFont = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x80,0x00);
-	BlackFont = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x80,0x00);
 	RedFont = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x80,0x00);
 	GreenFont = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x80,0x00);
 	BlueFont = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x80,0x00);
-
-	BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
-	RedTrans = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x60,0x00);
-	GreenTrans = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x50,0x00);
-	WhiteTrans = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x50,0x00);
 
 	gsGlobal->PrimAlpha = GS_BLEND_FRONT2BACK;
 	gsGlobal->PSM = GS_PSM_CT16;
