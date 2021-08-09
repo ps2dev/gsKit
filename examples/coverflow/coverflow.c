@@ -75,6 +75,22 @@ int main(int argc, char *argv[])
     int i;
     char filename[80];
 
+	printf("\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("------------------------------- !!! WARNING !!! --------------------------------\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("-                                                                              -\n");
+	printf("- This example uses 'HIRES':                                                   -\n");
+	printf("-                                                                              -\n");
+	printf("- HIRES saves VRAM by having only the part of the frame                        -\n");
+	printf("- in VRAM that is currently being read by the CRTC.                            -\n");
+	printf("-                                                                              -\n");
+	printf("- Use it on a REAL PS2!                                                        -\n");
+	printf("- On an emulator (PCSX2), you will only see part of the screen.                -\n");
+	printf("-                                                                              -\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("\n");
+
 	gsGlobal->Mode = GS_MODE_DTV_720P;
 	gsGlobal->Interlace = GS_NONINTERLACED;
 	gsGlobal->Field = GS_FRAME;

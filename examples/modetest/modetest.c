@@ -202,6 +202,22 @@ int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal = gsKit_init_global();
 
+	printf("\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("------------------------------- !!! WARNING !!! --------------------------------\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("-                                                                              -\n");
+	printf("- This example uses 'HIRES':                                                   -\n");
+	printf("-                                                                              -\n");
+	printf("- HIRES saves VRAM by having only the part of the frame                        -\n");
+	printf("- in VRAM that is currently being read by the CRTC.                            -\n");
+	printf("-                                                                              -\n");
+	printf("- Use it on a REAL PS2!                                                        -\n");
+	printf("- On an emulator (PCSX2), you will only see part of the screen.                -\n");
+	printf("-                                                                              -\n");
+	printf("--------------------------------------------------------------------------------\n");
+	printf("\n");
+
 	pad_init();
 
 	dmaKit_init(D_CTRL_RELE_OFF,D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
