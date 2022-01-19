@@ -239,6 +239,22 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 	gsKit_set_test(gsGlobal, 0);
 }
 
+void gsKit_set_scissor(GSGLOBAL *gsGlobal, u64 ScissorBounds) {
+    u64 *p_data;
+	u64 *p_store;
+
+	if (ScissorBounds == GS_SCISSOR_RESET) 
+		ScissorBounds = GS_SETREG_SCISSOR(0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
+
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
+
+	*p_data++ = ScissorBounds;
+	*p_data++ = GS_SCISSOR_1+gsGlobal->PrimContext;
+}
+
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 {
 	u64 *p_data;

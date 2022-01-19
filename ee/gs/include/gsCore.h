@@ -47,6 +47,9 @@
 /// Resets CLAMP vales to whatever is in gsGlobal->Clamp
 #define GS_CMODE_RESET 0xFF
 
+/// Resets SCISSOR values to the entire display bounds
+#define GS_SCISSOR_RESET 0x00
+
 /// Turns off Z Testing
 #define GS_ZTEST_OFF 0x01
 /// Turns on Z Testing
@@ -155,6 +158,12 @@ void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field);
 /// then draws a sprite with the given color at a Z depth of 0.
 /// It then restores whatever your previous Z Test settings were.
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 Color);
+
+/// Sets the SCISSOR Parameters
+///
+/// GS_SCISSOR_RESET resets scissor box to the entire display;
+/// otherwise, GS_SETREG_SCISSOR() provides a specific box.
+void gsKit_set_scissor(GSGLOBAL *gsGlobal, u64 ScissorBounds);
 
 /// Sets the TEST Parameters
 /// This manipulates the TEST struture of gsGlobal according to
