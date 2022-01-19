@@ -191,7 +191,10 @@ int main(int argc, char *argv[])
 					       180.0f, 350.0f, 5,
 					       Blue, Red, White);
 
+	// Temporarily apply a scissor box that covers only part of the red triangle
+	gsKit_set_scissor(gsGlobal, GS_SETREG_SCISSOR(300.0f, 350.0f, 200.0f, 400.0f));
 	gsKit_prim_triangle(gsGlobal, 300.0f, 200.0f, 300.0f, 350.0f, 400.0f, 350.0f, 3, Red);
+	gsKit_set_scissor(gsGlobal, GS_SCISSOR_RESET);
 
 	gsKit_prim_sprite(gsGlobal, 400.0f, 100.0f, 500.0f, 200.0f, 5, Red);
 
