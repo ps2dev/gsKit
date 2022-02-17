@@ -226,11 +226,11 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 			int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 			Texture->PSM = GS_PSM_T4;
-			Texture->Mem = (u32*)memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
+			Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
 
-			row_pointers = (png_byte**)calloc(height, sizeof(png_bytep));
+			row_pointers = calloc(height, sizeof(png_bytep));
 
-			for(row = 0; row < height; row++) row_pointers[row] = (png_bytep)malloc(row_bytes);
+			for(row = 0; row < height; row++) row_pointers[row] = malloc(row_bytes);
 
 			png_read_image(png_ptr, row_pointers);
 
@@ -276,11 +276,11 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		{
 			int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
 			Texture->PSM = GS_PSM_T8;
-			Texture->Mem = (u32*)memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
+			Texture->Mem = memalign(128, gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM));
 
-			row_pointers = (png_byte**)calloc(height, sizeof(png_bytep));
+			row_pointers = calloc(height, sizeof(png_bytep));
 
-			for(row = 0; row < height; row++) row_pointers[row] = (png_bytep)malloc(row_bytes);
+			for(row = 0; row < height; row++) row_pointers[row] = malloc(row_bytes);
 
 			png_read_image(png_ptr, row_pointers);
 
