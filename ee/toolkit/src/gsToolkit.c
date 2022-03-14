@@ -361,14 +361,14 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		printf("BMP: Failed to load bitmap: %s\n", Path);
 		return -1;
 	}
-	if (fread(&Bitmap.FileHeader, sizeof(Bitmap.FileHeader), 1, File) <= 0)
+	if (fread(&Bitmap.FileHeader, 1, sizeof(Bitmap.FileHeader), File) != sizeof(Bitmap.FileHeader))
 	{
 		printf("BMP: Could not load bitmap: %s\n", Path);
 		fclose(File);
 		return -1;
 	}
 
-	if (fread(&Bitmap.InfoHeader, sizeof(Bitmap.InfoHeader), 1, File) <= 0)
+	if (fread(&Bitmap.InfoHeader, 1, sizeof(Bitmap.InfoHeader), File) != sizeof(Bitmap.InfoHeader))
 	{
 		printf("BMP: Could not load bitmap: %s\n", Path);
 		fclose(File);
@@ -387,7 +387,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 		memset(Texture->Clut, 0, gsKit_texture_size_ee(8, 2, GS_PSM_CT32));
 		fseek(File, 54, SEEK_SET);
-		if (fread(Texture->Clut, Bitmap.InfoHeader.ColorUsed*sizeof(u32), 1, File) <= 0)
+		if (fread(Texture->Clut, 1, Bitmap.InfoHeader.ColorUsed*sizeof(u32), File) != Bitmap.InfoHeader.ColorUsed*sizeof(u32))
 		{
 			if (Texture->Clut) {
 				free(Texture->Clut);
@@ -801,7 +801,7 @@ int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		Texture->Clut = NULL;
 	}
 
-	if(fread(Texture->Mem, FileSize, 1, File) <= 0)
+	if(fread(Texture->Mem, 1, FileSize, File) != FileSize)
 	{
 		printf("Texture might be bad: %s\n", Path);
 		printf("Texture size: %d\n", FileSize);
@@ -1111,7 +1111,7 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
             {
                 fseek(File, 0, SEEK_SET);
                 for(i=0; i<256; i++) {
-                    if(fread(&gsFont->Additional[i], 2, 1, File) <= 0)
+                    if(fread(&gsFont->Additional[i], 1, 2, File) != 2)
                     {
                         printf("Problem reading font sizes %s\n", gsFont->Path_DAT);
                         fclose(File);
