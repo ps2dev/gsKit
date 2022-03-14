@@ -27,9 +27,9 @@ stages of development. Read the STATUS file for detailed information.
 gsKit aims to provide the following functionality:
  
 - Multi format GS initialization. (NTSC, PAL, DTV, VESA)
-- HalfBuffer Support (NTSC_I and PAL_I modes)
+- HalfBuffer Support (`NTSC_I` and `PAL_I` modes)
 - VSync, Double Buffering, Anti Aliasing, and Z Depth Test.
-- Render Queue Support, with different drawing modes. (GS_ONESHOT, and GS_PERSISTANT)
+- Render Queue Support, with different drawing modes. (`GS_ONESHOT`, and `GS_PERSISTANT`)
 - Overlay and multi-context support utilizing the "Merge Circuit".
 - Basic primitives as per the Sony documentation. (Line, Tri, TriStrip, ...)
 - Extended primitives support. (Quads and GL Style Vertex Lists)
@@ -90,12 +90,12 @@ There are several small notes that need to be made about gsKit operation.
 
 - There is a default drawbuffer size of 2MB for oneshot, and 256KB for persistent.
    If they are filled beyond capacity, bad things will start to happen.
-   (Compile with -DGSKIT_DEBUG to get warnings about it at the expense of performance
+   (Compile with `-DGSKIT_DEBUG` to get warnings about it at the expense of performance
    or just uncomment section in Makefile.pref)
-   You can tweak these values with the GS_RENDER_QUEUE_(OS/PER)_POOLSIZE macros.
+   You can tweak these values with the `GS_RENDER_QUEUE_(OS/PER)_POOLSIZE` macros.
    (Look in ee/gs/include/gsInit.h)
 
-- Most gsKit routines (prim pushing, TEST/CLAMP mode setting, etc) will queue their
+- Most gsKit routines (prim pushing, `TEST`/`CLAMP` mode setting, etc) will queue their
    execution into the drawbuffer. Texture data sends however, are the exception to this.
    They happen immediately upon calling, however this behavior will be changed so they
    are also queued into the drawbuffer in a future version.
@@ -112,4 +112,4 @@ can also use the forums at http://forums.ps2dev.org,
 
 ## Credits
 
-See AUTHORS.
+See `AUTHORS`.
