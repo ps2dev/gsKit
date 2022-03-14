@@ -160,7 +160,7 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	struct gsKit_fontm_unpack updata;
 
 	updata.size = *(u32 *)packed;
-	updata.ptr = packed + 4;
+	updata.ptr = (void *)((u8 *)packed + 4);
 
 	unpacked = malloc(updata.size);
 
@@ -178,11 +178,11 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 */
 
 	gsFontM->Header.sig = *(u32 *)unpacked;
-	gsFontM->Header.version = *(u32 *)(unpacked + 4);
-	gsFontM->Header.bitsize = *(u32 *)(unpacked + 8);
-	gsFontM->Header.baseoffset = *(u32 *)(unpacked + 12);
-	gsFontM->Header.num_entries = *(u32 *)(unpacked + 16);
-	gsFontM->Header.eof = *(u32 *)(unpacked + 20);
+	gsFontM->Header.version = *(u32 *)((u8 *)unpacked + 4);
+	gsFontM->Header.bitsize = *(u32 *)((u8 *)unpacked + 8);
+	gsFontM->Header.baseoffset = *(u32 *)((u8 *)unpacked + 12);
+	gsFontM->Header.num_entries = *(u32 *)((u8 *)unpacked + 16);
+	gsFontM->Header.eof = *(u32 *)((u8 *)unpacked + 20);
 	int TableSize = (gsFontM->Header.num_entries * 4);
 	gsFontM->Header.offset_table = malloc(TableSize);
 

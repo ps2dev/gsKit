@@ -61,7 +61,7 @@ void dmaKit_send(u16 channel, void *data, u32 size)
 
 	DMA_SET_CIS(1 << channel);
 
-	SyncDCache(data, data+size*16);
+	SyncDCache(data, (void *)(((u8 *)data)+size*16));
 
 	if(DMA_QWC[channel])
 		*(volatile u32 *)DMA_QWC[channel] = size;
