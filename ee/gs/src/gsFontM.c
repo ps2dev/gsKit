@@ -337,8 +337,6 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 	char cur;
 
 	u32 aligned, idxoffset, idxremain;
-	u32 voffset = 0;
-	u32 uoffset = 0;
 	u8 numlines = 0;
 	u8 curline = 0;
 	linechars[0] = 0;
@@ -402,7 +400,7 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 		{
 			int idx;
 			int pgindx;
-			uoffset = 0;
+			u32 uoffset = 0;
 
 			if(cur == '\f')
 			{
@@ -506,7 +504,7 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 
 			idxremain /= 2;
 
-			voffset = (idxremain * 26);
+			u32 voffset = (idxremain * 26);
 
 			u64 *p_data = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
 
