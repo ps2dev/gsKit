@@ -179,7 +179,9 @@ _blockAlloc(unsigned int size)
 	}
 
 	// Split the block into the right size
-	block = _blockSplitFree(block, size);
+	if (block != NULL) {
+		block = _blockSplitFree(block, size);
+	}
 
 	return block;
 }
