@@ -104,7 +104,6 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 
 void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, int iz, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + segments;
 	int count;
@@ -116,7 +115,7 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *LineStrip++);
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
@@ -138,7 +137,6 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 
 void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + segments;
 	int count;
@@ -151,7 +149,7 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 		vertexdata[count+2] = (int)((*LineStrip++) * 16.0f); // z
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
@@ -206,7 +204,6 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x2, float y2, int iz2,
 						float x3, float y3, int iz3, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 3;
 	int bsize = 48;
@@ -220,7 +217,7 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
 	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE);
 
 	*p_data++ = GIF_TAG_TRIANGLE(0);
 	*p_data++ = GIF_TAG_TRIANGLE_REGS;
@@ -237,7 +234,6 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 
 void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, int iz, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + segments;
 	int count;
@@ -249,7 +245,7 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriStrip++);
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
@@ -272,7 +268,6 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 
 void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segments, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + segments;
 	int count;
@@ -285,7 +280,7 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 		vertexdata[count+2] = (int)((*TriStrip++) * 16.0f); // z
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
@@ -308,7 +303,6 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 
 void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, int iz, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + verticies;
 	int count;
@@ -320,7 +314,7 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
 		vertexdata[count+1] = gsKit_float_to_int_y(gsGlobal, *TriFan++);
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
@@ -343,7 +337,6 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
 
 void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies, u64 color)
 {
-	u64* p_store;
 	u64* p_data;
 	int qsize = 2 + verticies;
 	int count;
@@ -356,7 +349,7 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
 		vertexdata[count+2] = (int)(*TriFan++ * 16.0f); // z
 	}
 
-	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize * 16), GIF_AD);
 
 	*p_data++ = GIF_TAG_AD(qsize);
 	*p_data++ = GIF_AD;
