@@ -1039,8 +1039,6 @@ GSFONT *gsKit_init_font_raw(u8 type, u8 *data, int size)
 #ifdef F_gsKit_font_upload_raw
 int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
-	int i;
-
 	if( gsFont->Type == GSKIT_FTYPE_FNT )
 	{
 		if( gsKit_texture_fnt_raw(gsGlobal, gsFont) == -1 )
@@ -1048,7 +1046,7 @@ int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 			printf("Error uploading font!\n");
 			return -1;
 		}
-		for (i=0; i<256; i++) {
+		for (int i=0; i<256; i++) {
 			gsFont->Additional[i] = (short)gsFont->CharWidth;
 		}
 
@@ -1203,14 +1201,13 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
 
 		int cx,cy,i,l;
-		unsigned char c;
 		cx=X;
 		cy=Y;
 
 		l=strlen( String );
 		for( i=0;i<l;i++ )
 		{
-			c=String[i];
+			unsigned char c=String[i];
 			if( c=='\n' )
 			{
 				cx=X;

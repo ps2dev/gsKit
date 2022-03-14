@@ -103,10 +103,6 @@ get_pad(GSGLOBAL *gsGlobal)
 	u32 paddata;
 	u32 new_pad;
 	int ret;
-	float fXOff;
-	float fYOff;
-	static float fXOffAccum = 0.0f;
-	static float fYOffAccum = 0.0f;
 
 	do {
 		ret=padGetState(port, slot);
@@ -120,8 +116,9 @@ get_pad(GSGLOBAL *gsGlobal)
 		new_pad = paddata & ~old_pad;
 		old_pad = paddata;
 
-		fXOff = (buttons.rjoy_h - 128.0f) / 128.0f;
+		float fXOff = (buttons.rjoy_h - 128.0f) / 128.0f;
 		if ((fXOff < -0.5f) || (fXOff > 0.5f)) {
+			static float fXOffAccum = 0.0f;
 			//printf("%f\n", fXOff);
 			fXOffAccum += fXOff/5.0f;
 			if ((fXOffAccum < -1.0f) || (fXOffAccum > 1.0f)) {
@@ -133,8 +130,9 @@ get_pad(GSGLOBAL *gsGlobal)
 			}
 		}
 
-		fYOff = (buttons.rjoy_v - 128.0f) / 128.0f;
+		float fYOff = (buttons.rjoy_v - 128.0f) / 128.0f;
 		if ((fYOff < -0.5f) || (fYOff > 0.5f)) {
+			static float fYOffAccum = 0.0f;
 			//printf("%f\n", fYOff);
 			fYOffAccum += fYOff/5.0f;
 			if ((fYOffAccum < -1.0f) || (fYOffAccum > 1.0f)) {

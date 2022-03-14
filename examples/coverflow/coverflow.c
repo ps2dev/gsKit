@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
     int iPassCount;
     float fXOff = 0.0;
     float fXOffCover;
-    int iCover;
     int iCoverStart = 0;
     int i;
     char filename[80];
@@ -133,7 +132,7 @@ int main(int argc, char *argv[])
 		gsKit_clear(gsGlobal, Black);
 
 		// Draw coverflow
-		iCover = iCoverStart;
+		int iCover = iCoverStart;
 		for (fXOffCover = fXOff; fXOffCover < gsGlobal->Width; fXOffCover += fCoverDistance) {
 			drawCover(gsGlobal, &Tex[iCover], fXOffCover, (gsGlobal->Height/4)*3);
 			iCover = iCover >= (TEXTURE_COUNT-1) ? 0 : iCover+1;
