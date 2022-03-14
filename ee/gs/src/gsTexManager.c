@@ -297,7 +297,7 @@ gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 		if(block->tex == tex) {
 			// Free block
 			block->tex = NULL;
-			block = _blockMergeFree(block);
+			_blockMergeFree(block);
 			tex->Vram = 0;
 			tex->VramClut = 0;
 			break;
