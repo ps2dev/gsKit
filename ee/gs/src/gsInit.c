@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <kernel.h>
 #include <osd_config.h>
+#include <rom0_info.h>
 
 static u8 modelSupportsGetGsDxDyOffset;
 

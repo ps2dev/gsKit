@@ -26,10 +26,10 @@ int main(int argc, char *argv[])
 	char tempstr[256];
 	int i=0;
 	int toggle=0;
-	float fOffsetX = 0.0f;
-	float fOffsetY = 0.0f;
-	float fOffsetU = 0.0f;
-	float fOffsetV = 0.0f;
+	float fOffsetX;
+	float fOffsetY;
+	float fOffsetU;
+	float fOffsetV;
 
 	u64 Black = GS_SETREG_RGBA(0x00,0x00,0x00,0x80);
 	u64 White = GS_SETREG_RGBA(0xFF,0xFF,0xFF,0x80);

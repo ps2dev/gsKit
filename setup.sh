@@ -16,7 +16,7 @@ $GNUMAKE clean --silent
 
 echo "Libraries:"
 
-if [ -f $PS2SDK/ports/include/jpeglib.h ];
+if [ -f "$PS2SDK/ports/include/jpeglib.h" ];
 then
 	echo -e "\tLIBJPEG detected."
 	export LIBJPEG=$PS2SDK/ports
@@ -24,7 +24,7 @@ else
 	echo -e "\tLIBJPEG not detected."
 fi
 
-if [ -f $PS2SDK/ports/include/png.h ];
+if [ -f "$PS2SDK/ports/include/png.h" ];
 then
 	echo -e "\tLIBPNG detected."
 	export LIBPNG=$PS2SDK/ports
@@ -32,7 +32,7 @@ else
 	echo -e "\tLIBPNG not detected."
 fi
 
-if [ -f $PS2SDK/ports/include/zlib.h ];
+if [ -f "$PS2SDK/ports/include/zlib.h" ];
 then
 	echo -e "\tZLIB detected."
 	export ZLIB=$PS2SDK/ports
@@ -40,7 +40,7 @@ else
 	echo -e "\tZLIB not detected."
 fi
 
-if [ -f $PS2SDK/ports/include/tiff.h ];
+if [ -f "$PS2SDK/ports/include/tiff.h" ];
 then
 	echo -e "\tLIBTIFF detected."
 	export LIBTIFF=$PS2SDK/ports
