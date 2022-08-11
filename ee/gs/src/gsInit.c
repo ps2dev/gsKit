@@ -20,8 +20,13 @@
 #include <osd_config.h>
 #include <rom0_info.h>
 
-static u8 modelSupportsGetGsDxDyOffset;
+#if F__gsInit_internal
+u8 __modelSupportsGetGsDxDyOffset;
+#else
+extern u8 __modelSupportsGetGsDxDyOffset;
+#endif
 
+#if F_gsKit_check_rom
 short int gsKit_check_rom(void)
 {
 	static int default_signal = -1;
@@ -34,13 +39,44 @@ short int gsKit_check_rom(void)
 
 		//ROMVER string format: VVVVRTYYYYMMDD
 		default_signal = (romname[4] == 'E') ? GS_MODE_PAL : GS_MODE_NTSC;
-		modelSupportsGetGsDxDyOffset = (20010608 < atoi(&romname[6]));
+		__modelSupportsGetGsDxDyOffset = (20010608 < atoi(&romname[6]));
 	}
 
 	return default_signal;
 }
+#endif
 
-void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
+#if F_gsKit_set_display_offset
+void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
+{
+	gsGlobal->StartXOffset = x;
+	gsGlobal->StartYOffset = y;
+
+	if (gsGlobal->Interlace == GS_INTERLACED) {
+		// Do not change odd/even start position in interlaced mode
+		gsGlobal->StartYOffset &= ~1;
+	}
+
+	GS_SET_DISPLAY1(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+
+	GS_SET_DISPLAY2(
+			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
+			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
+			gsGlobal->MagH,			// Horizontal Magnification
+			gsGlobal->MagV,			// Vertical Magnification
+			gsGlobal->DW - 1,	// Display area width
+			gsGlobal->DH - 1);		// Display area height
+}
+#endif
+
+#if F_gsKit_init_screen
+static void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 {
 	int gs_DX, gs_DY, gs_DW, gs_DH;
 
@@ -180,7 +216,7 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 	if(gsGlobal->Mode != GS_MODE_NTSC && gsGlobal->Mode != GS_MODE_PAL)
 	{
 		gsKit_check_rom();
-		if(modelSupportsGetGsDxDyOffset)
+		if(__modelSupportsGetGsDxDyOffset)
 		{
 			_GetGsDxDyOffset(gsGlobal->Mode, &gs_DX, &gs_DY, &gs_DW, &gs_DH);
 			gsGlobal->StartX += gs_DX;
@@ -204,33 +240,6 @@ void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 	if ((gsGlobal->Interlace == GS_INTERLACED) && (gsGlobal->Field == GS_FRAME)) {
 		gsGlobal->MagV--;
 	}
-}
-
-void gsKit_set_display_offset(GSGLOBAL *gsGlobal, int x, int y)
-{
-	gsGlobal->StartXOffset = x;
-	gsGlobal->StartYOffset = y;
-
-	if (gsGlobal->Interlace == GS_INTERLACED) {
-		// Do not change odd/even start position in interlaced mode
-		gsGlobal->StartYOffset &= ~1;
-	}
-
-	GS_SET_DISPLAY1(
-			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK unit
-			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster u
-			gsGlobal->MagH,			// Horizontal Magnification
-			gsGlobal->MagV,			// Vertical Magnification
-			gsGlobal->DW - 1,	// Display area width
-			gsGlobal->DH - 1);		// Display area height
-
-	GS_SET_DISPLAY2(
-			gsGlobal->StartX + gsGlobal->StartXOffset,	// X position in the display area (in VCK units)
-			gsGlobal->StartY + gsGlobal->StartYOffset,	// Y position in the display area (in Raster units)
-			gsGlobal->MagH,			// Horizontal Magnification
-			gsGlobal->MagV,			// Vertical Magnification
-			gsGlobal->DW - 1,	// Display area width
-			gsGlobal->DH - 1);		// Display area height
 }
 
 void gsKit_init_screen(GSGLOBAL *gsGlobal)
@@ -462,7 +471,9 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	gsKit_queue_reset(gsGlobal->Os_Queue);
 }
+#endif
 
+#if F_gsKit_init_global_custom
 GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 {
     //s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
@@ -551,7 +562,9 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 
 	return gsGlobal;
 }
+#endif
 
+#if F_gsKit_deinit_global
 void gsKit_deinit_global(GSGLOBAL *gsGlobal)
 {
 	gsKit_queue_free(gsGlobal, gsGlobal->Per_Queue);
@@ -565,3 +578,4 @@ void gsKit_deinit_global(GSGLOBAL *gsGlobal)
     free(gsGlobal->BGColor);
     free(gsGlobal);
 }
+#endif

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <kernel.h>
 
+#if F_dmaKit_init
 int dmaKit_init(u32 RELE, u32 MFD, u32 STS,
 		u32 STD, u32 RCYC, u16 fastwaitchannels)
 {
@@ -39,7 +40,9 @@ int dmaKit_init(u32 RELE, u32 MFD, u32 STS,
 
 	return 0;
 }
+#endif
 
+#if F_dmaKit_chan_init
 int dmaKit_chan_init(u32 channel)
 {
 	if(channel >= 0 && channel <= 9)
@@ -76,3 +79,4 @@ int dmaKit_chan_init(u32 channel)
 
 	return 0;
 }
+#endif

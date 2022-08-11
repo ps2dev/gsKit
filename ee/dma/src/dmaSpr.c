@@ -15,6 +15,7 @@
 #include "dmaArrays.h"
 #include <stdio.h>
 
+#if F_dmaKit_spr_begin
 void *dmaKit_spr_begin(void)
 {
 	#ifdef GSKIT_DEBUG
@@ -22,7 +23,9 @@ void *dmaKit_spr_begin(void)
 	#endif
 	return (void *)dmaKit_spr_alloc(100 * 16);
 }
+#endif
 
+#if F_dmaKit_spr_end
 int dmaKit_spr_end(void *data, void *StorePtr)
 {
 	int q_size;
@@ -32,7 +35,9 @@ int dmaKit_spr_end(void *data, void *StorePtr)
 	q_size = (u32)data - (u32)StorePtr;
 	return q_size >> 4;
 }
+#endif
 
+#if F_dmaKit_spr_alloc
 void *dmaKit_spr_alloc(int size)
 {
 	void *p_spr = DMA_SPR;
@@ -50,4 +55,5 @@ void *dmaKit_spr_alloc(int size)
 	#endif
 	return p_spr;
 }
+#endif
 

@@ -11,6 +11,7 @@
 
 #include "gsKit.h"
 
+#if F_gsKit_setup_tbw
 void gsKit_setup_tbw(GSTEXTURE *Texture)
 {
 	if(Texture->PSM == GS_PSM_T8 || Texture->PSM == GS_PSM_T4)
@@ -30,7 +31,9 @@ void gsKit_setup_tbw(GSTEXTURE *Texture)
 			Texture->TBW = 1;
 	}
 }
+#endif
 
+#if F_gsKit_vram_dump
 void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 {
 #if 0
@@ -100,3 +103,4 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 	GS_SETREG_BUSDIR(1);
 #endif
 }
+#endif
