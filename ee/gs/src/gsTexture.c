@@ -26,6 +26,8 @@ static inline u32 lzw(u32 val)
 	return(res);
 }
 
+
+#if F_gsKit_texture_size_ee
 u32  gsKit_texture_size_ee(int width, int height, int psm)
 {
 
@@ -45,7 +47,9 @@ u32  gsKit_texture_size_ee(int width, int height, int psm)
 
 	return -1;
 }
+#endif
 
+#if F_gsKit_texture_size
 u32  gsKit_texture_size(int width, int height, int psm)
 {
 	int widthBlocks, heightBlocks;
@@ -168,7 +172,9 @@ u32  gsKit_texture_size(int width, int height, int psm)
 
 	return widthBlocks * heightBlocks * 256;
 }
+#endif
 
+#if F_gsKit_texture_to_psm16
 static inline u8
 from8to5(u8 c, const s8 dither)
 {
@@ -218,7 +224,9 @@ void gsKit_texture_to_psm16(GSTEXTURE *Texture)
 	Texture->Mem = (void*)pixels16;
 	Texture->PSM = GS_PSM_CT16S;
 }
+#endif
 
+#if F_gsKit_texture_send
 void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut)
 {
 	u64* p_store;
@@ -322,7 +330,9 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	dmaKit_wait_fast();	//Wait for the DMA transfer to complete, before freeing the GIF packet buffer.
 	free(p_store);
 }
+#endif
 
+#if F_gsKit_texture_send_inline
 void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut)
 {
 	u64* p_data;
@@ -404,7 +414,9 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 		*p_data++ = GS_TEXFLUSH;
 	}
 }
+#endif
 
+#if F_gsKit_texture_upload
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 {
 	gsKit_setup_tbw(Texture);
@@ -425,6 +437,7 @@ void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 		gsKit_texture_send(Texture->Mem, Texture->Width, Texture->Height, Texture->Vram, Texture->PSM, Texture->TBW, GS_CLUT_NONE);
 	}
 }
+#endif
 
 static inline void gsKit_set_tw_th(const GSTEXTURE *Texture, int *tw, int *th)
 {
@@ -436,7 +449,7 @@ static inline void gsKit_set_tw_th(const GSTEXTURE *Texture, int *tw, int *th)
 	if(Texture->Height > (1<<*th))
 		(*th)++;
 }
-
+#if F_gsKit_prim_sprite_texture_3d
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2, u64 color)
@@ -490,7 +503,9 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu2, iv2 );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 }
+#endif
 
+#if F_gsKit_prim_sprite_striped_texture_3d
 void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2, u64 color)
@@ -632,7 +647,9 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_texture_3d
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
@@ -694,7 +711,9 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu3, iv3 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 }
+#endif
 
+#if F_gsKit_prim_triangle_goraud_texture_3d
 void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
@@ -758,7 +777,9 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 	*p_data++ = GS_SETREG_UV( iu3, iv3 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 }
+#endif
 
+#if F_gsKit_prim_triangle_strip_texture
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color)
 {
@@ -816,7 +837,9 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_strip_texture_3d
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, u64 color)
 {
@@ -875,7 +898,9 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_fan_texture
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, int iz, u64 color)
 {
@@ -933,7 +958,9 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_fan_texture_3d
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, u64 color)
 {
@@ -992,7 +1019,9 @@ void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_quad_texture_3d
 void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
@@ -1062,7 +1091,9 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu4, iv4 );
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 }
+#endif
 
+#if F_gsKit_prim_quad_goraud_texture_3d
 void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2,
@@ -1135,3 +1166,4 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 	*p_data++ = GS_SETREG_UV( iu4, iv4 );
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 }
+#endif

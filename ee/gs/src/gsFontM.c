@@ -26,49 +26,7 @@
 #include "gsKit.h"
 #include "gsInline.h"
 
-/// ASCII <-> FONTM Mapping Table
-/// The index passed to the array is the ASCII character.
-/// It returns the fontm character number which relates to the ASCII one.
-static u32 gsKit_fontm_ascii[128] = {	   0,   0,   0,   0,   0,   0,   0,   0,  // 0 - 7
-					   0,   0,   0,   0,   0,   0,   0,   0,  // 8 - 15
-					   0,   0,   0,   0,   0,   0,   0,   0,  // 16 - 23
-					   0,   0,   0,   0,   0,   0,   0,   0,  // 24 - 31
-					   0,   9,  40,  83,  79,  82,  84,  38,  // 32 - 39
-					  41,  42,  85,  59,   3,  60,   4,  30,  // 40 - 47
-					 203, 204, 205, 206, 207, 208, 209, 210,  // 48 - 55
-					 211, 212,   6,   7,  66,  64,  67,   8,  // 56 - 63
-					  86, 220, 221, 222, 223, 224, 225, 226,  // 64 - 71
-					 227, 228, 229, 230, 231, 232, 233, 234,  // 72 - 79
-					 235, 236, 237, 238, 239, 240, 241, 242,  // 80 - 87
-					 243, 244, 245,  45,  31,  46,  15,  17,  // 88 - 95
-					  13, 252, 253, 254, 255, 256, 257, 258,  // 96 - 103
-					 259, 260, 261, 262, 263, 264, 265, 266,  // 104 - 111
-					 267, 268, 269, 270, 271, 272, 273, 274,  // 112 - 119
-					 275, 276, 277,  47,  34,  48,  32,   0 }; // 120 - 127
-
-/// FONTM CLUT
-/// FONTM Textures are GS_PSM_T4, and need a 16x16 CLUT
-/// This is a greyscale ramp CLUT, with linear alpha.
-static u32 gsKit_fontm_clut[16] __attribute__((aligned(128))) = {
-	0x00000000,
-	0x11111111,
-	0x22222222,
-	0x33333333,
-	0x44444444,
-	0x55555555,
-	0x66666666,
-	0x77777777,
-	0x80888888,
-	0x80999999,
-	0x80AAAAAA,
-	0x80BBBBBB,
-	0x80CCCCCC,
-	0x80DDDDDD,
-	0x80EEEEEE,
-	0x80FFFFFF
-};
-
-
+#if F_gsKit_init_fontm
 GSFONTM *gsKit_init_fontm(void)
 {
 	int pgindx;
@@ -80,7 +38,9 @@ GSFONTM *gsKit_init_fontm(void)
 
 	return gsFontM;
 }
+#endif
 
+#if F_gsKit_free_fontm
 void gsKit_free_fontm(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 {
 	int pgindx;
@@ -105,6 +65,30 @@ void gsKit_free_fontm(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 
 	free(gsFontM);
 }
+#endif
+
+#if F_gsKit_fontm_upload
+/// FONTM CLUT
+/// FONTM Textures are GS_PSM_T4, and need a 16x16 CLUT
+/// This is a greyscale ramp CLUT, with linear alpha.
+static u32 gsKit_fontm_clut[16] __attribute__((aligned(128))) = {
+	0x00000000,
+	0x11111111,
+	0x22222222,
+	0x33333333,
+	0x44444444,
+	0x55555555,
+	0x66666666,
+	0x77777777,
+	0x80888888,
+	0x80999999,
+	0x80AAAAAA,
+	0x80BBBBBB,
+	0x80CCCCCC,
+	0x80DDDDDD,
+	0x80EEEEEE,
+	0x80FFFFFF
+};
 
 int gsKit_fontm_upload(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 {
@@ -129,7 +113,9 @@ int gsKit_fontm_upload(GSGLOBAL *gsGlobal, GSFONTM *gsFontM)
 
 	return 0;
 }
+#endif
 
+#if F_gsKit_fontm_unpack
 int gsKit_fontm_unpack(GSFONTM *gsFontM)
 {
 	void *packed;
@@ -270,7 +256,9 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 
 	return 0;
 }
+#endif
 
+#if F_gsKit_fontm_unpack_raw
 void gsKit_fontm_unpack_raw(u8 *base, struct gsKit_fontm_unpack *oke)
 {
 	u32 val, count, i;
@@ -301,7 +289,9 @@ void gsKit_fontm_unpack_raw(u8 *base, struct gsKit_fontm_unpack *oke)
 			*p++ = *oke->ptr++;
 	}
 }
+#endif
 
+#if F_gsKit_fontm_unpack_raw_1
 void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 {
 	oke->data =             *oke->ptr++  << 8;
@@ -312,6 +302,28 @@ void gsKit_fontm_unpack_raw_1(struct gsKit_fontm_unpack *oke)
 	oke->dif=14 - (oke->data & 3);
 	oke->ande=oke->data & 3;
 }
+#endif
+
+#if F_gsKit_fontm_print_scaled
+/// ASCII <-> FONTM Mapping Table
+/// The index passed to the array is the ASCII character.
+/// It returns the fontm character number which relates to the ASCII one.
+static u32 gsKit_fontm_ascii[128] = {	   0,   0,   0,   0,   0,   0,   0,   0,  // 0 - 7
+					   0,   0,   0,   0,   0,   0,   0,   0,  // 8 - 15
+					   0,   0,   0,   0,   0,   0,   0,   0,  // 16 - 23
+					   0,   0,   0,   0,   0,   0,   0,   0,  // 24 - 31
+					   0,   9,  40,  83,  79,  82,  84,  38,  // 32 - 39
+					  41,  42,  85,  59,   3,  60,   4,  30,  // 40 - 47
+					 203, 204, 205, 206, 207, 208, 209, 210,  // 48 - 55
+					 211, 212,   6,   7,  66,  64,  67,   8,  // 56 - 63
+					  86, 220, 221, 222, 223, 224, 225, 226,  // 64 - 71
+					 227, 228, 229, 230, 231, 232, 233, 234,  // 72 - 79
+					 235, 236, 237, 238, 239, 240, 241, 242,  // 80 - 87
+					 243, 244, 245,  45,  31,  46,  15,  17,  // 88 - 95
+					  13, 252, 253, 254, 255, 256, 257, 258,  // 96 - 103
+					 259, 260, 261, 262, 263, 264, 265, 266,  // 104 - 111
+					 267, 268, 269, 270, 271, 272, 273, 274,  // 112 - 119
+					 275, 276, 277,  47,  34,  48,  32,   0 }; // 120 - 127
 
 void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, float Y, int Z,
                       float scale, unsigned long color, const char *String)
@@ -559,3 +571,4 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
     if(fixate)
         gsKit_set_test(gsGlobal, GS_ATEST_ON);
 }
+#endif

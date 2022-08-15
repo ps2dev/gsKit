@@ -26,15 +26,20 @@ struct SVramBlock {
 	struct SVramBlock * pNext;
 	struct SVramBlock * pPrev;
 };
-static struct SVramBlock * head = NULL;
-static enum ETransferMode trmode = ETM_INLINE;
+#if F_gsTextManagerInternals
+struct SVramBlock * __head = NULL;
+enum ETransferMode __trmode = ETM_INLINE;
+#else
+extern struct SVramBlock * __head;
+extern enum ETransferMode __trmode;
+#endif
 
 
 //---------------------------------------------------------------------------
 // Private functions
 
 //---------------------------------------------------------------------------
-static struct SVramBlock *
+static inline struct SVramBlock *
 _blockCreate(unsigned int start, unsigned int size)
 {
 	struct SVramBlock * block;
@@ -54,7 +59,7 @@ _blockCreate(unsigned int start, unsigned int size)
 }
 
 //---------------------------------------------------------------------------
-static void
+static inline void
 _blockInsertAfter(struct SVramBlock * block, struct SVramBlock * next)
 {
 	next->pNext = block->pNext;
@@ -65,7 +70,7 @@ _blockInsertAfter(struct SVramBlock * block, struct SVramBlock * next)
 }
 
 //---------------------------------------------------------------------------
-static struct SVramBlock *
+static inline struct SVramBlock *
 _blockRemove(struct SVramBlock * block)
 {
 	struct SVramBlock * next = block->pNext;
@@ -81,7 +86,7 @@ _blockRemove(struct SVramBlock * block)
 }
 
 //---------------------------------------------------------------------------
-static struct SVramBlock *
+static inline struct SVramBlock *
 _blockSplitFree(struct SVramBlock * block, unsigned int size)
 {
 	struct SVramBlock * pNewBlock;
@@ -97,7 +102,7 @@ _blockSplitFree(struct SVramBlock * block, unsigned int size)
 }
 
 //---------------------------------------------------------------------------
-static struct SVramBlock *
+static inline struct SVramBlock *
 _blockMergeFree(struct SVramBlock * block)
 {
 	// Search backwards to the first free block
@@ -115,7 +120,7 @@ _blockMergeFree(struct SVramBlock * block)
 
 //---------------------------------------------------------------------------
 // How often is this vram block used, mainly based on predictions
-unsigned int
+static inline unsigned int
 _blockGetWeight(struct SVramBlock * block)
 {
 	unsigned int weight = 0;
@@ -148,14 +153,14 @@ _blockGetWeight(struct SVramBlock * block)
 
 //---------------------------------------------------------------------------
 // Simple block allocator
-static struct SVramBlock *
+static inline struct SVramBlock *
 _blockAlloc(unsigned int size)
 {
 	struct SVramBlock * block = NULL;
 	unsigned int weight = 0;
 
 	// Locate free block
-	for (block = head; block != NULL; block = block->pNext) {
+	for (block = __head; block != NULL; block = block->pNext) {
 		if ((block->tex == NULL) && (block->iSize >= size)) {
 			// Free block found (first fit)
 			break;
@@ -164,7 +169,7 @@ _blockAlloc(unsigned int size)
 
 	while (block == NULL) {
 		// Free blocks starting with the least used textures
-		for (block = head; block != NULL; block = block->pNext) {
+		for (block = __head; block != NULL; block = block->pNext) {
 			if ((block->tex != NULL) && (_blockGetWeight(block) <= weight)) {
 				// Free block
 				block->tex = NULL;
@@ -190,27 +195,32 @@ _blockAlloc(unsigned int size)
 // Public functions
 
 //---------------------------------------------------------------------------
+#if defined(F_gsKit_TexManager_init)
 void
 gsKit_TexManager_init(GSGLOBAL * gsGlobal)
 {
-	struct SVramBlock * block = head;
+	struct SVramBlock * block = __head;
 
 	// Delete all blocks (if present)
 	while(block != NULL)
 		block = _blockRemove(block);
 
 	// Allocate the initial free block
-	head = _blockCreate(gsGlobal->CurrentPointer, (4*1024*1024) - gsGlobal->CurrentPointer);
+	__head = _blockCreate(gsGlobal->CurrentPointer, (4*1024*1024) - gsGlobal->CurrentPointer);
 }
+#endif
 
 //---------------------------------------------------------------------------
+#if F_gsKit_TexManager_setmode
 void
 gsKit_TexManager_setmode(GSGLOBAL * gsGlobal, enum ETransferMode mode)
 {
-	trmode = mode;
+	__trmode = mode;
 }
+#endif
 
 //---------------------------------------------------------------------------
+#if F_gsKit_TexManager_bind
 unsigned int
 gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
@@ -223,7 +233,7 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 	unsigned int cheight = 16;
 
 	// Locate texture
-	for (block = head; block != NULL; block = block->pNext) {
+	for (block = __head; block != NULL; block = block->pNext) {
 		if(block->tex == tex)
 			break;
 	}
@@ -258,7 +268,7 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 		tex->Vram = block->iStart;
 		gsKit_setup_tbw(tex);
 		SyncDCache(tex->Mem, (u8 *)(tex->Mem) + tsize);
-		if (trmode == ETM_INLINE)
+		if (__trmode == ETM_INLINE)
 			gsKit_texture_send_inline(gsGlobal, tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
 		else
 			gsKit_texture_send(tex->Mem, tex->Width, tex->Height, tex->Vram, tex->PSM, tex->TBW, tex->Clut ? GS_CLUT_TEXTURE : GS_CLUT_NONE);
@@ -267,7 +277,7 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 	if (ctransfer) {
 		tex->VramClut = block->iStart + tsize;
 		SyncDCache(tex->Clut, (u8 *)(tex->Clut) + csize);
-		if (trmode == ETM_INLINE)
+		if (__trmode == ETM_INLINE)
 			gsKit_texture_send_inline(gsGlobal, tex->Clut, cwidth, cheight, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
 		else
 			gsKit_texture_send(tex->Clut, cwidth, cheight, tex->VramClut, tex->ClutPSM, 1, GS_CLUT_PALLETE);
@@ -277,23 +287,27 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 
 	return (ttransfer|ctransfer);
 }
+#endif
 
 //---------------------------------------------------------------------------
+#if F_gsKit_TexManager_invalidate
 void
 gsKit_TexManager_invalidate(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
 	tex->Vram = 0;
 	tex->VramClut = 0;
 }
+#endif
 
 //---------------------------------------------------------------------------
+#if F_gsKit_TexManager_free
 void
 gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 {
 	struct SVramBlock * block;
 
 	// Locate texture
-	for (block = head; block != NULL; block = block->pNext) {
+	for (block = __head; block != NULL; block = block->pNext) {
 		if(block->tex == tex) {
 			// Free block
 			block->tex = NULL;
@@ -304,18 +318,21 @@ gsKit_TexManager_free(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 		}
 	}
 }
+#endif
 
 //---------------------------------------------------------------------------
+#if F_gsKit_TexManager_nextFrame
 void
 gsKit_TexManager_nextFrame(GSGLOBAL * gsGlobal)
 {
 	struct SVramBlock * block;
 
 	// Register use count
-	for(block = head; block != NULL; block = block->pNext) {
+	for(block = __head; block != NULL; block = block->pNext) {
 		if(block->tex != NULL) {
 			block->iUseCountPrev = block->iUseCount;
 			block->iUseCount = 0;
 		}
 	}
 }
+#endif

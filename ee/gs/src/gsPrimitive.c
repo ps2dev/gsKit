@@ -14,6 +14,7 @@
 #include "gsKit.h"
 #include "gsInline.h"
 
+#if F_gsKit_prim_point
 void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 {
 	u64* p_store;
@@ -39,7 +40,9 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 	*p_data++ = color;
 	*p_data++ = GS_SETREG_XYZ2( ix, iy, iz );
 }
+#endif
 
+#if F_gsKit_prim_line_3d
 void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x2, float y2, int iz2, u64 color)
 {
 	u64* p_store;
@@ -69,7 +72,9 @@ void gsKit_prim_line_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x
 	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 }
+#endif
 
+#if F_gsKit_prim_line_goraud_3d
 void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x2, float y2, int iz2, u64 color1, u64 color2)
 {
 	u64* p_store;
@@ -101,7 +106,9 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 	*p_data++ = color2;
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 }
+#endif
 
+#if F_gsKit_prim_line_strip
 void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, int iz, u64 color)
 {
 	u64* p_data;
@@ -134,7 +141,9 @@ void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, i
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_line_strip_3d
 void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments, u64 color)
 {
 	u64* p_data;
@@ -169,7 +178,9 @@ void gsKit_prim_line_strip_3d(GSGLOBAL *gsGlobal, float *LineStrip, int segments
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_sprite
 void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y2, int iz, u64 color)
 {
 	u64* p_store;
@@ -199,7 +210,9 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz );
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz );
 }
+#endif
 
+#if F_gsKit_prim_triangle_3d
 void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x2, float y2, int iz2,
 						float x3, float y3, int iz3, u64 color)
@@ -231,7 +244,9 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 }
+#endif
 
+#if F_gsKit_prim_triangle_strip
 void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments, int iz, u64 color)
 {
 	u64* p_data;
@@ -265,7 +280,9 @@ void gsKit_prim_triangle_strip(GSGLOBAL *gsGlobal, float *TriStrip, int segments
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_strip_3d
 void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segments, u64 color)
 {
 	u64* p_data;
@@ -300,7 +317,9 @@ void gsKit_prim_triangle_strip_3d(GSGLOBAL *gsGlobal, float *TriStrip, int segme
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_fan
 void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, int iz, u64 color)
 {
 	u64* p_data;
@@ -334,7 +353,9 @@ void gsKit_prim_triangle_fan(GSGLOBAL *gsGlobal, float *TriFan, int verticies, i
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
+#if F_gsKit_prim_triangle_fan_3d
 void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies, u64 color)
 {
 	u64* p_data;
@@ -369,8 +390,9 @@ void gsKit_prim_triangle_fan_3d(GSGLOBAL *gsGlobal, float *TriFan, int verticies
 		*p_data++ = GS_XYZ2;
 	}
 }
+#endif
 
-
+#if F_gsKit_prim_triangle_gouraud_3d
 void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 							float x2, float y2, int iz2,
 							float x3, float y3, int iz3,
@@ -411,7 +433,9 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 	*p_data++ = color3;
 	*p_data++ = GS_SETREG_XYZ2(ix3, iy3, iz3);
 }
+#endif
 
+#if F_gsKit_prim_quad_3d
 void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 					float x2, float y2, int iz2,
 					float x3, float y3, int iz3,
@@ -452,8 +476,9 @@ void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 }
+#endif
 
-
+#if F_gsKit_prim_quad_gouraud_3d
 void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x2, float y2, int iz2,
 						float x3, float y3, int iz3,
@@ -502,4 +527,4 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	*p_data++ = color4;
 	*p_data++ = GS_SETREG_XYZ2( ix4, iy4, iz4 );
 }
-
+#endif

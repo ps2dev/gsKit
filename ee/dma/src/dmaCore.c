@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <kernel.h>
 
+#ifdef F_dmaKit_wait
 int dmaKit_wait(u16 channel, u32 timeout)
 {
 	#ifdef GSKIT_DEBUG
@@ -41,7 +42,9 @@ int dmaKit_wait(u16 channel, u32 timeout)
 
 	return 0;
 }
+#endif
 
+#ifdef F_dmaKit_wait_fast
 void dmaKit_wait_fast(void)
 {
 	asm __volatile__("sync.l; sync.p;" \
@@ -52,7 +55,9 @@ void dmaKit_wait_fast(void)
 			 "bc0f 0b; nop;" \
 			 "0:");
 }
+#endif
 
+#ifdef F_dmaKit_send
 void dmaKit_send(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
@@ -80,7 +85,9 @@ void dmaKit_send(u16 channel, void *data, u32 size)
 
 	return;
 }
+#endif
 
+#ifdef F_dmaKit_send_ucab
 void dmaKit_send_ucab(u16 channel, void *data, u32 size)
 {
         #ifdef GSKIT_DEBUG
@@ -106,7 +113,9 @@ void dmaKit_send_ucab(u16 channel, void *data, u32 size)
 
         return;
 }
+#endif
 
+#ifdef F_dmaKit_send_spr
 void dmaKit_send_spr(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
@@ -131,7 +140,9 @@ void dmaKit_send_spr(u16 channel, void *data, u32 size)
 
 	return;
 }
+#endif
 
+#ifdef F_dmaKit_send_chain
 void dmaKit_send_chain(u16 channel, void *data, u32 size)
 {
 	#ifdef GSKIT_DEBUG
@@ -159,7 +170,9 @@ void dmaKit_send_chain(u16 channel, void *data, u32 size)
 	#endif
         return;
 }
+#endif
 
+#ifdef F_dmaKit_send_chain_ucab
 void dmaKit_send_chain_ucab(u16 channel, void *data)
 {
         #ifdef GSKIT_DEBUG
@@ -185,7 +198,9 @@ void dmaKit_send_chain_ucab(u16 channel, void *data)
         #endif
         return;
 }
+#endif
 
+#ifdef F_dmaKit_send_chain_ucab
 void dmaKit_send_chain_spr(u16 channel, void *data)
 {
 	#ifdef GSKIT_DEBUG
@@ -210,7 +225,9 @@ void dmaKit_send_chain_spr(u16 channel, void *data)
 	#endif
 	return;
 }
+#endif
 
+#ifdef F_dmaKit_get_spr
 void dmaKit_get_spr(u16 channel, void *data, void *dest, u32 size)
 {
         #ifdef GSKIT_DEBUG
@@ -238,4 +255,5 @@ void dmaKit_get_spr(u16 channel, void *data, void *dest, u32 size)
 
         return;
 }
+#endif
 

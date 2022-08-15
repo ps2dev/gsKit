@@ -17,6 +17,7 @@
 #include <kernel.h>
 #include <malloc.h>
 
+#if F_gsKit_vram_alloc
 u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 {
 	u32 CurrentPointer = gsGlobal->CurrentPointer;
@@ -49,7 +50,9 @@ u32 gsKit_vram_alloc(GSGLOBAL *gsGlobal, u32 size, u8 type)
 		return CurrentPointer;
 	}
 }
+#endif
 
+#if F_gsKit_vram_clear
 void gsKit_vram_clear(GSGLOBAL *gsGlobal)
 {
     gsGlobal->CurrentPointer = gsGlobal->TexturePointer;
@@ -59,7 +62,9 @@ void gsKit_vram_clear(GSGLOBAL *gsGlobal)
 	//       gsKit_vram_alloc, and use gsKit_TexManager_bind instead.
 	gsKit_TexManager_init(gsGlobal);
 }
+#endif
 
+#if F_gsKit_sync_flip
 void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 {
 	if(!gsGlobal->FirstFrame)
@@ -79,7 +84,9 @@ void gsKit_sync_flip(GSGLOBAL *gsGlobal)
 	gsKit_setactive(gsGlobal);
 
 }
+#endif
 
+#if F_gsKit_setactive
 void gsKit_setactive(GSGLOBAL *gsGlobal)
 {
 	u64 *p_data;
@@ -111,33 +118,45 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 	dmaKit_wait_fast();
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 5);
 }
+#endif
 
+#if F_gsKit_finish
 void gsKit_finish(void)
 {
 	while(!(GS_CSR_FINISH));
 }
+#endif
 
+#if F_gsKit_lock_buffer
 void gsKit_lock_buffer(GSGLOBAL *gsGlobal)
 {
     gsGlobal->LockBuffer = GS_SETTING_ON;
 }
+#endif
 
+#if F_gsKit_unlock_buffer
 void gsKit_unlock_buffer(GSGLOBAL *gsGlobal)
 {
     gsGlobal->LockBuffer = GS_SETTING_OFF;
 }
+#endif
 
+#if F_gsKit_lock_status
 int gsKit_lock_status(GSGLOBAL *gsGlobal)
 {
     return gsGlobal->LockBuffer;
 }
+#endif
 
+#if F_gsKit_display_buffer
 void gsKit_display_buffer(GSGLOBAL *gsGlobal)
 {
     GS_SET_DISPFB2( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
             gsGlobal->Width / 64, gsGlobal->PSM, 0, 0 );
 }
+#endif
 
+#if F_gsKit_switch_context
 void gsKit_switch_context(GSGLOBAL *gsGlobal)
 {
     gsGlobal->ActiveBuffer ^= 1;
@@ -145,29 +164,39 @@ void gsKit_switch_context(GSGLOBAL *gsGlobal)
 
     gsKit_setactive(gsGlobal);
 }
+#endif
 
+#if F_gsKit_vsync_wait
 void gsKit_vsync_wait(void)
 {
 	*GS_CSR = *GS_CSR & 8;
 	while(!(*GS_CSR & 8));
 }
+#endif
 
+#if F_gsKit_vsync_nowait
 void gsKit_vsync_nowait(void)
 {
     *GS_CSR = *GS_CSR & 8;
 }
+#endif
 
+#if F_gsKit_get_field
 void gsKit_get_field(GSGLOBAL *gsGlobal)
 {
     gsGlobal->EvenOrOdd=((GSREG*)GS_CSR)->FIELD;
 }
+#endif
 
+#if F_gsKit_hsync_wait
 void gsKit_hsync_wait(void)
 {
     *GS_CSR = *GS_CSR & 4;
     while(!(*GS_CSR & 4));
 }
+#endif
 
+#if F_gsKit_add_vsync_handler
 int gsKit_add_vsync_handler(int (*vsync_callback)())
 {
 	int callback_id;
@@ -181,7 +210,9 @@ int gsKit_add_vsync_handler(int (*vsync_callback)())
 
 	return callback_id;
 }
+#endif
 
+#if F_gsKit_remove_vsync_handler
 void gsKit_remove_vsync_handler(int callback_id)
 {
 	DIntr();
@@ -191,7 +222,9 @@ void gsKit_remove_vsync_handler(int callback_id)
 	RemoveIntcHandler(INTC_VBLANK_S, callback_id);
 	EIntr();
 }
+#endif
 
+#if F_gsKit_add_hsync_handler
 int gsKit_add_hsync_handler(int (*hsync_callback)())
 {
 	int callback_id;
@@ -205,7 +238,9 @@ int gsKit_add_hsync_handler(int (*hsync_callback)())
 
 	return callback_id;
 }
+#endif
 
+#if F_gsKit_remove_hsync_handler
 void gsKit_remove_hsync_handler(int callback_id)
 {
 	DIntr();
@@ -215,7 +250,9 @@ void gsKit_remove_hsync_handler(int callback_id)
 	RemoveIntcHandler(INTC_GS, callback_id);
 	EIntr();
 }
+#endif
 
+#if F_gsKit_clear
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 {
 	u8 PrevZState = gsGlobal->Test->ZTST;
@@ -238,7 +275,9 @@ void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 	gsGlobal->Test->ZTST = PrevZState;
 	gsKit_set_test(gsGlobal, 0);
 }
+#endif
 
+#if F_gsKit_set_scissor
 void gsKit_set_scissor(GSGLOBAL *gsGlobal, u64 ScissorBounds) {
     u64 *p_data;
 	u64 *p_store;
@@ -254,7 +293,9 @@ void gsKit_set_scissor(GSGLOBAL *gsGlobal, u64 ScissorBounds) {
 	*p_data++ = ScissorBounds;
 	*p_data++ = GS_SCISSOR_1+gsGlobal->PrimContext;
 }
+#endif
 
+#if F_gsKit_set_test
 void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 {
 	u64 *p_data;
@@ -286,7 +327,9 @@ void gsKit_set_test(GSGLOBAL *gsGlobal, u8 Preset)
 	*p_data++ = GS_TEST_1+gsGlobal->PrimContext;
 
 }
+#endif
 
+#if F_gsKit_set_clamp
 void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 {
 	u64 *p_data;
@@ -324,7 +367,9 @@ void gsKit_set_clamp(GSGLOBAL *gsGlobal, u8 Preset)
 
 	*p_data++ = GS_CLAMP_1+gsGlobal->PrimContext;
 }
+#endif
 
+#if F_gsKit_set_primalpha
 void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel)
 {
 	u64 *p_data;
@@ -344,7 +389,9 @@ void gsKit_set_primalpha(GSGLOBAL *gsGlobal, u64 AlphaMode, u8 PerPixel)
 	*p_data++ = gsGlobal->PrimAlpha;
 	*p_data++ = GS_ALPHA_1+gsGlobal->PrimContext;
 }
+#endif
 
+#if F_gsKit_set_texfilter
 void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 {
 	u64 *p_data;
@@ -358,7 +405,9 @@ void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 	*p_data++ = GS_SETREG_TEX1(0, 0, FilterMode, FilterMode, 0, 0, 0);
 	*p_data++ = GS_TEX1_1+gsGlobal->PrimContext;
 }
+#endif
 
+#if F_gsKit_set_dither_matrix
 void gsKit_set_dither_matrix(GSGLOBAL *gsGlobal)
 {
     u64 *p_data;
@@ -375,7 +424,9 @@ void gsKit_set_dither_matrix(GSGLOBAL *gsGlobal)
                                 gsGlobal->DitherMatrix[12], gsGlobal->DitherMatrix[13], gsGlobal->DitherMatrix[14], gsGlobal->DitherMatrix[15]);
     *p_data++ = GS_DIMX;
 }
+#endif
 
+#if F_gsKit_set_dither
 void gsKit_set_dither(GSGLOBAL *gsGlobal)
 {
     u64 *p_data;
@@ -393,8 +444,9 @@ void gsKit_set_dither(GSGLOBAL *gsGlobal)
 
     *p_data++ = GS_DTHE;
 }
+#endif
 
-
+#if F_gsKit_set_drawfield
 // taken from libgraph
 void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field)
 {
@@ -446,6 +498,9 @@ void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field)
 	dmaKit_send_ucab(DMA_CHANNEL_GIF, p_store, 2);
 }
 */
+#endif
+
+#if F_gsKit_set_finish
 GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal)
 {
 	u64 *p_data;
@@ -463,7 +518,9 @@ GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal)
 
 	return oldQueue;
 }
+#endif
 
+#if F_gsKit_queue_exec_real
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
 	if(Queue->tag_size == 0)
@@ -505,7 +562,9 @@ void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 		dmaKit_wait_fast();
 	}
 }
+#endif
 
+#if F_gsKit_queue_reset
 void gsKit_queue_reset(GSQUEUE *Queue)
 {
 		if(Queue->mode == GS_ONESHOT)
@@ -519,7 +578,9 @@ void gsKit_queue_reset(GSQUEUE *Queue)
 		Queue->last_tag = Queue->pool_cur;
 		Queue->tag_size = 0;
 }
+#endif
 
+#if F_gsKit_queue_exec
 void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 {
 	GSQUEUE *CurQueue = gsGlobal->CurQueue;
@@ -540,7 +601,9 @@ void gsKit_queue_exec(GSGLOBAL *gsGlobal)
 	gsGlobal->CurQueue = CurQueue;
 	gsGlobal->FirstFrame = GS_SETTING_OFF;
 }
+#endif
 
+#if F_gsKit_alloc_ucab
 void *gsKit_alloc_ucab(int size)
 {
 	// Allocate aligned memory
@@ -555,7 +618,9 @@ void *gsKit_alloc_ucab(int size)
 	// Return memory to UCAB area
 	return p;
 }
+#endif
 
+#if F_gsKit_free_ucab
 void gsKit_free_ucab(void *p)
 {
 	// Convert UCAB to normal memory
@@ -564,7 +629,9 @@ void gsKit_free_ucab(void *p)
 	// Free normal memory
 	free(p);
 }
+#endif
 
+#if F_gsKit_queue_init
 void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size)
 {
 	// Init pool 0
@@ -586,7 +653,9 @@ void gsKit_queue_init(GSGLOBAL *gsGlobal, GSQUEUE *Queue, u8 mode, int size)
 	Queue->last_type	= GIF_RESERVED;
 	Queue->mode			= mode;
 }
+#endif
 
+#if F_gsKit_queue_free
 void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
 	if (Queue == NULL)
@@ -604,12 +673,16 @@ void gsKit_queue_free(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 		Queue->pool[1] = NULL;
 	}
 }
+#endif
 
+#if F_gsKit_queue_set
 void gsKit_queue_set(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
 	gsGlobal->CurQueue = Queue;
 }
+#endif
 
+#if F_gsKit_mode_switch
 void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode)
 {
 	if(mode == GS_PERSISTENT)
@@ -621,3 +694,4 @@ void gsKit_mode_switch(GSGLOBAL *gsGlobal, u8 mode)
 		gsKit_queue_set(gsGlobal, gsGlobal->Os_Queue);
 	}
 }
+#endif
