@@ -1041,6 +1041,52 @@ struct gsTexture
 };
 typedef struct gsTexture GSTEXTURE;
 
+typedef union {
+	u64 xyz;
+	struct {
+		u16 x;
+		u16 y;
+		u32 z;
+	};
+} __attribute__((packed,aligned(8))) gs_xyz_t;
+
+typedef union {
+	u64 rgbaq;
+	struct {
+		u8 r;
+		u8 g;
+		u8 b;
+		u8 a;
+		float q;
+	};
+} __attribute__((packed,aligned(8))) gs_color_t;
+
+typedef union {
+	u128 xyz2;
+	struct {
+		gs_xyz_t xyz;
+		u64 tag;
+	};
+} __attribute__((packed,aligned(8))) gs_xyz2;
+
+typedef union {
+	u128 rgbaq;
+	struct {
+		gs_color_t color;
+		u64 tag;
+	};
+} __attribute__((packed,aligned(8))) gs_rgbaq;
+
+/// gsKit Point Primitive Structure
+/// This structure holds all relevant data for any
+/// given point object, regardless of original format or type.
+struct gsPrimPoint
+{
+	gs_rgbaq rgbaq;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimPoint GSPRIMPOINT;
+
 /// Alternative Access Method to the GS CSR Register
 struct gsRegisters {
  u64 SIGNAL:      1 __attribute__((packed)); /* ro */

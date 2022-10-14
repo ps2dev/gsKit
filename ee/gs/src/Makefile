@@ -31,10 +31,10 @@ GS_INIT_OBJS = _gsInit_internal.o gsKit_check_rom.o gsKit_set_display_offset.o g
 
 GS_MISC_OBJS = gsKit_setup_tbw.o gsKit_vram_dump.o
 
-GS_TEXT_PRIMITIVE_OBJS = gsKit_prim_point.o gsKit_prim_line_3d.o gsKit_prim_line_goraud_3d.o \
-	gsKit_prim_line_strip.o gsKit_prim_line_strip_3d.o gsKit_prim_sprite.o gsKit_prim_triangle_3d.o \
+GS_TEXT_PRIMITIVE_OBJS = gsKit_prim_point.o gsKit_prim_list_points.o gsKit_prim_line_3d.o gsKit_prim_line_goraud_3d.o \
+	gsKit_prim_list_line_goraud_3d.o gsKit_prim_line_strip.o gsKit_prim_line_strip_3d.o gsKit_prim_sprite.o gsKit_prim_triangle_3d.o \
 	gsKit_prim_triangle_strip.o gsKit_prim_triangle_strip_3d.o gsKit_prim_triangle_fan.o \
-	gsKit_prim_triangle_fan_3d.o gsKit_prim_triangle_gouraud_3d.o gsKit_prim_quad_3d.o \
+	gsKit_prim_triangle_fan_3d.o gsKit_prim_triangle_gouraud_3d.o gsKit_prim_list_triangle_gouraud_3d.o gsKit_prim_quad_3d.o \
 	gsKit_prim_quad_gouraud_3d.o
 
 GS_TEXT_MANAGER_OBJS = gsTextManagerInternals.o gsKit_TexManager_init.o gsKit_TexManager_setmode.o \
