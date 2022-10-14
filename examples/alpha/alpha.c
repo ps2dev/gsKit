@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 	// GS_MODE_VGA_640_60
 #ifdef HAVE_LIBTIFF
 	GSTEXTURE Sprite;
@@ -35,7 +35,11 @@ int main(int argc, char *argv[])
         float width = 150;
         float height = 150;
 
-	float VHeight = gsGlobal->Height;
+    float VHeight;
+
+	gsGlobal = gsKit_init_global();
+
+	VHeight = gsGlobal->Height;
 
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;

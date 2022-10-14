@@ -8,12 +8,14 @@
 
 int main(int argc, char* argv[])
 {
-    GSGLOBAL* gsGlobal = gsKit_init_global();
+    GSGLOBAL* gsGlobal;
     GSTEXTURE Tex[TEXTURE_COUNT];
     int iPassCount;
     int iTexId;
     char filename[80];
     int iFrameCount = 0;
+
+    gsGlobal = gsKit_init_global();
 
 	printf("\n");
 	printf("--------------------------------------------------------------------------------\n");

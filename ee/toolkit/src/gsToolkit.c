@@ -354,8 +354,10 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	u32 FTexSize;
 	u8  *image;
 	u8  *p;
+	u32 TextureSize;
+	FILE* File;
 
-	FILE* File = fopen(Path, "rb");
+	File = fopen(Path, "rb");
 	if (File == NULL)
 	{
 		printf("BMP: Failed to load bitmap: %s\n", Path);
@@ -381,6 +383,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	if(Bitmap.InfoHeader.BitCount == 4)
 	{
+		GSBMCLUT *clut;
+		int i;
+
 		Texture->PSM = GS_PSM_T4;
 		Texture->Clut = memalign(128, gsKit_texture_size_ee(8, 2, GS_PSM_CT32));
 		Texture->ClutPSM = GS_PSM_CT32;
@@ -398,8 +403,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			return -1;
 		}
 
-		GSBMCLUT *clut = (GSBMCLUT *)Texture->Clut;
-		int i;
+		clut = (GSBMCLUT *)Texture->Clut;
 		for (i = Bitmap.InfoHeader.ColorUsed; i < 16; i++)
 		{
 			memset(&clut[i], 0, sizeof(clut[i]));
@@ -416,6 +420,9 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	}
 	else if(Bitmap.InfoHeader.BitCount == 8)
 	{
+		GSBMCLUT *clut;
+		int i;
+
 		Texture->PSM = GS_PSM_T8;
 		Texture->Clut = memalign(128, gsKit_texture_size_ee(16, 16, GS_PSM_CT32));
 		Texture->ClutPSM = GS_PSM_CT32;
@@ -433,8 +440,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 			return -1;
 		}
 
-		GSBMCLUT *clut = (GSBMCLUT *)Texture->Clut;
-		int i;
+		clut = (GSBMCLUT *)Texture->Clut;
 		for (i = Bitmap.InfoHeader.ColorUsed; i < 256; i++)
 		{
 			memset(&clut[i], 0, sizeof(clut[i]));
@@ -478,7 +484,7 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	fseek(File, Bitmap.FileHeader.Offset, SEEK_SET);
 
-	u32 TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
+	TextureSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
 
 	Texture->Mem = memalign(128,TextureSize);
 
@@ -786,13 +792,16 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 #ifdef F_gsKit_texture_raw
 int gsKit_texture_raw(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-	FILE* File = fopen(Path, "rb");
+	FILE* File;
+	int FileSize;
+
+	File = fopen(Path, "rb");
 	if (File == NULL)
 	{
 		printf("Failed to load  texture: %s\n", Path);
 		return -1;
 	}
-	int FileSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
+	FileSize = gsKit_texture_size_ee(Texture->Width, Texture->Height, Texture->PSM);
 	Texture->Mem = memalign(128, FileSize);
 
 	if(Texture->PSM != GS_PSM_T8 && Texture->PSM != GS_PSM_T4)
@@ -1041,12 +1050,14 @@ int gsKit_font_upload_raw(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 {
 	if( gsFont->Type == GSKIT_FTYPE_FNT )
 	{
+		int i;
+
 		if( gsKit_texture_fnt_raw(gsGlobal, gsFont) == -1 )
 		{
 			printf("Error uploading font!\n");
 			return -1;
 		}
-		for (int i=0; i<256; i++) {
+		for (i=0; i<256; i++) {
 			gsFont->Additional[i] = (short)gsFont->CharWidth;
 		}
 
@@ -1197,10 +1208,12 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
 		gsFont->Type == GSKIT_FTYPE_FNT)
 	{
-		u64 oldalpha = gsGlobal->PrimAlpha;
+		u64 oldalpha;
+		int cx,cy,i,l;
+
+		oldalpha = gsGlobal->PrimAlpha;
 		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
 
-		int cx,cy,i,l;
 		cx=X;
 		cy=Y;
 

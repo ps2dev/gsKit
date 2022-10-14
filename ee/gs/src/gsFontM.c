@@ -120,15 +120,47 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 {
 	void *packed;
 	void *unpacked;
+	int FontMFile;
+	int PackedSize;
+	struct gsKit_fontm_unpack updata;
+	int TableSize;
+	u8 *temp;
+	int TexSize;
+	u8 *temp2;
 
-	int FontMFile = open("rom0:FONTM", O_RDONLY);
+	u8 numlines, lineno, mask;
+
+	u32 offset;
+
+	struct line
+	{
+		u64	blah1;
+		u32	blah2;
+		u8	blah3;
+	} __attribute__ ((packed));
+
+	typedef struct line PADLINE;
+
+	PADLINE *olddata;
+	PADLINE *newdata;
+
+	u32 linemax;
+
+	u32 mask32;
+
+	int byte;
+
+	u8 *tmpdst;
+	u8 *tmpsrc;
+
+	FontMFile = open("rom0:FONTM", O_RDONLY);
 	if(FontMFile < 0)
 	{
 		printf("Failed to open FONTM from ROM0\n");
 		return -1;
 	}
 
-	int PackedSize = lseek(FontMFile, 0, SEEK_END);
+	PackedSize = lseek(FontMFile, 0, SEEK_END);
 
 	lseek(FontMFile, 0, SEEK_SET);
 
@@ -142,8 +174,6 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	}
 
 	close(FontMFile);
-
-	struct gsKit_fontm_unpack updata;
 
 	updata.size = *(u32 *)packed;
 	updata.ptr = (void *)((u8 *)packed + 4);
@@ -169,35 +199,21 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	gsFontM->Header.baseoffset = *(u32 *)((u8 *)unpacked + 12);
 	gsFontM->Header.num_entries = *(u32 *)((u8 *)unpacked + 16);
 	gsFontM->Header.eof = *(u32 *)((u8 *)unpacked + 20);
-	int TableSize = (gsFontM->Header.num_entries * 4);
+	TableSize = (gsFontM->Header.num_entries * 4);
 	gsFontM->Header.offset_table = malloc(TableSize);
 
-	u8 *temp;
 	temp = (u8 *)((u32)unpacked + gsFontM->Header.baseoffset + 17680);
 
-	int TexSize = (338 * gsFontM->Header.num_entries);
+	TexSize = (338 * gsFontM->Header.num_entries);
 
 	gsFontM->TexBase = memalign(128, TexSize);
 
-	u8 *temp2 = malloc(TexSize);
+	temp2 = malloc(TexSize);
 
-	u8 numlines, lineno, mask;
+	olddata = (PADLINE *)temp;
+	newdata = (PADLINE *)temp2;
 
-	u32 offset;
-
-	struct line
-	{
-		u64	blah1;
-		u32	blah2;
-		u8	blah3;
-	} __attribute__ ((packed));
-
-	typedef struct line PADLINE;
-
-	PADLINE *olddata = (PADLINE *)temp;
-	PADLINE *newdata = (PADLINE *)temp2;
-
-	u32 linemax = (gsFontM->Header.num_entries * 26) - 52;
+	linemax = (gsFontM->Header.num_entries * 26) - 52;
 
 	// Interleave lines so we can deal with it as two columns of glyphs in vram
 	for(offset = 0; offset < linemax; offset += 52)
@@ -218,7 +234,6 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 		}
 	}
 
-	u32 mask32;
 
 	// Create our new offset table
 	for(offset = 0; offset < gsFontM->Header.num_entries; offset++)
@@ -231,9 +246,8 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	}
 
 	// Swap nibbles around so it shows up correctly
-	int byte;
-	u8 *tmpdst = (u8 *)((u32)gsFontM->TexBase | 0x30000000);
-	u8 *tmpsrc = (u8 *)temp2;
+	tmpdst = (u8 *)((u32)gsFontM->TexBase | 0x30000000);
+	tmpsrc = (u8 *)temp2;
 
 	for(byte = 0; byte < TexSize; byte++)
 	{
@@ -328,9 +342,29 @@ static u32 gsKit_fontm_ascii[128] = {	   0,   0,   0,   0,   0,   0,   0,   0,  
 void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, float Y, int Z,
                       float scale, unsigned long color, const char *String)
 {
-	u64 oldalpha = gsGlobal->PrimAlpha;
-	u8 oldpabe = gsGlobal->PABE;
-	u8 fixate = 0;
+	u64 oldalpha;
+	u8 oldpabe;
+	u8 fixate;
+
+	int length;
+	int pos;
+
+	u32 linechars[GSKIT_FONTM_MAXLINES];
+
+	float posx[GSKIT_FONTM_MAXLINES];
+	float posy;
+
+	char cur;
+
+	u32 aligned, idxoffset, idxremain;
+
+	u8 numlines;
+	u8 curline;
+	int tabscale;
+
+	oldalpha = gsGlobal->PrimAlpha;
+	oldpabe = gsGlobal->PABE;
+	fixate = 0;
 
 	if(gsGlobal->Test->ATE)
 	{
@@ -338,22 +372,14 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 		fixate = 1;
 	}
 	gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
+	posy = Y;
+	length = strlen(String);
 
-	int length = strlen(String);
-	int pos;
-
-	u32 linechars[GSKIT_FONTM_MAXLINES];
-
-	float posx[GSKIT_FONTM_MAXLINES], posy = Y;
-
-	char cur;
-
-	u32 aligned, idxoffset, idxremain;
-	u8 numlines = 0;
-	u8 curline = 0;
+	numlines = 0;
+	curline = 0;
 	linechars[0] = 0;
 
-	int tabscale = (104.0f * scale);
+	tabscale = (104.0f * scale);
 
 	for(pos = 0; pos < length; pos++)
 	{
@@ -412,7 +438,11 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 		{
 			int idx;
 			int pgindx;
-			u32 uoffset = 0;
+			u32 uoffset;
+			u32 voffset;
+			u64 *p_data;
+
+			uoffset = 0;
 
 			if(cur == '\f')
 			{
@@ -516,9 +546,9 @@ void gsKit_fontm_print_scaled(GSGLOBAL *gsGlobal, GSFONTM *gsFontM, float X, flo
 
 			idxremain /= 2;
 
-			u32 voffset = (idxremain * 26);
+			voffset = (idxremain * 26);
 
-			u64 *p_data = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+			p_data = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
 
 			*p_data++ = GIF_TAG_AD(1);
 			*p_data++ = GIF_AD;
