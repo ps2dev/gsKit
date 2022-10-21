@@ -20,8 +20,8 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
-	GSFONTM *gsFontM = gsKit_init_fontm();
+	GSGLOBAL *gsGlobal;
+	GSFONTM *gsFontM;
 	GSTEXTURE tx128, tx132;
 	char tempstr[256];
 	int i=0;
@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
 	u64 Black = GS_SETREG_RGBA(0x00,0x00,0x00,0x80);
 	u64 White = GS_SETREG_RGBA(0xFF,0xFF,0xFF,0x80);
 	u64 TexCol = GS_SETREG_RGBA(0x80,0x80,0x80,0x80);
+
+	gsGlobal = gsKit_init_global();
+	gsFontM = gsKit_init_fontm();
 
 	gsGlobal->Mode = GS_MODE_DTV_480P;
 	gsGlobal->Interlace = GS_NONINTERLACED;

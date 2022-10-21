@@ -203,14 +203,17 @@ void gsKit_texture_to_psm16(GSTEXTURE *Texture)
 {
 	int x, y;
 	const s8 dither_matrix[16] = {-4,2,-3,3,0,-2,1,-1,-3,3,-4,2,1,-1,0,-2};
+	size_t size;
+	u16 *pixels16;
+	u8  *pixels24;
 
 	// Only 24bit to 16bit supported
 	if (Texture->PSM != GS_PSM_CT24)
 		return;
 
-	size_t size = Texture->Width * Texture->Height * 2;
-	u16 *pixels16 = (u16*)memalign(128, size);
-	u8  *pixels24 = (u8 *)Texture->Mem;
+	size = Texture->Width * Texture->Height * 2;
+	pixels16 = (u16*)memalign(128, size);
+	pixels24 = (u8 *)Texture->Mem;
 
 	for(y=0; y < Texture->Height; y++) {
 		for(x=0; x < Texture->Width; x++) {
@@ -454,24 +457,38 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
-
 	u64* p_data;
-	int qsize = 4;
-	int bsize = 64;
+	int qsize;
+	int bsize;
 
 	int tw, th;
+
+	int ix1;
+	int ix2;
+	int iy1;
+	int iy2;
+
+	int iu1;
+	int iu2;
+	int iv1;
+	int iv2;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+
+	qsize = 4;
+	bsize = 64;
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
-	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	int iu1 = gsKit_float_to_int_u(Texture, u1);
-	int iu2 = gsKit_float_to_int_u(Texture, u2);
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	iu1 = gsKit_float_to_int_u(Texture, u1);
+	iu2 = gsKit_float_to_int_u(Texture, u2);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
 
 	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_SPRITE_TEXTURED);
 
@@ -510,25 +527,50 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 				float x1, float y1, int iz1, float u1, float v1,
 				float x2, float y2, int iz2, float u2, float v2, u64 color)
 {
+	u64* p_data;
+	int qsize;
+	int bsize;
+	int ix1;
+	int ix2;
+	int iy1;
+	int iy2;
+
+	int iv1;
+	int iv2;
+
+	int tw, th;
+
+	u64 Tex0;
+
+	u64 Prim;
+
+	int extracount;
+
+	int stripcount;
+
+	float leftwidth;
+	float rightwidth;
+	float ustripwidth;
+	float leftuwidth;
+	float rightuwidth;
+	float fu1;
+
 	// If you do bilinear on this the results will be a disaster because of bleeding.
 	gsKit_set_texfilter(gsGlobal, GS_FILTER_NEAREST);
 
-	u64* p_data;
-	int qsize = 4;
-	int bsize = 64;
+	qsize = 4;
+	bsize = 64;
 
-	int ix1 = x1;
-	int ix2 = x2;
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	ix1 = x1;
+	ix2 = x2;
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
 
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
 
-	int tw, th;
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	u64 Tex0;
 	if(Texture->VramClut == 0)
 	{
 		Tex0 = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
@@ -542,14 +584,14 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
 	}
 
-	u64 Prim = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
+	Prim = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 1, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				1, gsGlobal->PrimContext, 0);
 
 	ix1 = ((ix1 >> 6) << 6);
 	ix2 = ((ix2 >> 6) << 6);
 
-	int extracount = 0;
+	extracount = 0;
 	if(((int)x1) % 64)
 	{
 		ix1 += 64;
@@ -560,25 +602,23 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 		extracount++;
 	}
 
-	int stripcount = ((ix2 - ix1) / 64);
+	stripcount = ((ix2 - ix1) / 64);
 
 	if(!(stripcount + extracount))
 	{
 		return;
 	}
 
-	float leftwidth = ix1 - (float)x1;
-	float rightwidth = (float)x2 - ix2;
+	leftwidth = ix1 - (float)x1;
+	rightwidth = (float)x2 - ix2;
 
-	float ustripwidth;
+	leftuwidth = ((leftwidth / (x2-x1)) * (u2 - u1));
 
-	float leftuwidth = ((leftwidth / (x2-x1)) * (u2 - u1));
-
-	float rightuwidth = ((rightwidth / (x2-x1)) * (u2 - u1));
+	rightuwidth = ((rightwidth / (x2-x1)) * (u2 - u1));
 
 	ustripwidth = ((((u2 - u1) - leftuwidth) - rightuwidth) / stripcount);
 
-	float fu1 = 0.0f;
+	fu1 = 0.0f;
 
 	// This is a lie btw... it's not really A+D mode, but I lie to my allocator so it doesn't screw up the NLOOP arg of the GIFTAG.
 	p_data = gsKit_heap_alloc(gsGlobal, qsize * (stripcount + extracount), bsize * (stripcount + extracount), GIF_AD);
@@ -655,27 +695,46 @@ void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x2, float y2, int iz2, float u2, float v2,
 				float x3, float y3, int iz3, float u3, float v3, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 5;
-	int bsize = 80;
+
+	int qsize;
+	int bsize;
 
 	int tw, th;
+
+	int ix1;
+	int ix2;
+	int ix3;
+	int iy1;
+	int iy2;
+	int iy3;
+
+	int iu1;
+	int iu2;
+	int iu3;
+	int iv1;
+	int iv2;
+	int iv3;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 5;
+	bsize = 80;
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
-	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
-	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
-	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	int iu1 = gsKit_float_to_int_u(Texture, u1);
-	int iu2 = gsKit_float_to_int_u(Texture, u2);
-	int iu3 = gsKit_float_to_int_u(Texture, u3);
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
-	int iv3 = gsKit_float_to_int_v(Texture, v3);
+	iu1 = gsKit_float_to_int_u(Texture, u1);
+	iu2 = gsKit_float_to_int_u(Texture, u2);
+	iu3 = gsKit_float_to_int_u(Texture, u3);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
+	iv3 = gsKit_float_to_int_v(Texture, v3);
 
 	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE_TEXTURED);
 
@@ -720,27 +779,46 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 				float x3, float y3, int iz3, float u3, float v3,
 				u64 color1, u64 color2, u64 color3)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 6;
-	int bsize = 96;
+
+	int qsize;
+	int bsize;
 
 	int tw, th;
+
+	int ix1;
+	int ix2;
+	int ix3;
+	int iy1;
+	int iy2;
+	int iy3;
+
+	int iu1;
+	int iu2;
+	int iu3;
+	int iv1;
+	int iv2;
+	int iv3;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 6;
+	bsize = 96;
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
-	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
-	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
-	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	int iu1 = gsKit_float_to_int_u(Texture, u1);
-	int iu2 = gsKit_float_to_int_u(Texture, u2);
-	int iu3 = gsKit_float_to_int_u(Texture, u3);
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
-	int iv3 = gsKit_float_to_int_v(Texture, v3);
+	iu1 = gsKit_float_to_int_u(Texture, u1);
+	iu2 = gsKit_float_to_int_u(Texture, u2);
+	iu3 = gsKit_float_to_int_u(Texture, u3);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
+	iv3 = gsKit_float_to_int_v(Texture, v3);
 
 	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE_TEXTURED);
 
@@ -783,13 +861,17 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 3 + (segments * 2);
+
+	int qsize;
 	int count;
 	int vertexdata[segments*4];
 
 	int tw, th;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 3 + (segments * 2);
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (segments * 4); count+=4)
@@ -843,13 +925,17 @@ void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 3 + (segments * 2);
+
+	int qsize;
 	int count;
 	int vertexdata[segments*5];
 
 	int tw, th;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 3 + (segments * 2);
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (segments * 5); count+=5)
@@ -904,13 +990,17 @@ void gsKit_prim_triangle_strip_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture
 void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, int iz, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 3 + (verticies * 2);
+
+	int qsize;
 	int count;
 	int vertexdata[verticies*4];
 
 	int tw, th;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 3 + (verticies * 2);
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (verticies * 4); count+=4)
@@ -964,13 +1054,16 @@ void gsKit_prim_triangle_fan_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 void gsKit_prim_triangle_fan_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriFan, int verticies, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
 	u64* p_data;
-	int qsize = 3 + (verticies * 2);
+	int qsize;
 	int count;
 	int vertexdata[verticies*5];
 
 	int tw, th;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	qsize = 3 + (verticies * 2);
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
 	for(count = 0; count < (verticies * 5); count+=5)
@@ -1028,32 +1121,55 @@ void gsKit_prim_quad_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x3, float y3, int iz3, float u3, float v3,
 				float x4, float y4, int iz4, float u4, float v4, u64 color)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
-
 	u64* p_data;
-	int qsize = 6;
-	int bsize = 96;
+
+	int qsize;
+	int bsize;
 
 	int tw, th;
+
+	int ix1;
+	int ix2;
+	int ix3;
+	int ix4;
+	int iy1;
+	int iy2;
+	int iy3;
+	int iy4;
+
+	int iu1;
+	int iu2;
+	int iu3;
+	int iu4;
+	int iv1;
+	int iv2;
+	int iv3;
+	int iv4;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+
+	qsize = 6;
+	bsize = 96;
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
-	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
-	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
-	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
-	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
-	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
+	ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	ix4 = gsKit_float_to_int_x(gsGlobal, x4);
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	int iu1 = gsKit_float_to_int_u(Texture, u1);
-	int iu2 = gsKit_float_to_int_u(Texture, u2);
-	int iu3 = gsKit_float_to_int_u(Texture, u3);
-	int iu4 = gsKit_float_to_int_u(Texture, u4);
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
-	int iv3 = gsKit_float_to_int_v(Texture, v3);
-	int iv4 = gsKit_float_to_int_v(Texture, v4);
+	iu1 = gsKit_float_to_int_u(Texture, u1);
+	iu2 = gsKit_float_to_int_u(Texture, u2);
+	iu3 = gsKit_float_to_int_u(Texture, u3);
+	iu4 = gsKit_float_to_int_u(Texture, u4);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
+	iv3 = gsKit_float_to_int_v(Texture, v3);
+	iv4 = gsKit_float_to_int_v(Texture, v4);
 
 	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD_TEXTURED);
 
@@ -1101,32 +1217,54 @@ void gsKit_prim_quad_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x4, float y4, int iz4, float u4, float v4,
 				u64 color1, u64 color2, u64 color3, u64 color4)
 {
-	gsKit_set_texfilter(gsGlobal, Texture->Filter);
-
 	u64* p_data;
-	int qsize = 7;
-	int bsize = 112;
+	int qsize;
+	int bsize;
 
 	int tw, th;
+
+	int ix1;
+	int ix2;
+	int ix3;
+	int ix4;
+	int iy1;
+	int iy2;
+	int iy3;
+	int iy4;
+
+	int iu1;
+	int iu2;
+	int iu3;
+	int iu4;
+	int iv1;
+	int iv2;
+	int iv3;
+	int iv4;
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+
+	qsize = 7;
+	bsize = 112;
+
 	gsKit_set_tw_th(Texture, &tw, &th);
 
-	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
-	int ix2 = gsKit_float_to_int_x(gsGlobal, x2);
-	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
-	int ix4 = gsKit_float_to_int_x(gsGlobal, x4);
-	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
-	int iy2 = gsKit_float_to_int_y(gsGlobal, y2);
-	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
-	int iy4 = gsKit_float_to_int_y(gsGlobal, y4);
+	ix1 = gsKit_float_to_int_x(gsGlobal, x1);
+	ix2 = gsKit_float_to_int_x(gsGlobal, x2);
+	ix3 = gsKit_float_to_int_x(gsGlobal, x3);
+	ix4 = gsKit_float_to_int_x(gsGlobal, x4);
+	iy1 = gsKit_float_to_int_y(gsGlobal, y1);
+	iy2 = gsKit_float_to_int_y(gsGlobal, y2);
+	iy3 = gsKit_float_to_int_y(gsGlobal, y3);
+	iy4 = gsKit_float_to_int_y(gsGlobal, y4);
 
-	int iu1 = gsKit_float_to_int_u(Texture, u1);
-	int iu2 = gsKit_float_to_int_u(Texture, u2);
-	int iu3 = gsKit_float_to_int_u(Texture, u3);
-	int iu4 = gsKit_float_to_int_u(Texture, u4);
-	int iv1 = gsKit_float_to_int_v(Texture, v1);
-	int iv2 = gsKit_float_to_int_v(Texture, v2);
-	int iv3 = gsKit_float_to_int_v(Texture, v3);
-	int iv4 = gsKit_float_to_int_v(Texture, v4);
+	iu1 = gsKit_float_to_int_u(Texture, u1);
+	iu2 = gsKit_float_to_int_u(Texture, u2);
+	iu3 = gsKit_float_to_int_u(Texture, u3);
+	iu4 = gsKit_float_to_int_u(Texture, u4);
+	iv1 = gsKit_float_to_int_v(Texture, v1);
+	iv2 = gsKit_float_to_int_v(Texture, v2);
+	iv3 = gsKit_float_to_int_v(Texture, v3);
+	iv4 = gsKit_float_to_int_v(Texture, v4);
 
 	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_QUAD_TEXTURED);
 

@@ -105,6 +105,14 @@ int main(int argc, char *argv[])
     int callback_id;
 
 	u64 White, Black, Red, Green, Blue;
+
+    float *LineStrip;
+    float *LineStripPtr;
+    float *TriStrip;
+    float *TriStripPtr;
+    float *TriFanPtr;
+    float *TriFan;
+
     gsGlobal = gsKit_init_global();
 
     dmaKit_init(D_CTRL_RELE_OFF, D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
@@ -171,13 +179,6 @@ int main(int argc, char *argv[])
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 
 	VHeight = gsGlobal->Height;//600;//gsGlobal->Height;
-
-	float *LineStrip;
-	float *LineStripPtr;
-	float *TriStrip;
-	float *TriStripPtr;
-	float *TriFanPtr;
-	float *TriFan;
 
 	LineStripPtr = LineStrip = malloc(12 * sizeof(float));
 	*LineStrip++ = 75;	// Segment 1 X

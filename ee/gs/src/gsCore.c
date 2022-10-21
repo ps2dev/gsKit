@@ -255,11 +255,16 @@ void gsKit_remove_hsync_handler(int callback_id)
 #if F_gsKit_clear
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 {
-	u8 PrevZState = gsGlobal->Test->ZTST;
+	u8 PrevZState;
+	u8 strips;
+	u8 remain;
+	u32 pos;
+
+	PrevZState = gsGlobal->Test->ZTST;
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
-	u8 strips = gsGlobal->Width / 64;
-	u8 remain = gsGlobal->Width % 64;
-	u32 pos = 0;
+	strips = gsGlobal->Width / 64;
+	remain = gsGlobal->Width % 64;
+	pos = 0;
 
 	strips++;
 	while(strips-- > 0)
@@ -523,13 +528,15 @@ GSQUEUE gsKit_set_finish(GSGLOBAL *gsGlobal)
 #if F_gsKit_queue_exec_real
 void gsKit_queue_exec_real(GSGLOBAL *gsGlobal, GSQUEUE *Queue)
 {
+	GSQUEUE oldQueue;
+
 	if(Queue->tag_size == 0)
 		return;
 
 	// This superstrange oldQueue crap is because Persistent drawbuffers need to be "backed up"
 	// or else they will balloon in size due to appending the finish token.
 	// So we back up the current *state* (NOT DATA) of them here and restore it afterward.
-	GSQUEUE oldQueue = gsKit_set_finish(gsGlobal);
+	oldQueue = gsKit_set_finish(gsGlobal);
 
 	*(u64 *)Queue->dma_tag = DMA_TAG(Queue->tag_size, 0, DMA_END, 0, 0, 0);
 

@@ -16,7 +16,23 @@
 int main(int argc, char *argv[])
 {
 	u64 White, Black, Red, Green, Blue, BlueTrans, RedTrans, GreenTrans, WhiteTrans;
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
+
+	float x = 10;
+	float y = 10;
+	float width = 150;
+	float height = 150;
+
+	float VHeight;
+
+	float *LineStrip;
+	float *LineStripPtr;
+	float *TriStrip;
+	float *TriStripPtr;
+	float *TriFanPtr;
+	float *TriFan;
+
+	gsGlobal = gsKit_init_global();
 
     //  By default the gsKit_init_global() uses an autodetected interlaced field mode
     //  To set a new mode set these five variables for the resolution desired and
@@ -73,21 +89,7 @@ int main(int argc, char *argv[])
 
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 
-	float x = 10;
-	float y = 10;
-	float width = 150;
-	float height = 150;
-
-	float VHeight;
-
 	VHeight = gsGlobal->Height;
-
-	float *LineStrip;
-	float *LineStripPtr;
-	float *TriStrip;
-	float *TriStripPtr;
-	float *TriFanPtr;
-	float *TriFan;
 
 	LineStripPtr = LineStrip = malloc(12 * sizeof(float));
 	*LineStrip++ = 75;	// Segment 1 X

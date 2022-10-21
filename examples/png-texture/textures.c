@@ -18,11 +18,9 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 
 	GSTEXTURE Tex1;
-	Tex1.Width = 0;
-	Tex1.Height = 0;
 	int x = 0, y = 0;
 
 #ifdef HAVE_LIBPNG
@@ -31,6 +29,13 @@ int main(int argc, char *argv[])
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 BlueTrans = GS_SETREG_RGBAQ(0x00,0x00,0xFF,0x40,0x00);
 	u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
+
+	float VHeight;
+
+	gsGlobal = gsKit_init_global();
+
+	Tex1.Width = 0;
+	Tex1.Height = 0;
 
 	gsGlobal->PSM = GS_PSM_CT32;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
@@ -47,7 +52,7 @@ int main(int argc, char *argv[])
 #endif
 	gsKit_init_screen(gsGlobal);
 
-	float VHeight = gsGlobal->Height;
+	VHeight = gsGlobal->Height;
 
 	gsKit_clear(gsGlobal, White);
 #ifdef HAVE_LIBPNG

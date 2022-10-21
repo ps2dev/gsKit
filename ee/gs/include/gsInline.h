@@ -18,6 +18,8 @@
 //  Drawbuffer Heap Allocator, GSQUEUE version
 static inline void *_gsKit_heap_alloc(GSQUEUE *q, int qsize, int bsize, int type)
 {
+	void *p_heap;
+
 #ifdef GSKIT_DEBUG
 	if(((u32)q->pool_cur + bsize ) >= (u32)q->pool_max[q->dbuf])
 	{
@@ -48,7 +50,7 @@ static inline void *_gsKit_heap_alloc(GSQUEUE *q, int qsize, int bsize, int type
 	q->same_obj++;
 	q->last_type = type;
 	q->tag_size += qsize;
-	void *p_heap = q->pool_cur;
+	p_heap = q->pool_cur;
 	q->pool_cur = (u8*)q->pool_cur + bsize;
 
 	return p_heap;
@@ -63,6 +65,8 @@ static inline void *gsKit_heap_alloc(GSGLOBAL *gsGlobal, int qsize, int bsize, i
 //  Drawbuffer Heap Allocator (For Injected DMA_TAGs), GSQUEUE version
 static inline void *_gsKit_heap_alloc_dma(GSQUEUE *q, int qsize, int bsize)
 {
+	void *p_heap;
+
 #ifdef GSKIT_DEBUG
 	if(((u32)q->pool_cur + bsize ) >= (u32)q->pool_max[q->dbuf])
 	{
@@ -82,7 +86,7 @@ static inline void *_gsKit_heap_alloc_dma(GSQUEUE *q, int qsize, int bsize)
 	q->last_type = GIF_RESERVED;
 	q->same_obj = 0;
 
-	void *p_heap = q->pool_cur;
+	p_heap = q->pool_cur;
 	q->pool_cur = (u8*)q->pool_cur + bsize;
 	q->dma_tag = q->pool_cur;
 	q->pool_cur = (u8*)q->pool_cur + 16;

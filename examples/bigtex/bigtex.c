@@ -17,10 +17,18 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 	GSTEXTURE bigtex;
 	u64 Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+
+	float x;
+	float x2;
+	int shrinkx;
+	int shrinkx2;
+
+
+	gsGlobal = gsKit_init_global()
 
 	// gsGlobal->DoubleBuffering = GS_SETTING_OFF;
 	gsGlobal->ZBuffering = GS_SETTING_OFF;
@@ -44,10 +52,10 @@ int main(int argc, char *argv[])
 	// gsKit_texture_jpeg(gsGlobal, &bigtex, "host:bigtex.jpg");
 
 
-	float x = 0.0f;
-	float x2 = gsGlobal->Width;
-	int shrinkx = 1;
-	int shrinkx2 = 0;
+	x = 0.0f;
+	x2 = gsGlobal->Width;
+	shrinkx = 1;
+	shrinkx2 = 0;
 
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 

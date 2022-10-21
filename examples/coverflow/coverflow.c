@@ -64,7 +64,7 @@ void drawCover(GSGLOBAL *gsGlobal, GSTEXTURE * tex, float fx, float fy)
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 	GSTEXTURE Tex[TEXTURE_COUNT];
 	u64 Black = GS_SETREG_RGBAQ(0x00,0x00,0x00,0x80,0x00);
     int iPassCount;
@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
     int iCoverStart = 0;
     int i;
     char filename[80];
+
+    gsGlobal = gsKit_init_global();
 
 	printf("\n");
 	printf("--------------------------------------------------------------------------------\n");
@@ -129,10 +131,12 @@ int main(int argc, char *argv[])
 
 	while(1)
 	{
+		int iCover;
+
 		gsKit_clear(gsGlobal, Black);
 
 		// Draw coverflow
-		int iCover = iCoverStart;
+		iCover = iCoverStart;
 		for (fXOffCover = fXOff; fXOffCover < gsGlobal->Width; fXOffCover += fCoverDistance) {
 			drawCover(gsGlobal, &Tex[iCover], fXOffCover, (gsGlobal->Height/4)*3);
 			iCover = iCover >= (TEXTURE_COUNT-1) ? 0 : iCover+1;

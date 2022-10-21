@@ -18,19 +18,24 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 //GS_MODE_VGA_640_60
 #ifdef HAVE_LIBPNG
 	GSTEXTURE Sprite;
+#endif
+	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
+#ifdef HAVE_LIBPNG
+	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+#endif
+
+	gsGlobal = gsKit_init_global();
+
+#ifdef HAVE_LIBPNG
 	Sprite.Width = 0;
 	Sprite.Height = 0;
 	Sprite.PSM = 0;
 	Sprite.Mem = 0;
 	Sprite.TBW = 0;
-#endif
-	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
-#ifdef HAVE_LIBPNG
-	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
 #endif
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;

@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[])
 {
-	GSGLOBAL *gsGlobal = gsKit_init_global();
+	GSGLOBAL *gsGlobal;
 	GSTEXTURE Tex1, Tex2;
 
 #ifdef HAVE_LIBJPEG
@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
 
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
+
+	gsGlobal = gsKit_init_global();
 
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
