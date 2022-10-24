@@ -14,6 +14,7 @@ SUBDIRS += alpha
 SUBDIRS += basic
 SUBDIRS += bigtex
 SUBDIRS += coverflow
+SUBDIRS += cube
 SUBDIRS += fb
 SUBDIRS += fhdbg
 SUBDIRS += font
