@@ -135,6 +135,8 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 				float x3, float y3, int iz3, float u3, float v3,
 				u64 color1, u64 color2, u64 color3);
 
+void gsKit_prim_list_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices);
+
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color);
 

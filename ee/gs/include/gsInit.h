@@ -1077,6 +1077,14 @@ typedef union {
 	};
 } __attribute__((packed,aligned(8))) gs_rgbaq;
 
+typedef union {
+	u128 uv;
+	struct {
+		u64 coord;
+		u64 tag;
+	};
+} __attribute__((packed,aligned(8))) gs_uv;
+
 /// gsKit Point Primitive Structure
 /// This structure holds all relevant data for any
 /// given point object, regardless of original format or type.
@@ -1086,6 +1094,14 @@ struct gsPrimPoint
 	gs_xyz2 xyz2;
 };
 typedef struct gsPrimPoint GSPRIMPOINT;
+
+struct gsPrimUVPoint
+{
+	gs_rgbaq rgbaq;
+	gs_uv uv;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimUVPoint GSPRIMUVPOINT;
 
 /// Alternative Access Method to the GS CSR Register
 struct gsRegisters {

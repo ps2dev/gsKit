@@ -168,4 +168,12 @@ static inline gs_rgbaq color_to_RGBAQ(uint8_t r, uint8_t g, uint8_t b, uint8_t a
 	return (gs_rgbaq)(((u128) GS_SETREG_RGBAQ(r, g, b, a, 0x00)) | (((u128)GS_RGBAQ) << 64));
 }
 
+static inline gs_uv vertex_to_UV(const GSTEXTURE *Texture, float u, float v)
+{
+	int iu = gsKit_float_to_int_u(Texture, u);
+	int iv = gsKit_float_to_int_v(Texture, v);
+
+	return (gs_uv)(((u128) GS_SETREG_UV(iu, iv)) | (((u128)GS_UV) << 64));
+}
+
 #endif /* __GSINLINE_H__ */
