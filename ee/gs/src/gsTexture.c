@@ -878,7 +878,7 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
 		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_UV_REGS(gsGlobal->PrimContext);
 	}
 
 	if(Texture->VramClut == 0)
@@ -926,7 +926,7 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
 		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_STQ_REGS(gsGlobal->PrimContext);
 	}
 
 	if(Texture->VramClut == 0)

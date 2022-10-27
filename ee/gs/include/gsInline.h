@@ -157,29 +157,53 @@ static inline int gsKit_float_to_int_y(const GSGLOBAL *gsGlobal, float fy)
 
 static inline gs_xyz2 vertex_to_XYZ2(const GSGLOBAL *gsGlobal, float fx, float fy, int iz)
 {
-	int ix = gsKit_float_to_int_x(gsGlobal, fx);
-	int iy = gsKit_float_to_int_y(gsGlobal, fy);
+	gs_xyz2 res;
 
-	return (gs_xyz2)(((u128) GS_SETREG_XYZ2(ix, iy, iz)) | (((u128)GS_XYZ2) << 64));
+	res.xyz.x = gsKit_float_to_int_x(gsGlobal, fx);
+	res.xyz.y = gsKit_float_to_int_y(gsGlobal, fy);
+	res.xyz.z = iz;
+	res.tag = GS_XYZ2;
+
+	return res;
 }
 
 // If STQ coordinates are used set q to 1.0f otherwise keep it as 0.0f
 static inline gs_rgbaq color_to_RGBAQ(uint8_t r, uint8_t g, uint8_t b, uint8_t a, float q)
 {
-	return (gs_rgbaq)(((u128) GS_SETREG_RGBAQ(r, g, b, a, *(u32*)(&q))) | (((u128)GS_RGBAQ) << 64));
+	gs_rgbaq res;
+
+	res.color.r = r;
+	res.color.g = g;
+	res.color.b = b;
+	res.color.a = a;
+	res.color.q = q;
+	res.tag = GS_RGBAQ;
+
+	return res;
 }
 
 static inline gs_uv vertex_to_UV(const GSTEXTURE *Texture, float u, float v)
 {
+	gs_uv res;
+
 	int iu = gsKit_float_to_int_u(Texture, u);
 	int iv = gsKit_float_to_int_v(Texture, v);
 
-	return (gs_uv)(((u128) GS_SETREG_UV(iu, iv)) | (((u128)GS_UV) << 64));
+	res.coord = GS_SETREG_UV(iu, iv);
+	res.tag = GS_UV;
+
+	return res;
 }
 
 static inline gs_stq vertex_to_STQ(float s, float t)
 {
-	return (gs_stq)(((u128) GS_SETREG_STQ(*(u32*)(&s), *(u32*)(&t))) | (((u128)GS_ST) << 64));
+	gs_stq res;
+
+	res.st.s = s;
+	res.st.t = t;
+	res.tag = GS_ST;
+
+	return res;
 }
 
 #endif /* __GSINLINE_H__ */
