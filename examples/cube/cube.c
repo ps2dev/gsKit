@@ -178,7 +178,7 @@ int render(GSGLOBAL* gsGlobal)
 
 		for (int i = 0; i < points_count; i++)
 		{
-			gs_vertices[i].rgbaq = color_to_RGBAQ(colors[i].r, colors[i].g, colors[i].b, colors[i].a);
+			gs_vertices[i].rgbaq = color_to_RGBAQ(colors[i].r, colors[i].g, colors[i].b, colors[i].a, 0.0f);
 			gs_vertices[i].xyz2 = vertex_to_XYZ2(gsGlobal, verts[i][0], verts[i][1], verts[i][2]);
 		}
 

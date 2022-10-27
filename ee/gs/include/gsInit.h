@@ -1061,6 +1061,14 @@ typedef union {
 	};
 } __attribute__((packed,aligned(8))) gs_color_t;
 
+typedef union { 
+    u64 st;
+    struct {
+		float s;
+		float t;
+    };
+} __attribute__((packed, aligned(8))) gs_stq_t;
+
 typedef union {
 	u128 xyz2;
 	struct {
@@ -1085,6 +1093,14 @@ typedef union {
 	};
 } __attribute__((packed,aligned(8))) gs_uv;
 
+typedef union {
+	u128 stq;
+	struct {
+		gs_stq_t st;
+		u64 tag;
+	};
+} __attribute__((packed, aligned(8))) gs_stq;
+
 /// gsKit Point Primitive Structure
 /// This structure holds all relevant data for any
 /// given point object, regardless of original format or type.
@@ -1102,6 +1118,14 @@ struct gsPrimUVPoint
 	gs_xyz2 xyz2;
 };
 typedef struct gsPrimUVPoint GSPRIMUVPOINT;
+
+struct gsPrimSTQPoint
+{
+	gs_rgbaq rgbaq;
+	gs_stq stq;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimSTQPoint GSPRIMSTQPOINT;
 
 /// Alternative Access Method to the GS CSR Register
 struct gsRegisters {
