@@ -536,6 +536,25 @@
 		((u64)(GS_XYZ2)		<< 40)	| \
 		((u64)(GIF_NOP)		<< 44);
 
+/// Textured Triangle YV Goraud Primitive REGLIST
+#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_UV_REGS(ctx)   \
+	GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(ctx)
+
+/// Textured Triangle STQ Goraud Primitive REGLIST
+#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_STQ_REGS(ctx)   \
+		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
+		((u64)(GS_PRIM)		<< 4)	| \
+		((u64)(GS_RGBAQ)	<< 8)	| \
+		((u64)(GS_ST)		<< 12)	| \
+		((u64)(GS_XYZ2)		<< 16)	| \
+		((u64)(GS_RGBAQ)	<< 20)	| \
+		((u64)(GS_ST)		<< 24)	| \
+		((u64)(GS_XYZ2)		<< 28)	| \
+		((u64)(GS_RGBAQ)	<< 32)	| \
+		((u64)(GS_ST)		<< 36)	| \
+		((u64)(GS_XYZ2)		<< 40)	| \
+		((u64)(GIF_NOP)		<< 44);
+
 // Textured Quad Goraud Primitive
 /// Textured Quad Goraud Primitive GIFTAG
 #define GIF_TAG_QUAD_GORAUD_TEXTURED(NLOOP)   \
@@ -1059,7 +1078,15 @@ typedef union {
 		u8 a;
 		float q;
 	};
-} __attribute__((packed,aligned(8))) gs_color_t;
+} __attribute__((packed,aligned(8))) gs_rgbaq_t;
+
+typedef union { 
+    u64 st;
+    struct {
+		float s;
+		float t;
+    };
+} __attribute__((packed, aligned(8))) gs_stq_t;
 
 typedef union {
 	u128 xyz2;
@@ -1072,10 +1099,26 @@ typedef union {
 typedef union {
 	u128 rgbaq;
 	struct {
-		gs_color_t color;
+		gs_rgbaq_t color;
 		u64 tag;
 	};
 } __attribute__((packed,aligned(8))) gs_rgbaq;
+
+typedef union {
+	u128 uv;
+	struct {
+		u64 coord;
+		u64 tag;
+	};
+} __attribute__((packed,aligned(8))) gs_uv;
+
+typedef union {
+	u128 stq;
+	struct {
+		gs_stq_t st;
+		u64 tag;
+	};
+} __attribute__((packed, aligned(8))) gs_stq;
 
 /// gsKit Point Primitive Structure
 /// This structure holds all relevant data for any
@@ -1086,6 +1129,22 @@ struct gsPrimPoint
 	gs_xyz2 xyz2;
 };
 typedef struct gsPrimPoint GSPRIMPOINT;
+
+struct gsPrimUVPoint
+{
+	gs_rgbaq rgbaq;
+	gs_uv uv;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimUVPoint GSPRIMUVPOINT;
+
+struct gsPrimSTQPoint
+{
+	gs_rgbaq rgbaq;
+	gs_stq stq;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimSTQPoint GSPRIMSTQPOINT;
 
 /// Alternative Access Method to the GS CSR Register
 struct gsRegisters {

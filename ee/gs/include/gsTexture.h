@@ -101,6 +101,8 @@
 
 #define GS_SETREG_UV(u, v) ((u64)(u) | ((u64)(v) << 16))
 
+#define GS_SETREG_STQ(s, t) ((u64)(s) | ((u64)(t) << 32))
+
 #define GS_SETREG_BITBLTBUF(sbp, sbw, spsm, dbp, dbw, dpsm) \
   ((u64)(sbp)         | ((u64)(sbw) << 16) | \
   ((u64)(spsm) << 24) | ((u64)(dbp) << 32) | \
@@ -134,6 +136,9 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 				float x2, float y2, int iz2, float u2, float v2,
 				float x3, float y3, int iz3, float u3, float v3,
 				u64 color1, u64 color2, u64 color3);
+
+void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices);
+void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices);
 
 void gsKit_prim_triangle_strip_texture(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 					float *TriStrip, int segments, int iz, u64 color);
