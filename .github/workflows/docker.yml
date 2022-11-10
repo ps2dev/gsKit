@@ -59,12 +59,12 @@ jobs:
     - name: Set docker tag list to include DockerHub if credentials available
       if: env.DOCKER_USERNAME != null
       run: |
-        echo "DOCKER_TAG_LIST=ghcr.io/${{ github.repository }}:${{ env.DOCKER_TAG }},${{ github.repository }}:${{ env.DOCKER_TAG }}" >> $GITHUB_ENV
+        echo "DOCKER_TAG_LIST=ghcr.io/${{ steps.string.outputs.lowercase }}:${{ env.DOCKER_TAG }},${{ steps.string.outputs.lowercase }}:${{ env.DOCKER_TAG }}" >> $GITHUB_ENV
 
     - name: Set docker tag list to not include DockerHub if credentials not available
       if: env.DOCKER_USERNAME == null
       run: |
-        echo "DOCKER_TAG_LIST=ghcr.io/${{ github.repository }}:${{ env.DOCKER_TAG }}" >> $GITHUB_ENV
+        echo "DOCKER_TAG_LIST=ghcr.io/${{ steps.string.outputs.lowercase }}:${{ env.DOCKER_TAG }}" >> $GITHUB_ENV
 
     - name: Build and Push to container registry
       uses: docker/build-push-action@v2
