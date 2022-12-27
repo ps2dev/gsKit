@@ -6,6 +6,8 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 
+MAKEREC ?= $(MAKE) -C
+
 EE_INCS := $(EE_INCS) -I$(PS2SDK)/ee/include -I$(PS2SDK)/common/include -I$(GSKITSRC)/ee/dma/include -I$(GSKITSRC)/ee/gs/include
 
 # C compiler flags
@@ -57,7 +59,7 @@ $(EE_OBJS_DIR):
 	mkdir -p $(EE_OBJS_DIR)
 
 $(EE_BIN): $(EE_OBJS) $(EE_ADDITIONAL_DEPS)
-	$(EE_CXX) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
+	$(EE_CXX) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_ADDITIONAL_DEPS) $(EE_LIBS)
 
 $(EE_LIB): $(EE_OBJS)
 	$(EE_AR) cru $(EE_LIB) $(EE_OBJS)
