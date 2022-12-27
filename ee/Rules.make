@@ -56,13 +56,8 @@ $(EE_BIN_DIR):
 $(EE_OBJS_DIR):
 	mkdir -p $(EE_OBJS_DIR)
 
-ifeq ($(use_cpp), true)
-$(EE_BIN): $(EE_OBJS)
+$(EE_BIN): $(EE_OBJS) $(EE_ADDITIONAL_DEPS)
 	$(EE_CXX) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
-else
-$(EE_BIN): $(EE_OBJS)
-	$(EE_CC) -T$(PS2SDK)/ee/startup/linkfile $(EE_LDFLAGS) -o $(EE_BIN) $(EE_OBJS) $(EE_LIBS)
-endif
 
 $(EE_LIB): $(EE_OBJS)
 	$(EE_AR) cru $(EE_LIB) $(EE_OBJS)

@@ -36,8 +36,8 @@ ifdef ZLIB
 endif
 endif
 
-EE_LIBS += -lgskit_toolkit
-EE_LIBS += -lgskit -ldmakit
+EE_ADDITIONAL_DEPS += $(GSKITSRC)/ee/lib/libgskit.a $(GSKITSRC)/ee/lib/dmakit.a $(GSKITSRC)/ee/lib/libgskit_toolkit.a
+EE_LIBS += -lgskit -ldmakit -lgskit_toolkit
 
 EE_LIBS += -Xlinker --end-group
 
