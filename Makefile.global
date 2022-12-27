@@ -14,8 +14,6 @@ include $(GSKITSRC)/ee/Rules.make
 
 ifdef GSKIT_DEBUG
     EE_CFLAGS += -DGSKIT_DEBUG
-    EE_INCS += -I$(PS2GDB)/ee
-    EE_LIB_DIRS += -L$(PS2GDB)/lib
 endif
 
 # include dir

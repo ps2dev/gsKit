@@ -22,10 +22,11 @@ endif
 LIBGSKIT = $(GSKITSRC)/lib/libgskit.a
 LIBDMAKIT = $(GSKITSRC)/lib/libdmakit.a
 LIBGSKIT_TOOLKIT = $(GSKITSRC)/lib/libgskit_toolkit.a
+LIBJPEG = $(PS2SDK)/ports
+LIBTIFF = $(PS2SDK)/ports
+LIBPNG = $(PS2SDK)/ports
+ZLIB = $(PS2SDK)/ports
+
 # GSKIT_DEBUG = 1
-# LIBJPEG = $(PS2SDK)/ports
-# LIBTIFF = $(PS2SDK)/ports
-# LIBPNG = $(PS2SDK)/ports
-# ZLIB = $(PS2SDK)/ports
 
 PS2_IP = 192.168.1.10

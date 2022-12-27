@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ps2dev/ps2sdk-ports:latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install dependencies
       run: |
@@ -20,20 +20,18 @@ jobs:
     - name: Compile project with everything enabled
       env:
         GSKIT_DEBUG: 1
-        ZLIB: ${PS2SDK}/ports
-        LIBTIFF: ${PS2SDK}/ports
-        LIBJPEG: ${PS2SDK}/ports
-        LIBPNG: ${PS2SDK}/ports
       run: |
-        make clean all install
+        make -j $(getconf _NPROCESSORS_ONLN) clean
+        make -j $(getconf _NPROCESSORS_ONLN)
+        make -j $(getconf _NPROCESSORS_ONLN) install
     
     - name: Get short SHA
       id: slug
-      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+      run: echo "sha8=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
 
     - name: Upload artifacts
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: gsKit-samples-${{ steps.slug.outputs.sha8 }}
         path: examples

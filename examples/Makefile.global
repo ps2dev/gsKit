@@ -9,9 +9,9 @@
 # Makefile.global - Makefile global variable include.
 #
 
-include $(GSKITSRC)/ee/Rules.make
+EE_ADDITIONAL_DEPS += $(GSKITSRC)/lib/libgskit.a $(GSKITSRC)/lib/libdmakit.a $(GSKITSRC)/lib/libgskit_toolkit.a
 
-EE_LIBS = -Xlinker --start-group $(EE_LIBS_EXTRA)
+include $(GSKITSRC)/ee/Rules.make
 
 ifdef LIBJPEG
 	EE_INCS += -I$(LIBJPEG)/include
@@ -36,10 +36,7 @@ ifdef ZLIB
 endif
 endif
 
-EE_LIBS += -lgskit_toolkit
-EE_LIBS += -lgskit -ldmakit
-
-EE_LIBS += -Xlinker --end-group
+EE_LIBS += $(EE_LIBS_EXTRA)
 
 # include dir
 EE_INCS += -I$(GSKITSRC)/ee/gs/include -I$(GSKITSRC)/ee/dma/include
@@ -65,3 +62,13 @@ clean:
 	rm -f $(EE_OBJS) $(EE_BIN)
 
 install: all
+
+
+$(GSKITSRC)/lib/libgskit.a:
+	$(MAKEREC) $(GSKITSRC)/ee/gs
+
+$(GSKITSRC)/lib/libdmakit.a:
+	$(MAKEREC) $(GSKITSRC)/ee/dma
+
+$(GSKITSRC)/lib/libgskit_toolkit.a:
+	$(MAKEREC) $(GSKITSRC)/ee/toolkit
