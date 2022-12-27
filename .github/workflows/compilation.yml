@@ -20,13 +20,9 @@ jobs:
     - name: Compile project with everything enabled
       env:
         GSKIT_DEBUG: 1
-        ZLIB: ${PS2SDK}/ports
-        LIBTIFF: ${PS2SDK}/ports
-        LIBJPEG: ${PS2SDK}/ports
-        LIBPNG: ${PS2SDK}/ports
       run: |
         make -j $(getconf _NPROCESSORS_ONLN) clean
-        make -j $(getconf _NPROCESSORS_ONLN)
+        make -j 1
         make -j $(getconf _NPROCESSORS_ONLN) install
     
     - name: Get short SHA

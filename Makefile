@@ -9,10 +9,6 @@
 # Makefile - gsKit root makefile.
 #
 
-#ifneq (x$GSKIT), x)
-#GSKITSRC=$(GSKIT)
-#endif
-
 ifeq (x$(GSKITSRC), x)
 GSKITSRC=`pwd`
 endif
