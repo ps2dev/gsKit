@@ -22,8 +22,7 @@ GS_FONTM_OBJS = gsKit_init_fontm.o gsKit_free_fontm.o gsKit_fontm_upload.o gsKit
 	gsKit_fontm_unpack_raw.o gsKit_fontm_unpack_raw_1.o gsKit_fontm_print_scaled.o
 
 GS_HIRES_OBJS = gsHiresIinternals.o _gsKit_create_passes.o gsKit_hires_sync.o gsKit_hires_flip.o gsKit_hires_prepare_bg.o \
-	gsKit_hires_set_bg.o gsKit_hires_init_screen.o gsKit_hires_init_screen.o gsKit_hires_init_global.o \
-	gsKit_hires_deinit_global.o
+	gsKit_hires_set_bg.o gsKit_hires_init_screen.o gsKit_hires_init_global.o gsKit_hires_deinit_global.o
 
 GS_INIT_OBJS = _gsInit_internal.o gsKit_check_rom.o gsKit_set_display_offset.o gsKit_init_screen.o \
 	gsKit_init_global_custom.o gsKit_deinit_global.o
