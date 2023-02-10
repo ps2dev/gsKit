@@ -9,6 +9,8 @@
 # ee/dma/src/Makefile - gsKit dma makefile.
 #
 
+EE_LIB = $(LIBDMAKIT)
+
 DMA_CORE_OBJS = dmaKit_wait.o dmaKit_wait_fast.o dmaKit_send.o dmaKit_send_ucab.o dmaKit_send_spr.o \
 	dmaKit_send_chain.o dmaKit_send_chain_ucab.o dmaKit_send_chain_spr.o dmaKit_get_spr.o
 
@@ -20,11 +22,13 @@ EE_OBJS = $(DMA_CORE_OBJS) $(DMA_INIT_OBJS) $(DMA_SPR_OBJS)
 
 EE_CFLAGS += -Wno-unused
 
-all: $(EE_OBJS)
-	$(EE_AR) rcs $(LIBDMAKIT) $(EE_OBJS)
+.PHONY: all
+
+all:
+	$(MAKE) $(EE_LIB)
 
 clean:
-	rm -f $(EE_OBJS)
+	rm -f $(EE_LIB) $(EE_OBJS)
 
 install: all
 
