@@ -15,7 +15,8 @@ GS_TOOLKIT_OBJS = gsKit_texture_finish.o gsKit_texture_png.o gsKit_texture_bmp.o
 EE_OBJS = $(GS_TOOLKIT_OBJS)
 
 all: $(EE_OBJS)
-	$(EE_AR) rcs $(LIBGSKIT_TOOLKIT) $(EE_OBJS)
+	$(EE_AR) rcs $(LIBGSKIT_TOOLKIT_TMP) $(EE_OBJS)
+	mv $(LIBGSKIT_TOOLKIT_TMP) $(LIBGSKIT_TOOLKIT)
 
 clean:
 	rm -f $(EE_OBJS)
