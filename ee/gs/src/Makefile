@@ -54,7 +54,8 @@ EE_OBJS = $(GS_CORE_OBJS) $(GS_FONTM_OBJS) $(GS_HIRES_OBJS) $(GS_INIT_OBJS) $(GS
 EE_CFLAGS += -Wno-unused
 
 all: $(EE_OBJS)
-	$(EE_AR) rcs $(LIBGSKIT) $(EE_OBJS)
+	$(EE_AR) rcs $(LIBGSKIT_TMP) $(EE_OBJS)
+	mv $(LIBGSKIT_TMP) $(LIBGSKIT)
 
 clean:
 	rm -f $(EE_OBJS)

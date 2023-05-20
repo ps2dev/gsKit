@@ -21,7 +21,8 @@ EE_OBJS = $(DMA_CORE_OBJS) $(DMA_INIT_OBJS) $(DMA_SPR_OBJS)
 EE_CFLAGS += -Wno-unused
 
 all: $(EE_OBJS)
-	$(EE_AR) rcs $(LIBDMAKIT) $(EE_OBJS)
+	$(EE_AR) rcs $(LIBDMAKIT_TMP) $(EE_OBJS)
+	mv $(LIBDMAKIT_TMP) $(LIBDMAKIT)
 
 clean:
 	rm -f $(EE_OBJS)
