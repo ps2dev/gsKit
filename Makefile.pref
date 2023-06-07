@@ -20,11 +20,8 @@ GSKIT := $(PS2DEV)/gsKit
 endif
 
 LIBGSKIT := $(GSKITSRC)/lib/libgskit.a
-LIBGSKIT_TMP := $(shell mktemp -u).a
 LIBDMAKIT := $(GSKITSRC)/lib/libdmakit.a
-LIBDMAKIT_TMP := $(shell mktemp -u).a
 LIBGSKIT_TOOLKIT := $(GSKITSRC)/lib/libgskit_toolkit.a
-LIBGSKIT_TOOLKIT_TMP := $(shell mktemp -u).a
 LIBJPEG := $(PS2SDK)/ports
 LIBTIFF := $(PS2SDK)/ports
 LIBPNG := $(PS2SDK)/ports
