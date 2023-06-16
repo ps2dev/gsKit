@@ -9,6 +9,8 @@
 # ee/gs/src/Makefile - gsKit gs makefile.
 #
 
+EE_LIB = $(LIBGSKIT)
+
 GS_CORE_OBJS = gsKit_vram_alloc.o gsKit_vram_clear.o gsKit_sync_flip.o gsKit_setactive.o \
 	gsKit_finish.o gsKit_lock_buffer.o gsKit_unlock_buffer.o gsKit_lock_status.o gsKit_display_buffer.o \
 	gsKit_switch_context.o gsKit_vsync_wait.o gsKit_vsync_nowait.o gsKit_get_field.o gsKit_hsync_wait.o \
@@ -53,12 +55,13 @@ EE_OBJS = $(GS_CORE_OBJS) $(GS_FONTM_OBJS) $(GS_HIRES_OBJS) $(GS_INIT_OBJS) $(GS
 
 EE_CFLAGS += -Wno-unused
 
-all: $(EE_OBJS)
-	$(EE_AR) rcs $(LIBGSKIT_TMP) $(EE_OBJS)
-	mv $(LIBGSKIT_TMP) $(LIBGSKIT)
+.PHONY: all clean install
+
+all:
+	$(MAKE) $(EE_LIB)
 
 clean:
-	rm -f $(EE_OBJS)
+	rm -f $(EE_LIB) $(EE_OBJS)
 
 install: all
 
@@ -91,4 +94,3 @@ $(GS_VU1_OBJS:%=$(EE_OBJS_DIR)%): $(EE_SRC_DIR)gsVU1.c
 
 include ../../../Makefile.pref
 include ../../../Makefile.global
-
