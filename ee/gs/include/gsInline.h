@@ -14,6 +14,7 @@
 #define __GSINLINE_H__
 
 #include <stdio.h>
+#include <stdint.h>
 
 //  Drawbuffer Heap Allocator, GSQUEUE version
 static inline void *_gsKit_heap_alloc(GSQUEUE *q, int qsize, int bsize, int type)
