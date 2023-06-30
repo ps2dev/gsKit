@@ -1209,10 +1209,13 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		gsFont->Type == GSKIT_FTYPE_FNT)
 	{
 		u64 oldalpha;
+		u8 oldpabe;
 		int cx,cy,i,l;
 
+		oldpabe = gsGlobal->PABE;
 		oldalpha = gsGlobal->PrimAlpha;
-		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
+
+		gsKit_set_primalpha(gsGlobal, ALPHA_BLEND_ADD, 1);
 
 		cx=X;
 		cy=Y;
@@ -1243,7 +1246,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			}
 		}
 
-		gsGlobal->PrimAlpha=oldalpha;
+		gsKit_set_primalpha(gsGlobal, oldalpha, oldpabe);
 	}
 }
 #endif
