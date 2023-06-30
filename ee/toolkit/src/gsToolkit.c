@@ -1162,7 +1162,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 			fixate = 1;
 		}
-		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
+		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 1);
 
 
 		int cx,cy,i,l;
@@ -1209,10 +1209,13 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 		gsFont->Type == GSKIT_FTYPE_FNT)
 	{
 		u64 oldalpha;
+		u8 oldpabe;
 		int cx,cy,i,l;
 
+		oldpabe = gsGlobal->PABE;
 		oldalpha = gsGlobal->PrimAlpha;
-		gsGlobal->PrimAlpha=ALPHA_BLEND_ADD;
+
+		gsKit_set_primalpha(gsGlobal, ALPHA_BLEND_ADD, 1);
 
 		cx=X;
 		cy=Y;
@@ -1243,7 +1246,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			}
 		}
 
-		gsGlobal->PrimAlpha=oldalpha;
+		gsKit_set_primalpha(gsGlobal, oldalpha, oldpabe);
 	}
 }
 #endif
