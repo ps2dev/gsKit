@@ -1162,7 +1162,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 			fixate = 1;
 		}
-		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
+		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 1);
 
 
 		int cx,cy,i,l;
