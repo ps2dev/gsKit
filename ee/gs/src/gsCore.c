@@ -94,7 +94,7 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 
 	p_data = p_store = (u64 *)gsGlobal->dma_misc;
 
-	*p_data++ = GIF_TAG( 4, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 4, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 	*p_data++ = GIF_AD;
 
 	// Context 1
@@ -287,7 +287,7 @@ void gsKit_set_scissor(GSGLOBAL *gsGlobal, u64 ScissorBounds) {
     u64 *p_data;
 	u64 *p_store;
 
-	if (ScissorBounds == GS_SCISSOR_RESET) 
+	if (ScissorBounds == GS_SCISSOR_RESET)
 		ScissorBounds = GS_SETREG_SCISSOR(0, gsGlobal->Width - 1, 0, gsGlobal->Height - 1);
 
 	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
@@ -484,7 +484,7 @@ void gsKit_set_drawfield(GSGLOBAL *gsGlobal, u8 field)
 
     (u32)p_data = (u32)p_store = gsGlobal->dma_misc;
 
-    *p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1);
+    *p_data++ = GIF_TAG( 1, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1);
     *p_data++ = GIF_AD;
 
     if (field == GS_FIELD_NORMAL) { //Draw both

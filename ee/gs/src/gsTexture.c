@@ -269,7 +269,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	*p_data++ = DMA_TAG( 5, 0, DMA_CNT, 0, 0, 0 );
 	*p_data++ = 0;
 
-	*p_data++ = GIF_TAG( 4, 0, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 4, 0, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 	*p_data++ = GIF_AD;
 
 #ifdef GSKIT_DEBUG
@@ -293,7 +293,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	{
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( GS_GIF_BLOCKSIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -303,7 +303,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	if (remain > 0) {
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( remain, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( remain, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( remain, 1, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -319,7 +319,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		*p_data++ = DMA_TAG( 2, 0, DMA_END, 0, 0, 0 );
 		*p_data++ = 0;
 
-		*p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
+		*p_data++ = GIF_TAG( 1, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 		*p_data++ = GIF_AD;
 
 		*p_data++ = 0;
@@ -390,7 +390,7 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 	{
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( GS_GIF_BLOCKSIZE, 0, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -400,7 +400,7 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 	if (remain > 0) {
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( remain, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( remain, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( remain, 0, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -898,7 +898,7 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 1, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				1, gsGlobal->PrimContext, 0);
-	
+
 	*p_data++ = GS_PRIM;
 
 	memcpy(p_data, vertices, bytes);
@@ -946,7 +946,7 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 1, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				0, gsGlobal->PrimContext, 0);
-	
+
 	*p_data++ = GS_PRIM;
 
 	memcpy(p_data, vertices, bytes);

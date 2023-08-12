@@ -353,7 +353,7 @@ void gsKit_init_screen(GSGLOBAL *gsGlobal)
 
 	p_data = p_store = (u64 *)gsGlobal->dma_misc;
 
-	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( size - 1, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 	*p_data++ = GIF_AD;
 
 	*p_data++ = 1;

@@ -291,26 +291,20 @@
 #define GSKIT_GIF_PRIM_TRIFAN_TEXTURED		0x1D00
 #define GSKIT_GIF_PRIM_QUAD_TEXTURED		0x1E00
 
+/// gsKit GIFTAG data format "FLG"
+#define GSKIT_GIF_FLG_PACKED  0
+#define GSKIT_GIF_FLG_REGLIST 1
+#define GSKIT_GIF_FLG_IMAGE   2
+
+
 // DMA Packet Header "GIF Tag" For Packets Sent To GIF
 
 // A+D Data
 /// A+D GIFTAG
-#define GIF_TAG_AD(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(0)		<< 58)	| \
-		((u64)(1)		<< 60);
+#define GIF_TAG_AD(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_PACKED,1)
 // Point Primitive
 /// Point Primitive GIFTAG
-#define GIF_TAG_POINT(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(4)		<< 60);
+#define GIF_TAG_POINT(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,4)
 /// Point Primitive REGLIST
 #define GIF_TAG_POINT_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -320,13 +314,7 @@
 
 // Line Primitive
 /// Line Primitive GIFTAG
-#define GIF_TAG_LINE(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(4)		<< 60);
+#define GIF_TAG_LINE(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,4)
 /// Line Primitive REGLIST
 #define GIF_TAG_LINE_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -336,13 +324,7 @@
 
 // Line Goraud Primitive
 /// Line Goraud Primitive GIFTAG
-#define GIF_TAG_LINE_GORAUD(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(6)		<< 60);
+#define GIF_TAG_LINE_GORAUD(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,6)
 /// Line Goraud Primitive REGLIST
 #define GIF_TAG_LINE_GORAUD_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -354,13 +336,7 @@
 
 // Triangle Primitive
 /// Triangle Primitive GIFTAG
-#define GIF_TAG_TRIANGLE(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(6)		<< 60);
+#define GIF_TAG_TRIANGLE(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,6)
 /// Triangle Primitive REGLIST
 #define GIF_TAG_TRIANGLE_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -372,13 +348,7 @@
 
 // Sprite Primitive
 /// Sprite Primitive GIFTAG
-#define GIF_TAG_SPRITE(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(4)		<< 60);
+#define GIF_TAG_SPRITE(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,4)
 /// Sprite Primitive REGLIST
 #define GIF_TAG_SPRITE_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -388,13 +358,7 @@
 
 // Quad Primitive
 /// Quad Primitive GIFTAG
-#define GIF_TAG_QUAD(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(6)		<< 60);
+#define GIF_TAG_QUAD(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,6)
 /// Quad Primitive REGLIST
 #define GIF_TAG_QUAD_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -406,13 +370,7 @@
 
 // Gouraud Shaded Triangle Primitive
 /// Gouraud Shaded Triangle Primitive GIFTAG
-#define GIF_TAG_TRIANGLE_GOURAUD(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(8)		<< 60);
+#define GIF_TAG_TRIANGLE_GOURAUD(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,8)
 /// Gouraud Shaded Triangle Primitive REGLIST
 #define GIF_TAG_TRIANGLE_GOURAUD_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -426,13 +384,7 @@
 
 // Gouraud Shaded Quad Primitive
 /// Gouraud Shaded Quad Primitive GIFTAG
-#define GIF_TAG_QUAD_GOURAUD(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(10)		<< 60);
+#define GIF_TAG_QUAD_GOURAUD(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,10)
 /// Gouraud Shaded Quad Primitive REGLIST
 #define GIF_TAG_QUAD_GOURAUD_REGS   \
 		((u64)(GS_PRIM)		<< 0)	| \
@@ -448,13 +400,7 @@
 
 // Textured Sprite Primitive
 /// Textured Sprite Primitive GIFTAG
-#define GIF_TAG_SPRITE_TEXTURED(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(8)		<< 60);
+#define GIF_TAG_SPRITE_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,8)
 /// Textured Sprite Primitive REGLIST
 #define GIF_TAG_SPRITE_TEXTURED_REGS(ctx)   \
 		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
@@ -466,15 +412,23 @@
 		((u64)(GS_XYZ2)		<< 24)	| \
 		((u64)(GIF_NOP)		<< 28);
 
+/// Textured Sprite Goraud Primitive GIFTAG
+#define GIF_TAG_SPRITE_GORAUD_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,9)
+/// Textured Sprite Primitive UV REGLIST
+#define GIF_TAG_SPRITE_GORAUD_TEXTURED_UV_REGS(ctx)   \
+		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
+		((u64)(GS_PRIM)		<< 4)	| \
+		((u64)(GS_RGBAQ)	<< 8)	| \
+		((u64)(GS_UV)		<< 12)	| \
+		((u64)(GS_XYZ2)		<< 16)	| \
+		((u64)(GS_RGBAQ)	<< 20)	| \
+		((u64)(GS_UV)		<< 24)	| \
+		((u64)(GS_XYZ2)		<< 28)	| \
+		((u64)(GIF_NOP)		<< 32);
+
 // Textured Triangle Primitive
 /// Textured Triangle Primitive GIFTAG
-#define GIF_TAG_TRIANGLE_TEXTURED(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(10)		<< 60);
+#define GIF_TAG_TRIANGLE_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,10)
 /// Textured Triangle Primitive REGLIST
 #define GIF_TAG_TRIANGLE_TEXTURED_REGS(ctx)   \
 		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
@@ -490,13 +444,7 @@
 
 // Textured Quad Primitive
 /// Textured Quad Primitive GIFTAG
-#define GIF_TAG_QUAD_TEXTURED(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(12)		<< 60);
+#define GIF_TAG_QUAD_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,12)
 /// Textured Quad Primitive REGLIST
 #define GIF_TAG_QUAD_TEXTURED_REGS(ctx)   \
 		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
@@ -514,13 +462,7 @@
 
 // Textured Triangle Goraud Primitive
 /// Textured Triangle Goraud Primitive GIFTAG
-#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(12)		<< 60);
+#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,12)
 /// Textured Triangle Goraud Primitive REGLIST
 #define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(ctx)   \
 		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
@@ -557,13 +499,7 @@
 
 // Textured Quad Goraud Primitive
 /// Textured Quad Goraud Primitive GIFTAG
-#define GIF_TAG_QUAD_GORAUD_TEXTURED(NLOOP)   \
-		((u64)(NLOOP)		<< 0)	| \
-		((u64)(1)		<< 15)	| \
-		((u64)(0)		<< 46)	| \
-		((u64)(0)		<< 47)	| \
-		((u64)(1)		<< 58)	| \
-		((u64)(14)		<< 60);
+#define GIF_TAG_QUAD_GORAUD_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,14)
 /// Textured Quad Goraud Primitive REGLIST
 #define GIF_TAG_QUAD_GORAUD_TEXTURED_REGS(ctx)   \
 		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
