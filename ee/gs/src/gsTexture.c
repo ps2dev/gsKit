@@ -689,6 +689,54 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 }
 #endif
 
+#if F_gskit_prim_list_sprite_texture_uv_3d
+void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const void *vertices)
+{
+	u64* p_data;
+	u64* p_store;
+	int tw, th;
+
+	int qsize = (count*3) + 4;
+	int bytes = count * sizeof(GSPRIMUVPOINT);
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	gsKit_set_tw_th(Texture, &tw, &th);
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(qsize);
+	*p_data++ = GIF_AD;
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_SPRITE_GORAUD_TEXTURED(count - 1);
+		*p_data++ = GIF_TAG_SPRITE_GORAUD_TEXTURED_UV_REGS(gsGlobal->PrimContext);
+	}
+
+	if(Texture->VramClut == 0)
+	{
+		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
+	}
+	else
+	{
+		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
+	}
+	*p_data++ = GS_TEX0_1 + gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 1, 1, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				1, gsGlobal->PrimContext, 0);
+
+	*p_data++ = GS_PRIM;
+
+	memcpy(p_data, vertices, bytes);
+}
+#endif
+
 #if F_gsKit_prim_triangle_texture_3d
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
