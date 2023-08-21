@@ -43,7 +43,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 #endif
 
 #if F_gsKit_prim_list_points
-void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;
@@ -139,7 +139,7 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 #endif
 
 #if F_gsKit_prim_list_line_goraud_3d
-void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;
@@ -492,7 +492,7 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 #endif
 
 #if F_gsKit_prim_list_triangle_gouraud_3d
-void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;

@@ -33,13 +33,13 @@ extern "C" {
 #endif
 
 void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color);
-void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const void *vertices);
+void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices);
 
 void gsKit_prim_line_3d(GSGLOBAL *gsGlobal,	float x1, float y1, int iz1,
 						float x2, float y2, int iz2, u64 color);
 
 void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, float x2, float y2, int iz2, u64 color1, u64 color2);
-void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices);
+void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices);
 
 void gsKit_prim_line_strip(GSGLOBAL *gsGlobal, float *LineStrip, int segments, int iz, u64 color);
 
@@ -64,8 +64,8 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
                                                         float x3, float y3, int iz3,
                                                         u64 color1, u64 color2, u64 color3);
 
-void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices);
-		
+void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices);
+
 void gsKit_prim_quad_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 					    float x2, float y2, int iz2,
 					    float x3, float y3, int iz3,
@@ -77,14 +77,14 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						 float x4, float y4, int iz4,
 						 u64 color1, u64 color2,
 						 u64 color3, u64 color4);
-			
+
 
 #define gsKit_prim_line(gsGlobal,	x1, y1,		\
 					x2, y2,		\
 					z, color)	\
 	gsKit_prim_line_3d(gsGlobal,	x1, y1, z,	\
 					x2, y2, z, color);
-		
+
 #define gsKit_prim_line_goraud(gsGlobal,	x1, y1,		\
 					x2, y2,		\
 					z, color1, color2)	\
@@ -117,7 +117,7 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 					x2, y2, z,	\
 					x3, y3, z,	\
 					x4, y4, z, color);
-		
+
 #define gsKit_prim_quad_gouraud(gsGlobal,	x1, y1,		\
 						x2, y2,		\
 						x3, y3,		\
@@ -127,8 +127,8 @@ void gsKit_prim_quad_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						x2, y2, z,	\
 						x3, y3, z,	\
 						x4, y4, z,	\
-						color1, color2, color3, color4);		
-		
+						color1, color2, color3, color4);
+
 
 #ifdef __cplusplus
 }

@@ -690,7 +690,7 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 #endif
 
 #if F_gskit_prim_list_sprite_texture_uv_3d
-void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const void *vertices)
+void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const GSPRIMUVPOINT *vertices)
 {
 	u64* p_data;
 	u64* p_store;
@@ -903,7 +903,7 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 #endif
 
 #if F_gsKit_prim_list_triangle_goraud_texture_uv_3d
-void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices)
+void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const GSPRIMUVPOINT *vertices)
 {
 	u64* p_data;
 	u64* p_store;
@@ -948,7 +948,7 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 #endif
 
 #if F_gsKit_prim_list_triangle_goraud_texture_stq_3d
-void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices)
+void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const GSPRIMSTQPOINT *vertices)
 {
 	u64* p_data;
 	u64* p_store;
