@@ -412,20 +412,6 @@
 		((u64)(GS_XYZ2)		<< 24)	| \
 		((u64)(GIF_NOP)		<< 28);
 
-/// Textured Sprite Goraud Primitive GIFTAG
-#define GIF_TAG_SPRITE_GORAUD_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,9)
-/// Textured Sprite Primitive UV REGLIST
-#define GIF_TAG_SPRITE_GORAUD_TEXTURED_UV_REGS(ctx)   \
-		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
-		((u64)(GS_PRIM)		<< 4)	| \
-		((u64)(GS_RGBAQ)	<< 8)	| \
-		((u64)(GS_UV)		<< 12)	| \
-		((u64)(GS_XYZ2)		<< 16)	| \
-		((u64)(GS_RGBAQ)	<< 20)	| \
-		((u64)(GS_UV)		<< 24)	| \
-		((u64)(GS_XYZ2)		<< 28)	| \
-		((u64)(GIF_NOP)		<< 32);
-
 // Textured Triangle Primitive
 /// Textured Triangle Primitive GIFTAG
 #define GIF_TAG_TRIANGLE_TEXTURED(NLOOP)   GIF_TAG(NLOOP,1,0,0,GSKIT_GIF_FLG_REGLIST,10)
@@ -475,25 +461,6 @@
 		((u64)(GS_XYZ2)		<< 28)	| \
 		((u64)(GS_RGBAQ)	<< 32)	| \
 		((u64)(GS_UV)		<< 36)	| \
-		((u64)(GS_XYZ2)		<< 40)	| \
-		((u64)(GIF_NOP)		<< 44);
-
-/// Textured Triangle YV Goraud Primitive REGLIST
-#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_UV_REGS(ctx)   \
-	GIF_TAG_TRIANGLE_GORAUD_TEXTURED_REGS(ctx)
-
-/// Textured Triangle STQ Goraud Primitive REGLIST
-#define GIF_TAG_TRIANGLE_GORAUD_TEXTURED_STQ_REGS(ctx)   \
-		((u64)(GS_TEX0_1 + ctx)	<< 0)	| \
-		((u64)(GS_PRIM)		<< 4)	| \
-		((u64)(GS_RGBAQ)	<< 8)	| \
-		((u64)(GS_ST)		<< 12)	| \
-		((u64)(GS_XYZ2)		<< 16)	| \
-		((u64)(GS_RGBAQ)	<< 20)	| \
-		((u64)(GS_ST)		<< 24)	| \
-		((u64)(GS_XYZ2)		<< 28)	| \
-		((u64)(GS_RGBAQ)	<< 32)	| \
-		((u64)(GS_ST)		<< 36)	| \
 		((u64)(GS_XYZ2)		<< 40)	| \
 		((u64)(GIF_NOP)		<< 44);
 
@@ -1016,7 +983,7 @@ typedef union {
 	};
 } __attribute__((packed,aligned(8))) gs_rgbaq_t;
 
-typedef union { 
+typedef union {
     u64 st;
     struct {
 		float s;
