@@ -43,7 +43,7 @@ GS_TEXT_MANAGER_OBJS = gsTextManagerInternals.o gsKit_TexManager_init.o gsKit_Te
 
 GS_TEXTURE_OBJS = gsKit_texture_size_ee.o gsKit_texture_size.o gsKit_texture_to_psm16.o \
 	gsKit_texture_send.o gsKit_texture_send_inline.o gsKit_texture_upload.o gsKit_prim_sprite_texture_3d.o \
-	gsKit_prim_sprite_striped_texture_3d.o gsKit_prim_triangle_texture_3d.o \
+	gsKit_prim_sprite_striped_texture_3d.o gsKit_prim_triangle_texture_3d.o gskit_prim_list_sprite_texture_uv_3d.o \
 	gsKit_prim_triangle_goraud_texture_3d.o gsKit_prim_list_triangle_goraud_texture_uv_3d.o gsKit_prim_list_triangle_goraud_texture_stq_3d.o \
 	gsKit_prim_triangle_strip_texture.o gsKit_prim_triangle_strip_texture_3d.o gsKit_prim_triangle_fan_texture.o \
 	gsKit_prim_triangle_fan_texture_3d.o gsKit_prim_quad_texture_3d.o gsKit_prim_quad_goraud_texture_3d.o

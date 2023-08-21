@@ -74,7 +74,7 @@ void gsKit_vram_dump(GSGLOBAL *gsGlobal, char *Path, u32 StartAddr, u32 EndAddr)
 	*p_data++ = DMA_TAG( 6, 0, DMA_CNT, 0, 0, 0 );
 	*p_data++ = 0;
 
-	*p_data++ = GIF_TAG( 5, 1, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 5, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 	*p_data++ = GIF_AD;
 
 	*p_data++ = GS_SETREG_BITBLTBUF(StartAddr / 64, (4095.9375 / 64), 0, 0, 0, 0);

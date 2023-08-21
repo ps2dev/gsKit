@@ -11,6 +11,7 @@
 
 SUBDIRS =
 SUBDIRS += alpha
+SUBDIRS += atlas
 SUBDIRS += basic
 SUBDIRS += bigtex
 SUBDIRS += coverflow

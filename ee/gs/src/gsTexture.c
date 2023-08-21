@@ -269,7 +269,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	*p_data++ = DMA_TAG( 5, 0, DMA_CNT, 0, 0, 0 );
 	*p_data++ = 0;
 
-	*p_data++ = GIF_TAG( 4, 0, 0, 0, 0, 1 );
+	*p_data++ = GIF_TAG( 4, 0, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 	*p_data++ = GIF_AD;
 
 #ifdef GSKIT_DEBUG
@@ -293,7 +293,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	{
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( GS_GIF_BLOCKSIZE, 1, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -303,7 +303,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 	if (remain > 0) {
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( remain, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( remain, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( remain, 1, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -319,7 +319,7 @@ void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 t
 		*p_data++ = DMA_TAG( 2, 0, DMA_END, 0, 0, 0 );
 		*p_data++ = 0;
 
-		*p_data++ = GIF_TAG( 1, 1, 0, 0, 0, 1 );
+		*p_data++ = GIF_TAG( 1, 1, 0, 0, GSKIT_GIF_FLG_PACKED, 1 );
 		*p_data++ = GIF_AD;
 
 		*p_data++ = 0;
@@ -390,7 +390,7 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 	{
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( GS_GIF_BLOCKSIZE, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( GS_GIF_BLOCKSIZE, 0, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -400,7 +400,7 @@ void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int heig
 	if (remain > 0) {
 		*p_data++ = DMA_TAG( 1, 0, DMA_CNT, 0, 0, 0);
 		*p_data++ = 0;
-		*p_data++ = GIF_TAG( remain, 0, 0, 0, 2, 0 );
+		*p_data++ = GIF_TAG( remain, 0, 0, 0, GSKIT_GIF_FLG_IMAGE, 0 );
 		*p_data++ = 0;
 		*p_data++ = DMA_TAG( remain, 0, DMA_REF, 0, (u32)p_mem, 0 );
 		*p_data++ = 0;
@@ -689,6 +689,51 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 }
 #endif
 
+#if F_gskit_prim_list_sprite_texture_uv_3d
+void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const GSPRIMUVPOINT *vertices)
+{
+	u64* p_data;
+	u64* p_store;
+	int tw, th;
+
+	int qsize = (count*3) + 2;
+	int bytes = count * sizeof(GSPRIMUVPOINT);
+
+	gsKit_set_texfilter(gsGlobal, Texture->Filter);
+	gsKit_set_tw_th(Texture, &tw, &th);
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	if(Texture->VramClut == 0)
+	{
+		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			0, 0, 0, 0, GS_CLUT_STOREMODE_NOLOAD);
+	}
+	else
+	{
+		*p_data++ = GS_SETREG_TEX0(Texture->Vram/256, Texture->TBW, Texture->PSM,
+			tw, th, gsGlobal->PrimAlphaEnable, 0,
+			Texture->VramClut/256, Texture->ClutPSM, 0, 0, GS_CLUT_STOREMODE_LOAD);
+	}
+	*p_data++ = GS_TEX0_1 + gsGlobal->PrimContext;
+
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 1, 1, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				1, gsGlobal->PrimContext, 0);
+
+	*p_data++ = GS_PRIM;
+
+	memcpy(p_data, vertices, bytes);
+}
+#endif
+
 #if F_gsKit_prim_triangle_texture_3d
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,
@@ -858,13 +903,13 @@ void gsKit_prim_triangle_goraud_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Textur
 #endif
 
 #if F_gsKit_prim_list_triangle_goraud_texture_uv_3d
-void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices)
+void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const GSPRIMUVPOINT *vertices)
 {
 	u64* p_data;
 	u64* p_store;
 	int tw, th;
 
-	int qsize = (count*3) + 4;
+	int qsize = (count*3) + 2;
 	int bytes = count * sizeof(GSPRIMUVPOINT);
 
 	gsKit_set_texfilter(gsGlobal, Texture->Filter);
@@ -872,13 +917,10 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-    *p_data++ = GIF_AD;
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_UV_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	if(Texture->VramClut == 0)
@@ -898,7 +940,7 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 1, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				1, gsGlobal->PrimContext, 0);
-	
+
 	*p_data++ = GS_PRIM;
 
 	memcpy(p_data, vertices, bytes);
@@ -906,13 +948,13 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 #endif
 
 #if F_gsKit_prim_list_triangle_goraud_texture_stq_3d
-void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const void *vertices)
+void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, int count, const GSPRIMSTQPOINT *vertices)
 {
 	u64* p_data;
 	u64* p_store;
 	int tw, th;
 
-	int qsize = (count*3) + 4;
+	int qsize = (count*3) + 2;
 	int bytes = count * sizeof(GSPRIMSTQPOINT);
 
 	gsKit_set_texfilter(gsGlobal, Texture->Filter);
@@ -920,13 +962,10 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-    *p_data++ = GIF_AD;
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_STQ_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	if(Texture->VramClut == 0)
@@ -946,7 +985,7 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 1, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				0, gsGlobal->PrimContext, 0);
-	
+
 	*p_data++ = GS_PRIM;
 
 	memcpy(p_data, vertices, bytes);

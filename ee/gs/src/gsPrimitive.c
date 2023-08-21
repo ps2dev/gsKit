@@ -43,7 +43,7 @@ void gsKit_prim_point(GSGLOBAL *gsGlobal, float x, float y, int iz, u64 color)
 #endif
 
 #if F_gsKit_prim_list_points
-void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_points(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;
@@ -139,23 +139,19 @@ void gsKit_prim_line_goraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1, 
 #endif
 
 #if F_gsKit_prim_list_line_goraud_3d
-void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_line_goraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;
-	int qsize = (count*2) + 2;
+	int qsize = (count*2) + 1;
 	int bytes = count * sizeof(GSPRIMPOINT);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-	*p_data++ = GIF_AD;
-
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_LINE_GORAUD(count-1);
-		*p_data++ = GIF_TAG_LINE_GORAUD_REGS;
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_LINE, 1, 0, gsGlobal->PrimFogEnable,
@@ -496,23 +492,19 @@ void gsKit_prim_triangle_gouraud_3d(GSGLOBAL *gsGlobal, float x1, float y1, int 
 #endif
 
 #if F_gsKit_prim_list_triangle_gouraud_3d
-void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const void *vertices)
+void gsKit_prim_list_triangle_gouraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
 {
 	u64* p_store;
 	u64* p_data;
-	int qsize = (count*2) + 2;
+	int qsize = (count*2) + 1;
 	int bytes = count * sizeof(GSPRIMPOINT);
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-	*p_data++ = GIF_AD;
-
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_TRIANGLE_GOURAUD(count-1);
-		*p_data++ = GIF_TAG_TRIANGLE_GOURAUD_REGS;
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 0, gsGlobal->PrimFogEnable,
