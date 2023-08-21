@@ -696,7 +696,7 @@ void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 	u64* p_store;
 	int tw, th;
 
-	int qsize = (count*3) + 4;
+	int qsize = (count*3) + 2;
 	int bytes = count * sizeof(GSPRIMUVPOINT);
 
 	gsKit_set_texfilter(gsGlobal, Texture->Filter);
@@ -704,13 +704,10 @@ void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-	*p_data++ = GIF_AD;
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_SPRITE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_SPRITE_GORAUD_TEXTURED_UV_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	if(Texture->VramClut == 0)
@@ -912,7 +909,7 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 	u64* p_store;
 	int tw, th;
 
-	int qsize = (count*3) + 4;
+	int qsize = (count*3) + 2;
 	int bytes = count * sizeof(GSPRIMUVPOINT);
 
 	gsKit_set_texfilter(gsGlobal, Texture->Filter);
@@ -920,13 +917,10 @@ void gsKit_prim_list_triangle_goraud_texture_uv_3d(GSGLOBAL *gsGlobal, GSTEXTURE
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-    *p_data++ = GIF_AD;
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_UV_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	if(Texture->VramClut == 0)
@@ -960,7 +954,7 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 	u64* p_store;
 	int tw, th;
 
-	int qsize = (count*3) + 4;
+	int qsize = (count*3) + 2;
 	int bytes = count * sizeof(GSPRIMSTQPOINT);
 
 	gsKit_set_texfilter(gsGlobal, Texture->Filter);
@@ -968,13 +962,10 @@ void gsKit_prim_list_triangle_goraud_texture_stq_3d(GSGLOBAL *gsGlobal, GSTEXTUR
 
 	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
 
-	*p_data++ = GIF_TAG_AD(qsize);
-    *p_data++ = GIF_AD;
-
 	if(p_store == gsGlobal->CurQueue->last_tag)
 	{
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED(count - 1);
-		*p_data++ = GIF_TAG_TRIANGLE_GORAUD_TEXTURED_STQ_REGS(gsGlobal->PrimContext);
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
 	}
 
 	if(Texture->VramClut == 0)
