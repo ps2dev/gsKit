@@ -15,6 +15,7 @@ SUBDIRS += atlas
 SUBDIRS += basic
 SUBDIRS += bigtex
 SUBDIRS += coverflow
+SUBDIRS += clut
 SUBDIRS += cube
 SUBDIRS += fb
 SUBDIRS += fhdbg
