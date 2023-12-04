@@ -15,7 +15,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git
+        apk add build-base git cmake
 
     - name: Compile project with everything enabled
       env:
@@ -34,4 +34,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: gsKit-samples-${{ steps.slug.outputs.sha8 }}
-        path: examples
+        path: build/*.elf
