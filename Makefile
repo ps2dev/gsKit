@@ -5,25 +5,15 @@
 # Copyright 2004 - Chris "Neovanglist" Gilbert <Neovanglist@LainOS.org>
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
-#
-# Makefile - gsKit root makefile.
-#
 
-ifeq (x$(GSKITSRC), x)
-GSKITSRC=`pwd`
-endif
-
-SUBDIRS = ee lib examples
+.PHONY: all install
 
 all:
-	@$(ECHO) ' ';
-	@$(ECHO) It is not intended for other projects to include the;
-	@$(ECHO) Makefile.global file used by gsKit.;
-	@$(ECHO) ' ';
+	cmake -S . -B build -Wno-dev "-DCMAKE_TOOLCHAIN_FILE=${PS2SDK}/ps2dev.cmake" "-DCMAKE_INSTALL_PREFIX=${PS2SDK}/ports" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo "-DCMAKE_PREFIX_PATH=${PS2SDK}/ports"
+	cmake --build build
 
-include Rules.make
-include $(PS2SDK)/Defs.make
+install: all
+	cmake --build build --target install
 
-reset:
-	ps2client reset
-
+clean:
+	rm -rf build
