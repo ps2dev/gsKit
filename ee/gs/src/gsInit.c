@@ -16,9 +16,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <kernel.h>
 #include <osd_config.h>
 #include <rom0_info.h>
+
+#define posixIODriver { open, close, read }
 
 #if F__gsInit_internal
 u8 __modelSupportsGetGsDxDyOffset;
@@ -34,7 +38,8 @@ short int gsKit_check_rom(void)
 
 	if(default_signal < 0)
 	{
-		GetRomName((char *)romname);
+		_io_driver driver = posixIODriver;
+		GetRomNameWithIODriver((char *)romname, &driver);
 		romname[14] = '\0';
 
 		//ROMVER string format: VVVVRTYYYYMMDD
@@ -489,7 +494,8 @@ GSGLOBAL *gsKit_init_global_custom(int Os_AllocSize, int Per_AllocSize)
 	gsGlobal->dma_misc = gsKit_alloc_ucab(512);
 
 	/* Generic Values */
-	if(configGetTvScreenType() == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
+	_io_driver driver = posixIODriver;
+	if(configGetTvScreenTypeWithIODriver(&driver) == 2) gsGlobal->Aspect = GS_ASPECT_16_9;
     else
     gsGlobal->Aspect = GS_ASPECT_4_3;
 
