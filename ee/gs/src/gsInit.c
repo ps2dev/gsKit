@@ -22,7 +22,7 @@
 #include <osd_config.h>
 #include <rom0_info.h>
 
-#define posixIODriver { open, close, read }
+#define posixIODriver { open, close, (int (*)(int, void *, int))read, O_RDONLY }
 
 #if F__gsInit_internal
 u8 __modelSupportsGetGsDxDyOffset;
