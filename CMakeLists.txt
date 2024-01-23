@@ -12,14 +12,15 @@ project(gsKit)
 
 enable_language(ASM)
 
-set(PS2DEV $ENV{PS2DEV})
-if(${PS2DEV} STREQUAL "")
+if(NOT DEFINED ENV{PS2DEV})
 	message(FATAL_ERROR "Please kindly set $PS2DEV environment variable")
 endif()
+set(PS2DEV $ENV{PS2DEV})
 
-set(GSKIT $ENV{GSKIT})
-if(${GSKIT} STREQUAL "")
+if(NOT DEFINED ENV{GSKIT})
 	set(GSKIT ${PS2DEV}/gsKit)
+else()
+	set(GSKIT $ENV{GSKIT})
 endif()
 
 set(INSTALL_LIB_DIR "${GSKIT}/lib" CACHE PATH "Installation directory for libraries")
