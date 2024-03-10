@@ -82,6 +82,15 @@ NOTE: You should have already defined in your login script the `$PS2DEV` variabl
     Run the next command
     `make && make install`
 
+## Build & Compile Examples
+
+1. Install [CMake](https://github.com/Kitware/CMake)
+
+2. Build & compile
+    `make all`
+
+NOTE: The examples will be in the `build` folder
+
 ## Important Notes
 
 There are several small notes that need to be made about gsKit operation.
