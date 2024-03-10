@@ -305,6 +305,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		fhdbg
 		font
 		fontm
+		hello-world
 		modetest
 		modetesthires
 		pixelperfect
