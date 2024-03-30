@@ -18,18 +18,12 @@
 #include "gsKit.h"
 #include "gsToolkit.h"
 
-#ifdef HAVE_LIBJPEG
 #include <jpeglib.h>
-#endif
 
-#ifdef HAVE_LIBTIFF
 #include <tif_config.h>
 #include <tiffio.h>
-#endif
 
-#ifdef HAVE_LIBPNG
 #include <png.h>
-#endif
 
 extern int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
 
@@ -83,7 +77,6 @@ int gsKit_texture_finish(GSGLOBAL *gsGlobal, GSTEXTURE *Texture)
 #ifdef F_gsKit_texture_png
 int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-#ifdef HAVE_LIBPNG
 	FILE* File = fopen(Path, "rb");
 	if (File == NULL)
 	{
@@ -338,10 +331,6 @@ int gsKit_texture_png(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	fclose(File);
 
 	return gsKit_texture_finish(gsGlobal, Texture);
-#else
-	printf("ERROR: gsKit_texture_png unimplemented.\n");
-	return -1;
-#endif
 }
 #endif
 
@@ -617,7 +606,6 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 #endif
 
 #ifdef F_gsKit_texture_jpeg
-#ifdef HAVE_LIBJPEG
 struct my_error_mgr {
   struct jpeg_error_mgr pub;    /* "public" fields */
 
@@ -678,11 +666,9 @@ static void  _ps2_load_JPEG_generic(GSTEXTURE *Texture, struct jpeg_decompress_s
 	jpeg_finish_decompress(cinfo);
 }
 
-#endif
 
 int  gsKit_texture_jpeg_scale(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path, bool scale_down)
 {
-#ifdef HAVE_LIBJPEG
 	FILE *fp;
 	struct jpeg_decompress_struct cinfo;
 	struct my_error_mgr jerr;
@@ -725,10 +711,6 @@ int  gsKit_texture_jpeg_scale(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path
 	printf("jpeg: File image readed, allocating VRAM\n");
 	#endif
 	return gsKit_texture_finish(gsGlobal, Texture);
-#else
-	printf("ERROR: gsKit_texture_jpeg unimplemented.\n");
-	return -1;
-#endif
 }
 
 int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path) {
@@ -737,7 +719,6 @@ int  gsKit_texture_jpeg(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path) {
 
 int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 {
-#ifdef HAVE_LIBTIFF
 	int TextureSize = 0;
 
 	TIFF* tif = TIFFOpen(Path, "r");
@@ -782,10 +763,6 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 */
 
 	return gsKit_texture_finish(gsGlobal, Texture);
-#else
-	printf("ERROR: gsKit_texture_tiff unimplimented.\n");
-	return -1;
-#endif
 }
 #endif
 
@@ -1094,14 +1071,14 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 	else if( (gsFont->Type == GSKIT_FTYPE_PNG_DAT) ||
              (gsFont->Type == GSKIT_FTYPE_BMP_DAT))
 	{
-#ifdef HAVE_LIBPNG
+
 	    if( gsFont->Type == GSKIT_FTYPE_PNG_DAT)
             if( gsKit_texture_png(gsGlobal, gsFont->Texture, gsFont->Path) == -1)
             {
                 printf("Error uploading font png!\n");
                 return -1;
             }
-#endif
+
         if( gsFont->Type == GSKIT_FTYPE_BMP_DAT )
             if( gsKit_texture_bmp(gsGlobal, gsFont->Texture, gsFont->Path) == -1 )
             {
@@ -1151,7 +1128,6 @@ int gsKit_font_upload(GSGLOBAL *gsGlobal, GSFONT *gsFont)
 void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float Y, int Z,
                       float scale, unsigned long color, const char *String)
 {
-#ifdef HAVE_LIBPNG
 	if( gsFont->Type == GSKIT_FTYPE_PNG_DAT)
 	{
 		u64 oldalpha = gsGlobal->PrimAlpha;
@@ -1204,7 +1180,7 @@ void gsKit_font_print_scaled(GSGLOBAL *gsGlobal, GSFONT *gsFont, float X, float 
 			gsKit_set_test(gsGlobal, GS_ATEST_ON);
 
 	}
-#endif
+	
 	if( gsFont->Type == GSKIT_FTYPE_BMP_DAT ||
 		gsFont->Type == GSKIT_FTYPE_FNT)
 	{

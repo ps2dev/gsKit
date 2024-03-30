@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal;
 	// GS_MODE_VGA_640_60
-#ifdef HAVE_LIBTIFF
-	GSTEXTURE Sprite;
+
+	GSTEXTURE Sprite; //TTF texture.
     u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
-#endif
+
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
     u64 Red = GS_SETREG_RGBAQ(0xFF,0x00,0x00,0x00,0x00);
     u64 Green = GS_SETREG_RGBAQ(0x00,0xFF,0x00,0x00,0x00);
@@ -55,13 +55,13 @@ int main(int argc, char *argv[])
 	gsGlobal->PrimAlphaEnable = GS_SETTING_ON;
 
 	gsKit_init_screen(gsGlobal);
-#ifdef HAVE_LIBTIFF
+
 	Sprite.Delayed = 1;
 	if(gsKit_texture_tiff(gsGlobal, &Sprite, "host:alpha.tiff") < 0)
 	{
 		printf("Loading Failed!\n");
 	}
-#endif
+
 	gsKit_mode_switch(gsGlobal, GS_PERSISTENT);
 
 	while(1)
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
-#ifdef HAVE_LIBTIFF
+
 		gsKit_TexManager_bind(gsGlobal, &Sprite);
 		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
 								50.0f,  // Y2
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 								Sprite.Height, // V2
 								3,
 								TexCol);
-#endif
+
 		gsKit_set_test(gsGlobal, GS_ATEST_ON);
 		gsKit_set_primalpha(gsGlobal, GS_BLEND_BACK2FRONT, 0);
 

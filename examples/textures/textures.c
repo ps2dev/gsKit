@@ -21,9 +21,7 @@ int main(int argc, char *argv[])
 	GSGLOBAL *gsGlobal;
 	GSTEXTURE Tex1, Tex2;
 
-#ifdef HAVE_LIBJPEG
-    GSTEXTURE Tex3;
-#endif
+    GSTEXTURE Tex3; //PNG texture
 
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);

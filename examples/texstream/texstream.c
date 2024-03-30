@@ -20,23 +20,20 @@ int main(int argc, char *argv[])
 {
 	GSGLOBAL *gsGlobal;
 //GS_MODE_VGA_640_60
-#ifdef HAVE_LIBPNG
-	GSTEXTURE Sprite;
-#endif
+
+	GSTEXTURE Sprite; //PNG texture
+
 	u64 White = GS_SETREG_RGBAQ(0xFF,0xFF,0xFF,0x00,0x00);
-#ifdef HAVE_LIBPNG
 	u64 TexCol = GS_SETREG_RGBAQ(0x80,0x80,0x80,0x80,0x00);
-#endif
 
 	gsGlobal = gsKit_init_global();
 
-#ifdef HAVE_LIBPNG
 	Sprite.Width = 0;
 	Sprite.Height = 0;
 	Sprite.PSM = 0;
 	Sprite.Mem = 0;
 	Sprite.TBW = 0;
-#endif
+
 	gsGlobal->PSM = GS_PSM_CT24;
 	gsGlobal->PSMZ = GS_PSMZ_16S;
 //	gsGlobal->DoubleBuffering = GS_SETTING_OFF;
@@ -52,16 +49,13 @@ int main(int argc, char *argv[])
 
 	gsKit_init_screen(gsGlobal);
 
-#ifdef HAVE_LIBPNG
-	Sprite.Delayed = GS_SETTING_ON;
-#endif
 
-#ifdef HAVE_LIBPNG
+	Sprite.Delayed = GS_SETTING_ON;
+
 	if(gsKit_texture_png(gsGlobal, &Sprite, "host:texstream.png") < 0)
 	{
 		printf("Loading Failed!\n");
 	}
-#endif
 
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 
@@ -71,7 +65,7 @@ int main(int argc, char *argv[])
 
 		gsKit_set_primalpha(gsGlobal, GS_SETREG_ALPHA(0,1,0,1,0), 0);
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
-#ifdef HAVE_LIBPNG
+
 		gsKit_TexManager_bind(gsGlobal, &Sprite);
 		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
 								50.0f,  // Y2
@@ -83,7 +77,7 @@ int main(int argc, char *argv[])
 								Sprite.Height, // V2
 								3,
 								TexCol);
-#endif
+
 		gsKit_set_test(gsGlobal, GS_ATEST_ON);
 		gsKit_set_primalpha(gsGlobal, GS_BLEND_BACK2FRONT, 0);
 
