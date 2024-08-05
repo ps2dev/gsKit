@@ -14,6 +14,12 @@
 [![CI](https://github.com/ps2dev/gsKit/workflows/CI/badge.svg)](https://github.com/ps2dev/gsKit/actions?query=workflow%3ACI)
 [![CI-Docker](https://github.com/ps2dev/gsKit/workflows/CI-Docker/badge.svg)](https://github.com/ps2dev/gsKit/actions?query=workflow%3ACI-Docker)
 
+## **ATTENTION**
+
+If you are confused on how to start developing for PS2, see the
+[getting started](https://ps2dev.github.io/#getting-started) section on
+the ps2dev main page.  
+
 ## Introduction
 
 gsKit is a library that provides a C interface to the Playstation 2
@@ -115,10 +121,10 @@ There are several small notes that need to be made about gsKit operation.
 *   You can specify some external libraries in Makefile.pref
     (just uncomment what you need)
 
-## Feedback & Questions
+## Community
 
-You can usually find the developers on freenode in the channel #ps2dev. You
-can also use the forums at http://forums.ps2dev.org,
+Links for discussion and chat are available
+[here](https://ps2dev.github.io/#community).  
 
 ## Credits
 
