@@ -87,12 +87,13 @@ int main(int argc, char *argv[])
 		gsKit_set_test(gsGlobal, GS_ATEST_OFF);
 #ifdef HAVE_LIBTIFF
 		gsKit_TexManager_bind(gsGlobal, &Sprite);
-		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	310.0f,  // X1
-								50.0f,  // Y2
+		gsKit_prim_sprite_texture(gsGlobal, &Sprite,	
+								100.0f,  // X1
+								+400.0f,  // Y2
 								0.0f,  // U1
 								0.0f,  // V1
 								Sprite.Width + 310.0f, // X2
-								Sprite.Height +  50.0f, // Y2
+								Sprite.Height - 250.0f, // Y2
 								Sprite.Width, // U2
 								Sprite.Height, // V2
 								3,

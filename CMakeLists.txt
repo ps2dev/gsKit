@@ -41,7 +41,7 @@ find_library(LIBTIFF_LIBRARY NAMES tiff)
 find_path(LIBTIFF_INCLUDE_DIR NAMES tiff.h)
 
 if(LIBTIFF_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBTIFF_LIBRARY})
+	list(APPEND GSKIT_EXTERNAL_LIBS lzma ${LIBTIFF_LIBRARY})
 	include_directories(${LIBTIFF_INCLUDE_DIR})
 	add_definitions(-DHAVE_LIBTIFF)
 endif()
