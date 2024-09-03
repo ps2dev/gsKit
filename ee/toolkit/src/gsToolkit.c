@@ -23,7 +23,6 @@
 #endif
 
 #ifdef HAVE_LIBTIFF
-#include <tif_config.h>
 #include <tiffio.h>
 #endif
 
@@ -762,7 +761,7 @@ int  gsKit_texture_tiff(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 
 	Texture->Mem = memalign(128,TextureSize);
 
-	if (!TIFFReadPS2Image(tif, Texture->Width, Texture->Height, (u32 *)Texture->Mem, 0))
+	if (!TIFFReadRGBAImage(tif, Texture->Width, Texture->Height, (uint32_t *)Texture->Mem, 0))
 	{
 		printf("Error Reading TIFF Data\n");
 		TIFFClose(tif);
