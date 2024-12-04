@@ -173,11 +173,33 @@ static inline gs_rgbaq color_to_RGBAQ(uint8_t r, uint8_t g, uint8_t b, uint8_t a
 {
 	gs_rgbaq res;
 
-	res.color.r = r;
-	res.color.g = g;
-	res.color.b = b;
-	res.color.a = a;
+	res.color.components.r = r;
+	res.color.components.g = g;
+	res.color.components.b = b;
+	res.color.components.a = a;
 	res.color.q = q;
+	res.tag = GS_RGBAQ;
+
+	return res;
+}
+
+// If STQ coordinates are used set q to 1.0f otherwise keep it as 0.0f
+static inline gs_rgbaq rgba_to_RGBAQ(uint32_t rgba, float q)
+{
+	gs_rgbaq res;
+
+	res.color.components.rgba = rgba;
+	res.color.q = q;
+	res.tag = GS_RGBAQ;
+
+	return res;
+}
+
+static inline gs_rgbaq rgbaq_to_RGBAQ(uint64_t rgbaq)
+{
+	gs_rgbaq res;
+
+	res.color.rgbaq = rgbaq;
 	res.tag = GS_RGBAQ;
 
 	return res;
