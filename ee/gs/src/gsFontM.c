@@ -157,7 +157,12 @@ int gsKit_fontm_unpack(GSFONTM *gsFontM)
 	if(FontMFile < 0)
 	{
 		printf("Failed to open FONTM from ROM0\n");
-		return -1;
+		FontMFile = open("rom0:FONTM", O_RDONLY);
+		if(FontMFile < 0)
+		{
+			FontMFile = open("mc0:FONTM", O_RDONLY);
+			return -1;
+		}
 	}
 
 	PackedSize = lseek(FontMFile, 0, SEEK_END);
