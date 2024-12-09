@@ -152,6 +152,9 @@ add_object_library_macros(GS_PRIMITIVE_OBJS ee/gs/src/gsPrimitive.c
 	gsKit_prim_line_strip
 	gsKit_prim_line_strip_3d
 	gsKit_prim_sprite
+	gsKit_prim_list_sprite_gouraud_3d
+	gsKit_prim_list_sprite_flat
+	gsKit_prim_list_sprite_flat_color
 	gsKit_prim_triangle_3d
 	gsKit_prim_triangle_strip
 	gsKit_prim_triangle_strip_3d
@@ -186,6 +189,8 @@ add_object_library_macros(GS_TEXTURE_OBJS ee/gs/src/gsTexture.c
 	gsKit_prim_sprite_striped_texture_3d
 	gsKit_prim_triangle_texture_3d
 	gskit_prim_list_sprite_texture_uv_3d
+	gskit_prim_list_sprite_texture_uv_flat
+	gskit_prim_list_sprite_texture_uv_flat_color
 	gsKit_prim_triangle_goraud_texture_3d
 	gsKit_prim_list_triangle_goraud_texture_uv_3d
 	gsKit_prim_list_triangle_goraud_texture_stq_3d

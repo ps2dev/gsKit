@@ -1048,6 +1048,13 @@ struct gsPrimUVPoint
 };
 typedef struct gsPrimUVPoint GSPRIMUVPOINT;
 
+struct gsPrimUVPointFlat
+{
+	gs_uv uv;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimUVPointFlat GSPRIMUVPOINTFLAT;
+
 struct gsPrimSTQPoint
 {
 	gs_rgbaq rgbaq;
