@@ -253,29 +253,28 @@ void gsKit_remove_hsync_handler(int callback_id)
 #endif
 
 #if F_gsKit_clear
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
 {
 	u8 PrevZState;
 	u8 strips;
 	u8 remain;
+	u8 index;
 	u32 pos;
+	u8 slices = (gsGlobal->Width + 63)/ 64;
+	u32 count = (slices * 2) + 1;
+	u128 flat_content[count];
 
 	PrevZState = gsGlobal->Test->ZTST;
 	gsKit_set_test(gsGlobal, GS_ZTEST_OFF);
-	strips = gsGlobal->Width / 64;
-	remain = gsGlobal->Width % 64;
-	pos = 0;
 
-	strips++;
-	while(strips-- > 0)
+	flat_content[0] = (u128)rgbaq_to_RGBAQ(color).rgbaq;
+	for (index = 0; index < slices; index++)
 	{
-		gsKit_prim_sprite(gsGlobal, pos, 0, pos + 64, gsGlobal->Height, 0, color);
-		pos += 64;
+		flat_content[index * 2 + 1] = vertex_to_XYZ2(gsGlobal, index * 64, 0, 0).xyz2;
+		flat_content[index * 2 + 2] = (u128)vertex_to_XYZ2(gsGlobal, MIN((index + 1) * 64, gsGlobal->Width) , gsGlobal->Height, 0).xyz2;
 	}
-	if(remain > 0)
-	{
-		gsKit_prim_sprite(gsGlobal, pos, 0, remain + pos, gsGlobal->Height, 0, color);
-	}
+	gsKit_prim_list_sprite_flat(gsGlobal, count, flat_content);
 
 	gsGlobal->Test->ZTST = PrevZState;
 	gsKit_set_test(gsGlobal, 0);
