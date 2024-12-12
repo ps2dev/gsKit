@@ -290,6 +290,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		target_link_libraries(${targetname}
 			${GSKIT_SAMPLE_LIBS}
 		)
+		file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/${targetname}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR} FILES_MATCHING REGEX "\\.(bmp|dat|fnt|jpg|png|ppm|raw|s|tiff)$")
 	endmacro (add_executable_example)
 
 	set(GSKIT_SAMPLE_DIRS "")
