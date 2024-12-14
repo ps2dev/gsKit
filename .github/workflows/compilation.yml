@@ -11,11 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     container: ps2dev/ps2sdk-ports:latest
     steps:
-    - uses: actions/checkout@v4
-
     - name: Install dependencies
       run: |
         apk add build-base git cmake
+
+    - uses: actions/checkout@v4
+
+    - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git fetch --prune --unshallow
 
     - name: Compile project with everything enabled
       env:
