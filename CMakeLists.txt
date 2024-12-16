@@ -25,24 +25,52 @@ endif()
 
 set(INSTALL_LIB_DIR "${GSKIT}/lib" CACHE PATH "Installation directory for libraries")
 set(INSTALL_INC_DIR "${GSKIT}/include" CACHE PATH "Installation directory for headers")
+set(INSTALL_PKGCONFIG_DIR "${GSKIT}/lib/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
 set(GSKIT_EXTERNAL_LIBS "")
+set(GSKIT_EXTERNAL_INCLUDES "")
+
+set(CUR_GIT_TAG v0.0.0)
+find_package(Git)
+if(GIT_FOUND)
+	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+		execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		OUTPUT_VARIABLE TMP_GIT_TAG
+		RESULT_VARIABLE TMP_RES
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+		if(TMP_RES EQUAL "0")
+			set(CUR_GIT_TAG ${TMP_GIT_TAG})
+		endif()
+	endif()
+endif()
+
+string(REGEX REPLACE "^v" "" CUR_VERSION ${CUR_GIT_TAG})
 
 find_library(LIBJPEG_LIBRARY NAMES jpeg)
 find_path(LIBJPEG_INCLUDE_DIR NAMES jpeglib.h)
 
 if(LIBJPEG_LIBRARY)
 	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBJPEG_LIBRARY})
-	include_directories(${LIBJPEG_INCLUDE_DIR})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBJPEG_INCLUDE_DIR})
 	add_definitions(-DHAVE_LIBJPEG)
+endif()
+
+find_library(LIBLZMA_LIBRARY NAMES lzma)
+find_path(LIBLZMA_INCLUDE_DIR NAMES lzma.h)
+
+if(LIBLZMA_LIBRARY)
+	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBLZMA_LIBRARY})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBLZMA_INCLUDE_DIR})
+	add_definitions(-DHAVE_LIBLZMA)
 endif()
 
 find_library(LIBTIFF_LIBRARY NAMES tiff)
 find_path(LIBTIFF_INCLUDE_DIR NAMES tiff.h)
 
 if(LIBTIFF_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS lzma ${LIBTIFF_LIBRARY})
-	include_directories(${LIBTIFF_INCLUDE_DIR})
+	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBTIFF_LIBRARY})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBTIFF_INCLUDE_DIR})
 	add_definitions(-DHAVE_LIBTIFF)
 endif()
 
@@ -51,7 +79,7 @@ find_path(LIBZ_INCLUDE_DIR NAMES zlib.h)
 
 if(LIBZ_LIBRARY)
 	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBZ_LIBRARY})
-	include_directories(${LIBZ_INCLUDE_DIR})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBZ_INCLUDE_DIR})
 	add_definitions(-DHAVE_ZLIB)
 endif()
 
@@ -60,9 +88,11 @@ find_path(LIBPNG_INCLUDE_DIR NAMES png.h)
 
 if(LIBPNG_LIBRARY)
 	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBPNG_LIBRARY})
-	include_directories(${LIBPNG_INCLUDE_DIR})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBPNG_INCLUDE_DIR})
 	add_definitions(-DHAVE_LIBPNG)
 endif()
+
+include_directories(${GSKIT_EXTERNAL_INCLUDES})
 
 macro (add_object_library_macros objlistvar sourcefile)
 	set(objects_list "")
@@ -269,6 +299,18 @@ add_library(gskit_toolkit STATIC
 
 target_include_directories(gskit_toolkit PUBLIC ee/toolkit/include)
 
+set(PCKEY_NAME gsKit)
+set(PCKEY_DESCRIPTION "gsKit graphics library for Sony Playstation 2")
+set(PCKEY_VERSION ${CUR_VERSION})
+set(PCKEY_REQUIRES)
+set(PCKEY_LIBS "-L${INSTALL_LIB_DIR} -lgskit -ldmakit -lgskit_toolkit")
+foreach(_ITEM ${GSKIT_EXTERNAL_LIBS})
+	set(PCKEY_LIBS "${PCKEY_LIBS} ${_ITEM}")
+endforeach()
+set(PCKEY_CFLAGS "-I${INSTALL_INC_DIR}")
+set(GSKIT_PC ${CMAKE_CURRENT_BINARY_DIR}/gsKit.pc)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/gsKit.pc.cmakein
+	${GSKIT_PC} @ONLY)
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
 	install(TARGETS gskit dmakit gskit_toolkit
@@ -281,6 +323,9 @@ if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
 		DESTINATION "${INSTALL_INC_DIR}"
 		 FILES_MATCHING PATTERN "*.h"
 	)
+endif()
+if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+	install(FILES ${GSKIT_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 endif()
 
 if(NOT SKIP_BUILD_EXAMPLES)
