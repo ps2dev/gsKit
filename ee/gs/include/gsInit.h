@@ -1015,9 +1015,18 @@ typedef union {
 } __attribute__((packed)) gs_rgbaq;
 
 typedef union {
+	u64 uv;
+	struct {
+		u16 u;
+		u16 v;
+		u32 notused;
+	};
+} __attribute__((packed)) gs_uv_t;
+
+typedef union {
 	u128 uv;
 	struct {
-		u64 coord;
+		gs_uv_t coord;
 		u64 tag;
 	};
 } __attribute__((packed)) gs_uv;

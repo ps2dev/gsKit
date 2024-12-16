@@ -212,7 +212,8 @@ static inline gs_uv vertex_to_UV(const GSTEXTURE *Texture, float u, float v)
 	int iu = gsKit_float_to_int_u(Texture, u);
 	int iv = gsKit_float_to_int_v(Texture, v);
 
-	res.coord = GS_SETREG_UV(iu, iv);
+	res.coord.u = iu;
+	res.coord.v = iv;
 	res.tag = GS_UV;
 
 	return res;
