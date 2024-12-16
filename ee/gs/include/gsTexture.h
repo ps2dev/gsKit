@@ -127,6 +127,8 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
                                                                        u64 color);
 
 void gskit_prim_list_sprite_texture_uv_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const GSPRIMUVPOINT *vertices);
+void gskit_prim_list_sprite_texture_uv_flat(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, int count, const u128 *flatContent);
+void gskit_prim_list_sprite_texture_uv_flat_color(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, gs_rgbaq color, int count, const GSPRIMUVPOINTFLAT *vertices);
 
 void gsKit_prim_triangle_texture_3d(GSGLOBAL *gsGlobal, GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,

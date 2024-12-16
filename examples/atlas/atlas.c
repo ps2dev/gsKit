@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
 	gsKit_set_clamp(gsGlobal, GS_CMODE_CLAMP);
 	
-	GSPRIMUVPOINT *verts = (GSPRIMUVPOINT*)malloc(sizeof(GSPRIMUVPOINT) * totalVertices);
+	GSPRIMUVPOINTFLAT *verts = (GSPRIMUVPOINTFLAT*)malloc(sizeof(GSPRIMUVPOINTFLAT) * totalVertices);
 	for (int i = 0; i < TOTAL_RUNNERS_SCREEN; i++) {
 		int line = i / RUNNER_PER_LINE_SCREEN;
 		int col = i % RUNNER_PER_LINE_SCREEN;
@@ -92,10 +92,7 @@ int main(int argc, char *argv[])
 		int y1 = y0 + RUNNER_HEIGHT;
 
 		verts[i*2].xyz2 = vertex_to_XYZ2(gsGlobal, x0, y0, 0);
-		verts[i*2].rgbaq = color;
-
 		verts[i*2+1].xyz2 = vertex_to_XYZ2(gsGlobal, x1, y1, 0);
-		verts[i*2+1].rgbaq = color;
 	}
 
 	while(1)
@@ -108,7 +105,7 @@ int main(int argc, char *argv[])
 		}
 
 		gsKit_clear(gsGlobal, White);
-		gskit_prim_list_sprite_texture_uv_3d(gsGlobal, &atlas, totalVertices, verts);
+		gskit_prim_list_sprite_texture_uv_flat_color(gsGlobal, &atlas, color, totalVertices, verts);
 		
 		gsKit_queue_exec(gsGlobal);
 		gsKit_sync_flip(gsGlobal);

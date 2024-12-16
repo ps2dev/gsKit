@@ -268,6 +268,89 @@ void gsKit_prim_sprite(GSGLOBAL *gsGlobal, float x1, float y1, float x2, float y
 }
 #endif
 
+#if F_gsKit_prim_list_sprite_gouraud_3d
+void gsKit_prim_list_sprite_gouraud_3d(GSGLOBAL *gsGlobal, int count, const GSPRIMPOINT *vertices)
+{
+	u64* p_store;
+	u64* p_data;
+	int qsize = (count*2) + 1;
+	int bytes = count * sizeof(GSPRIMPOINT);
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 1, 0, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				0, gsGlobal->PrimContext, 0);
+
+	*p_data++ = GS_PRIM;
+
+	memcpy(p_data, vertices, bytes);
+}
+#endif
+
+#if F_gsKit_prim_list_sprite_flat_color
+void gsKit_prim_list_sprite_flat_color(GSGLOBAL *gsGlobal, gs_rgbaq color, int count, const gs_xyz2 *vertices)
+{
+	u64* p_store;
+	u64* p_data;
+	int qsize = count + 2;
+	int bytes = count * sizeof(gs_xyz2);
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				0, gsGlobal->PrimContext, 0);
+
+	*p_data++ = GS_PRIM;
+
+	// Copy color
+	memcpy(p_data, &color, sizeof(gs_rgbaq));
+	p_data += 2; // Advance 2 u64, which is 16 bytes the gs_rgbaq struct size
+	// Copy vertices
+	memcpy(p_data, vertices, bytes);
+}
+#endif
+
+#if F_gsKit_prim_list_sprite_flat
+void gsKit_prim_list_sprite_flat(GSGLOBAL *gsGlobal, int count, const u128 *flatContent)
+{
+	u64* p_store;
+	u64* p_data;
+	int qsize = count + 1;
+	int bytes = count * sizeof(u128);
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_SPRITE, 0, 0, gsGlobal->PrimFogEnable,
+				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
+				0, gsGlobal->PrimContext, 0);
+
+	*p_data++ = GS_PRIM;
+
+	memcpy(p_data, flatContent, bytes);
+}
+#endif
+
+
 #if F_gsKit_prim_triangle_3d
 void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x2, float y2, int iz2,

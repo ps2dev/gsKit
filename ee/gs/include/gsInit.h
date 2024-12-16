@@ -970,18 +970,25 @@ typedef union {
 		u16 y;
 		u32 z;
 	};
-} __attribute__((packed,aligned(8))) gs_xyz_t;
+} __attribute__((packed)) gs_xyz_t;
 
 typedef union {
-	u64 rgbaq;
+	u32 rgba;
 	struct {
 		u8 r;
 		u8 g;
 		u8 b;
 		u8 a;
+	};
+} __attribute__((packed)) gs_rgba_t;
+
+typedef union {
+	u64 rgbaq;
+	struct {
+		gs_rgba_t components;
 		float q;
 	};
-} __attribute__((packed,aligned(8))) gs_rgbaq_t;
+} __attribute__((packed)) gs_rgbaq_t;
 
 typedef union {
     u64 st;
@@ -989,7 +996,7 @@ typedef union {
 		float s;
 		float t;
     };
-} __attribute__((packed, aligned(8))) gs_stq_t;
+} __attribute__((packed)) gs_stq_t;
 
 typedef union {
 	u128 xyz2;
@@ -997,7 +1004,7 @@ typedef union {
 		gs_xyz_t xyz;
 		u64 tag;
 	};
-} __attribute__((packed,aligned(8))) gs_xyz2;
+} __attribute__((packed)) gs_xyz2;
 
 typedef union {
 	u128 rgbaq;
@@ -1005,15 +1012,24 @@ typedef union {
 		gs_rgbaq_t color;
 		u64 tag;
 	};
-} __attribute__((packed,aligned(8))) gs_rgbaq;
+} __attribute__((packed)) gs_rgbaq;
+
+typedef union {
+	u64 uv;
+	struct {
+		u16 u;
+		u16 v;
+		u32 notused;
+	};
+} __attribute__((packed)) gs_uv_t;
 
 typedef union {
 	u128 uv;
 	struct {
-		u64 coord;
+		gs_uv_t coord;
 		u64 tag;
 	};
-} __attribute__((packed,aligned(8))) gs_uv;
+} __attribute__((packed)) gs_uv;
 
 typedef union {
 	u128 stq;
@@ -1021,7 +1037,7 @@ typedef union {
 		gs_stq_t st;
 		u64 tag;
 	};
-} __attribute__((packed, aligned(8))) gs_stq;
+} __attribute__((packed)) gs_stq;
 
 /// gsKit Point Primitive Structure
 /// This structure holds all relevant data for any
@@ -1040,6 +1056,13 @@ struct gsPrimUVPoint
 	gs_xyz2 xyz2;
 };
 typedef struct gsPrimUVPoint GSPRIMUVPOINT;
+
+struct gsPrimUVPointFlat
+{
+	gs_uv uv;
+	gs_xyz2 xyz2;
+};
+typedef struct gsPrimUVPointFlat GSPRIMUVPOINTFLAT;
 
 struct gsPrimSTQPoint
 {
