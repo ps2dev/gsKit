@@ -230,4 +230,16 @@ static inline gs_stq vertex_to_STQ(float s, float t)
 	return res;
 }
 
+static inline gs_texclut postion_to_TEXCLUT(u8 cbw, u8 cou, u8 cov)
+{
+	gs_texclut res;
+
+	res.specification.cbw = cbw;
+	res.specification.cou = cou;
+	res.specification.cov = cov;
+	res.tag = GS_TEXCLUT;
+
+	return res;
+}
+
 #endif /* __GSINLINE_H__ */

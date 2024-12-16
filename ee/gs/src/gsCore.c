@@ -411,6 +411,22 @@ void gsKit_set_texfilter(GSGLOBAL *gsGlobal, u8 FilterMode)
 }
 #endif
 
+#if F_gsKit_set_texclut
+void gsKit_set_texclut(GSGLOBAL *gsGlobal, gs_texclut texClut)
+{
+	u64 *p_data;
+	u64 *p_store;
+
+	p_data = p_store = gsKit_heap_alloc(gsGlobal, 1, 16, GIF_AD);
+
+	*p_data++ = GIF_TAG_AD(1);
+	*p_data++ = GIF_AD;
+
+	memcpy(p_data, &texClut, sizeof(gs_texclut));
+	p_data += 2; // Advance 2 u64, which is 16 bytes the gs_texclut struct size
+}
+#endif
+
 #if F_gsKit_set_dither_matrix
 void gsKit_set_dither_matrix(GSGLOBAL *gsGlobal)
 {
