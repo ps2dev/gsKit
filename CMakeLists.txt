@@ -352,6 +352,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		bigtex
 		coverflow
 		clut
+		clutcsm
 		cube
 		fb
 		fhdbg
