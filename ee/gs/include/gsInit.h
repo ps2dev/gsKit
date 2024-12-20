@@ -959,6 +959,7 @@ struct gsTexture
 	u32 Vram;		///< GS VRAM Memory Pointer
 	u32 VramClut;	///< GS VRAM CLUT Memory Pointer
 	u32 Filter;		///< NEAREST or LINEAR
+	u8 ClutStorageMode;	///< CLUT Storage Mode
 	u8	Delayed;	///< Delay Texture Upload To VRAM
 };
 typedef struct gsTexture GSTEXTURE;
@@ -1038,6 +1039,25 @@ typedef union {
 		u64 tag;
 	};
 } __attribute__((packed)) gs_stq;
+
+typedef union {
+	u64 position;
+	struct {
+		u32 cbw : 6;  // Bits 0-5 (6 bits)
+		u32 cou : 6;  // Bits 6-11 (6 bits)
+		u32 cov : 10; // Bits 12-21 (10 bits)
+		u32 unused_bits: 10; // Bits 22-31 (10 bits)
+		u32 unused; // Remaining bits (64 - 22 = 42 bits)
+	} __attribute__((packed)); // Pack the structure to avoid padding
+} __attribute__((packed)) gs_textclut_t;
+
+typedef union {
+	u128 texclut;
+	struct {
+		gs_textclut_t specification;
+		u64 tag;
+	};
+} __attribute__((packed)) gs_texclut;
 
 /// gsKit Point Primitive Structure
 /// This structure holds all relevant data for any

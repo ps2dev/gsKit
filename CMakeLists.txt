@@ -131,6 +131,7 @@ add_object_library_macros(GS_CORE_OBJS ee/gs/src/gsCore.c
 	gsKit_set_clamp
 	gsKit_set_primalpha
 	gsKit_set_texfilter
+	gsKit_set_texclut
 	gsKit_set_dither_matrix
 	gsKit_set_dither
 	gsKit_set_drawfield
@@ -351,6 +352,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		bigtex
 		coverflow
 		clut
+		clutcsm
 		cube
 		fb
 		fhdbg
