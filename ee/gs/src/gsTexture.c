@@ -522,6 +522,27 @@ void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 }
 #endif
 
+#if F_gsKit_renderToTexture
+void gsKit_renderToTexture(GSGLOBAL *gsGlobal, GSTEXTURE *texture)
+{
+	u64 *p_data;
+	u64 *p_store;
+	int qsize = 1;
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	*p_data++ = GS_SETREG_FRAME_1(texture->Vram / 8192,
+                                 texture->Width / 64, texture->PSM, 0 );
+	*p_data++ = GS_FRAME_1;
+}
+#endif
+
 #if F_gsKit_prim_sprite_striped_texture_3d
 void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture,
 				float x1, float y1, int iz1, float u1, float v1,

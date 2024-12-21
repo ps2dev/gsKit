@@ -111,6 +111,7 @@ add_object_library_macros(GS_CORE_OBJS ee/gs/src/gsCore.c
 	gsKit_vram_clear
 	gsKit_sync_flip
 	gsKit_setactive
+	gsKit_renderToScreen
 	gsKit_finish
 	gsKit_lock_buffer
 	gsKit_unlock_buffer
@@ -216,6 +217,7 @@ add_object_library_macros(GS_TEXTURE_OBJS ee/gs/src/gsTexture.c
 	gsKit_texture_send
 	gsKit_texture_send_inline
 	gsKit_texture_upload
+	gsKit_renderToTexture
 	gsKit_prim_sprite_texture_3d
 	gsKit_prim_sprite_striped_texture_3d
 	gsKit_prim_triangle_texture_3d
@@ -361,6 +363,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		modetest
 		modetesthires
 		pixelperfect
+		rendertexture
 		texstream
 		textures
 		vsync

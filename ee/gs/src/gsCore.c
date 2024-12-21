@@ -120,6 +120,27 @@ void gsKit_setactive(GSGLOBAL *gsGlobal)
 }
 #endif
 
+#if F_gsKit_renderToScreen
+void gsKit_renderToScreen(GSGLOBAL *gsGlobal)
+{
+	u64 *p_data;
+	u64 *p_store;
+	int qsize = 1;
+
+	p_store = p_data = gsKit_heap_alloc(gsGlobal, qsize, (qsize*16), GIF_AD);
+
+	if(p_store == gsGlobal->CurQueue->last_tag)
+	{
+		*p_data++ = GIF_TAG_AD(qsize);
+		*p_data++ = GIF_AD;
+	}
+
+	*p_data++ = GS_SETREG_FRAME_1( gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
+                                 gsGlobal->Width / 64, gsGlobal->PSM, 0 );
+	*p_data++ = GS_FRAME_1;
+}
+#endif
+
 #if F_gsKit_finish
 void gsKit_finish(void)
 {

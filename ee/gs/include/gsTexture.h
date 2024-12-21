@@ -117,6 +117,7 @@ void gsKit_texture_to_psm16(GSTEXTURE *Texture);
 void gsKit_texture_send(u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_send_inline(GSGLOBAL *gsGlobal, u32 *mem, int width, int height, u32 tbp, u32 psm, u32 tbw, u8 clut);
 void gsKit_texture_upload(GSGLOBAL *gsGlobal, GSTEXTURE *Texture);
+void gsKit_renderToTexture(GSGLOBAL *gsGlobal, GSTEXTURE *texture);
 
 void gsKit_prim_sprite_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *Texture, float x1, float y1, int iz1, float u1, float v1,
                                                                        float x2, float y2, int iz2, float u2, float v2,

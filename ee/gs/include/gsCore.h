@@ -128,6 +128,9 @@ void gsKit_switch_context(GSGLOBAL *gsGlobal);
 /// Sets Your Active Framebuffer
 void gsKit_setactive(GSGLOBAL *gsGlobal);
 
+/// Set the render target to the current screen buffer
+void gsKit_renderToScreen(GSGLOBAL *gsGlobal);
+
 /// Blocks until FINISH is triggered
 void gsKit_finish(void);
 
