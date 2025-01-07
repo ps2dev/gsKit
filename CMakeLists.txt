@@ -125,6 +125,8 @@ add_object_library_macros(GS_CORE_OBJS ee/gs/src/gsCore.c
 	gsKit_remove_vsync_handler
 	gsKit_add_hsync_handler
 	gsKit_remove_hsync_handler
+	gsKit_add_finish_handler
+	gsKit_remove_finish_handler
 	gsKit_clear
 	gsKit_set_scissor
 	gsKit_set_test
