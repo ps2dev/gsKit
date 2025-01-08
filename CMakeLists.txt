@@ -30,6 +30,9 @@ set(INSTALL_PKGCONFIG_DIR "${GSKIT}/lib/pkgconfig" CACHE PATH "Installation dire
 set(GSKIT_EXTERNAL_LIBS "")
 set(GSKIT_EXTERNAL_INCLUDES "")
 
+# Enable interprocedural optimization LTO
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+
 set(CUR_GIT_TAG v0.0.0)
 find_package(Git)
 if(GIT_FOUND)
