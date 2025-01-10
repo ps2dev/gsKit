@@ -366,6 +366,7 @@ if(NOT SKIP_BUILD_EXAMPLES)
 		modetest
 		modetesthires
 		pixelperfect
+		random-color-background
 		texstream
 		textures
 		vsync
