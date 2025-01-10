@@ -30,6 +30,9 @@ set(INSTALL_PKGCONFIG_DIR "${GSKIT}/lib/pkgconfig" CACHE PATH "Installation dire
 set(GSKIT_EXTERNAL_LIBS "")
 set(GSKIT_EXTERNAL_INCLUDES "")
 
+# Enable interprocedural optimization LTO
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+
 set(CUR_GIT_TAG v0.0.0)
 find_package(Git)
 if(GIT_FOUND)
@@ -125,6 +128,8 @@ add_object_library_macros(GS_CORE_OBJS ee/gs/src/gsCore.c
 	gsKit_remove_vsync_handler
 	gsKit_add_hsync_handler
 	gsKit_remove_hsync_handler
+	gsKit_add_finish_handler
+	gsKit_remove_finish_handler
 	gsKit_clear
 	gsKit_set_scissor
 	gsKit_set_test

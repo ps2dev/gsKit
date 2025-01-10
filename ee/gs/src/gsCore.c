@@ -252,6 +252,34 @@ void gsKit_remove_hsync_handler(int callback_id)
 }
 #endif
 
+#if F_gsKit_add_finish_handler
+int gsKit_add_finish_handler(int (*finish_callback)())
+{
+	int callback_id;
+
+	DIntr();
+	callback_id = AddIntcHandler(INTC_GS, finish_callback, 0);
+	EnableIntc(INTC_GS);
+	// Unmask Finish interrupt
+	GsPutIMR(GsGetIMR() & ~0x0200);
+	EIntr();
+
+	return callback_id;
+}
+#endif
+
+#if F_gsKit_remove_finish_handler
+void gsKit_remove_finish_handler(int callback_id)
+{
+	DIntr();
+	// Mask HSync interrupt
+	GsPutIMR(GsGetIMR() | 0x0200);
+	DisableIntc(INTC_GS);
+	RemoveIntcHandler(INTC_GS, callback_id);
+	EIntr();
+}
+#endif
+
 #if F_gsKit_clear
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 void gsKit_clear(GSGLOBAL *gsGlobal, u64 color)
