@@ -364,7 +364,7 @@ int gsKit_hires_set_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex)
 #endif
 
 #if F_gsKit_hires_init_screen
-static int hsync_callback()
+static int hsync_callback(int cause)
 {
 	u32 iPass;
 

@@ -141,19 +141,19 @@ void gsKit_hsync_wait(void);
 void gsKit_vsync_nowait(void);
 
 /// Installs a vsync interrupt handler (vblank_start)
-int gsKit_add_vsync_handler(int (*vsync_callback)());
+int gsKit_add_vsync_handler(int (*vsync_callback)(int));
 
 /// Removes a vsync interrupt handler
 void gsKit_remove_vsync_handler(int callback_id);
 
 /// Installs a hsync interrupt handler (hblank_start)
-int gsKit_add_hsync_handler(int (*hsync_callback)());
+int gsKit_add_hsync_handler(int (*hsync_callback)(int));
 
 /// Removes a hsync interrupt handler
 void gsKit_remove_hsync_handler(int callback_id);
 
 /// Installs a finish interrupt handler
-int gsKit_add_finish_handler(int (*finish_callback)());
+int gsKit_add_finish_handler(int (*finish_callback)(int));
 
 /// Removes a finish interrupt handler
 void gsKit_remove_finish_handler(int callback_id);
