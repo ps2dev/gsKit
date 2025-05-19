@@ -32,7 +32,7 @@ float VHeight;
 volatile int vsync_num = 0;
 int frame_num = 0;
 
-static int vsync_callback(void)
+static int vsync_callback(int cause)
 {
     gsKit_display_buffer(gsGlobal); // working buffer gets displayed
 

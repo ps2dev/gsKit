@@ -6,7 +6,7 @@
 # Licenced under Academic Free License version 2.0
 # Review gsKit README & LICENSE files for further details.
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.0...3.12)
 
 project(gsKit)
 
@@ -337,7 +337,7 @@ endif()
 if(NOT SKIP_BUILD_EXAMPLES)
 	set(CMAKE_EXECUTABLE_SUFFIX .elf)
 	set(GSKIT_SAMPLE_LIBS "")
-	list(APPEND GSKIT_SAMPLE_LIBS gskit dmakit gskit_toolkit ${GSKIT_EXTERNAL_LIBS})
+	list(APPEND GSKIT_SAMPLE_LIBS gskit_toolkit gskit dmakit ${GSKIT_EXTERNAL_LIBS})
 
 	macro (add_executable_example targetname)
 		add_executable(${targetname}
