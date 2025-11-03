@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ps2dev/ps2sdk-ports:latest
+    container: ghcr.io/ps2dev/ps2sdk-ports:latest
     steps:
     - name: Install dependencies
       run: |
@@ -31,7 +31,7 @@ jobs:
     
     - name: Get short SHA
       id: slug
-      run: echo "sha8=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
+      run: printf '%s\n' "sha8=$(printf '%s\n' ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
 
     - name: Upload artifacts
       if: ${{ success() }}
