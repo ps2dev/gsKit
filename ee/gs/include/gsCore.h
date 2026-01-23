@@ -82,6 +82,14 @@ struct gsVertex
 };
 typedef struct gsVertex GSVERTEX;
 
+/// Flip mode for gsKit_hires_flip_ext
+typedef enum {
+    GSFLIP_DIRECT = 0,       ///< Flip immediately, no vsync wait
+    GSFLIP_VSYNC = 1,        ///< Wait for vsync before flipping
+    GSFLIP_RATE_LIMIT_1 = 2, ///< Limit to 60fps (1 vsync per frame)
+    GSFLIP_RATE_LIMIT_2 = 3  ///< Limit to 30fps (2 vsyncs per frame)
+} GSFLIP_MODE;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -165,6 +165,7 @@ add_object_library_macros(GS_HIRES_OBJS ee/gs/src/gsHires.c
 	_gsKit_create_passes
 	gsKit_hires_sync
 	gsKit_hires_flip
+	gsKit_hires_flip_ext
 	gsKit_hires_prepare_bg
 	gsKit_hires_set_bg
 	gsKit_hires_init_screen

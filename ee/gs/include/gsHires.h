@@ -28,6 +28,9 @@ void gsKit_hires_sync(GSGLOBAL *gsGlobal);
 /// Flips Draw Queue
 void gsKit_hires_flip(GSGLOBAL *gsGlobal);
 
+/// Flips Draw Queue with specified flip mode
+void gsKit_hires_flip_ext(GSGLOBAL *gsGlobal, GSFLIP_MODE mode);
+
 /// Converts PSM and interlacing for use as background image
 void gsKit_hires_prepare_bg(GSGLOBAL *gsGlobal, GSTEXTURE * tex);
 
