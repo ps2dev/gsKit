@@ -261,7 +261,34 @@ void gsKit_hires_sync(GSGLOBAL *gsGlobal)
 #if F_gsKit_hires_flip
 void gsKit_hires_flip(GSGLOBAL *gsGlobal)
 {
+	gsKit_hires_flip_ext(gsGlobal, GSFLIP_DIRECT);
+}
+#endif
+
+#if F_gsKit_hires_flip_ext
+// State tracking for rate limiting
+static u32 __last_flip_vsync_count = 0;
+
+void gsKit_hires_flip_ext(GSGLOBAL *gsGlobal, GSFLIP_MODE mode)
+{
 	u32 iY;
+	u32 vsync_end;
+
+	// Handle vsync waiting based on mode
+	switch (mode) {
+		case GSFLIP_DIRECT:       vsync_end = __vsync_count; break;
+		case GSFLIP_VSYNC:        vsync_end = __vsync_count + 1; break;
+		case GSFLIP_RATE_LIMIT_1: vsync_end = __last_flip_vsync_count + 1; break;
+		case GSFLIP_RATE_LIMIT_2: vsync_end = __last_flip_vsync_count + 2; break;
+	}
+
+	// Wait for required vsyncs
+	while (__vsync_count < vsync_end) {
+		WaitSema(__sema_vsync_id);
+	}
+
+	// Update last flip vsync count
+	__last_flip_vsync_count = __vsync_count;
 
 	// HACK: The start of the first displayed line
 	// this is needed by the hsync interrupt but must be
