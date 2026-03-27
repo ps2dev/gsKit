@@ -357,8 +357,8 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x3, float y3, int iz3, u64 color)
 {
 	u64* p_data;
-	int qsize = 3;
-	int bsize = 48;
+	int qsize = 4;
+	int bsize = 64;
 
 	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
 	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
