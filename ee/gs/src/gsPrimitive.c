@@ -374,7 +374,7 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
     *p_data++ = GIF_TAG_AD(5);
 	*p_data++ = GIF_AD;
 
-	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 1, 0, gsGlobal->PrimFogEnable,
+	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 0, 0, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				0, gsGlobal->PrimContext, 0) ;
     *p_data++ = GS_PRIM;
