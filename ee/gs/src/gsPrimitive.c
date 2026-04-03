@@ -357,8 +357,8 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 						float x3, float y3, int iz3, u64 color)
 {
 	u64* p_data;
-	int qsize = 3;
-	int bsize = 48;
+	int qsize = 5;
+	int bsize = 80;
 
 	int ix1 = gsKit_float_to_int_x(gsGlobal, x1);
 	int iy1 = gsKit_float_to_int_y(gsGlobal, y1);
@@ -369,19 +369,27 @@ void gsKit_prim_triangle_3d(GSGLOBAL *gsGlobal, float x1, float y1, int iz1,
 	int ix3 = gsKit_float_to_int_x(gsGlobal, x3);
 	int iy3 = gsKit_float_to_int_y(gsGlobal, y3);
 
-	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GSKIT_GIF_PRIM_TRIANGLE);
+	p_data = gsKit_heap_alloc(gsGlobal, qsize, bsize, GIF_AD);
 
-	*p_data++ = GIF_TAG_TRIANGLE(0);
-	*p_data++ = GIF_TAG_TRIANGLE_REGS;
+    *p_data++ = GIF_TAG_AD(5);
+	*p_data++ = GIF_AD;
 
 	*p_data++ = GS_SETREG_PRIM( GS_PRIM_PRIM_TRIANGLE, 0, 0, gsGlobal->PrimFogEnable,
 				gsGlobal->PrimAlphaEnable, gsGlobal->PrimAAEnable,
 				0, gsGlobal->PrimContext, 0) ;
+    *p_data++ = GS_PRIM;
 
 	*p_data++ = color;
-	*p_data++ = GS_SETREG_XYZ2( ix1, iy1, iz1 );
-	*p_data++ = GS_SETREG_XYZ2( ix2, iy2, iz2 );
-	*p_data++ = GS_SETREG_XYZ2( ix3, iy3, iz3 );
+    *p_data++ = GS_RGBAQ;
+
+	*p_data++ = GS_SETREG_XYZ2(ix1, iy1, iz1);
+    *p_data++ = GS_XYZ2;
+	
+    *p_data++ = GS_SETREG_XYZ2(ix2, iy2, iz2);
+    *p_data++ = GS_XYZ2;
+	
+    *p_data++ = GS_SETREG_XYZ2(ix3, iy3, iz3);
+    *p_data++ = GS_XYZ2;
 }
 #endif
 
