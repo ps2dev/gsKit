@@ -13,7 +13,7 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        apk add build-base git cmake
+        apk add build-base git cmake pkgconf
 
     - uses: actions/checkout@v4
 
