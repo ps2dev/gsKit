@@ -29,69 +29,87 @@ set(INSTALL_PKGCONFIG_DIR "${GSKIT}/lib/pkgconfig" CACHE PATH "Installation dire
 
 set(GSKIT_EXTERNAL_LIBS "")
 set(GSKIT_EXTERNAL_INCLUDES "")
+set(GSKIT_EXTERNAL_REQUIRES "")
 
 # Enable interprocedural optimization LTO
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
+# Prepare git metadata
 set(CUR_GIT_TAG v0.0.0)
+set(CUR_GIT_COMMIT_HASH "")
+set(CUR_GIT_COMMIT_TIMESTAMP "")
+set(CUR_GIT_REFS "")
+set(CUR_GIT_REMOTE_URL "")
 find_package(Git)
 if(GIT_FOUND)
-	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-		execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		OUTPUT_VARIABLE TMP_GIT_TAG
-		RESULT_VARIABLE TMP_RES
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
-		if(TMP_RES EQUAL "0")
-			set(CUR_GIT_TAG ${TMP_GIT_TAG})
-		endif()
-	endif()
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+        execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE TMP_GIT_TAG
+        RESULT_VARIABLE TMP_RES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        execute_process(COMMAND ${GIT_EXECUTABLE} show --no-patch --format=%H
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE TMP_GIT_COMMIT_HASH
+        RESULT_VARIABLE TMP_RES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(TMP_RES EQUAL "0")
+            set(CUR_GIT_COMMIT_HASH ${TMP_GIT_COMMIT_HASH})
+        endif()
+        execute_process(COMMAND ${GIT_EXECUTABLE} show --no-patch --format=%cd --date=unix
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE TMP_GIT_COMMIT_TIMESTAMP
+        RESULT_VARIABLE TMP_RES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(TMP_RES EQUAL "0")
+            set(CUR_GIT_COMMIT_TIMESTAMP ${TMP_GIT_COMMIT_TIMESTAMP})
+        endif()
+        execute_process(COMMAND ${GIT_EXECUTABLE} show --no-patch "--format=%(decorate:prefix=,suffix=,tag=,separator=%x2C,pointer=%x2C)"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE TMP_GIT_REFS
+        RESULT_VARIABLE TMP_RES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(TMP_RES EQUAL "0")
+            set(CUR_GIT_REFS ${TMP_GIT_REFS})
+        endif()
+        execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE TMP_GIT_REMOTE_URL
+        RESULT_VARIABLE TMP_RES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(TMP_RES EQUAL "0")
+            set(CUR_GIT_REMOTE_URL ${TMP_GIT_REMOTE_URL})
+        endif()
+    endif()
 endif()
 
 string(REGEX REPLACE "^v" "" CUR_VERSION ${CUR_GIT_TAG})
 
-find_library(LIBJPEG_LIBRARY NAMES jpeg)
-find_path(LIBJPEG_INCLUDE_DIR NAMES jpeglib.h)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBJPEG libjpeg)
 
-if(LIBJPEG_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBJPEG_LIBRARY})
-	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBJPEG_INCLUDE_DIR})
+if(LIBJPEG_FOUND)
+	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBJPEG_LIBRARIES})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBJPEG_INCLUDE_DIRS})
+	list(APPEND GSKIT_EXTERNAL_REQUIRES libjpeg)
 	add_definitions(-DHAVE_LIBJPEG)
 endif()
 
-find_library(LIBLZMA_LIBRARY NAMES lzma)
-find_path(LIBLZMA_INCLUDE_DIR NAMES lzma.h)
+pkg_check_modules(LIBTIFF libtiff-4)
 
-if(LIBLZMA_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBLZMA_LIBRARY})
-	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBLZMA_INCLUDE_DIR})
-	add_definitions(-DHAVE_LIBLZMA)
-endif()
-
-find_library(LIBTIFF_LIBRARY NAMES tiff)
-find_path(LIBTIFF_INCLUDE_DIR NAMES tiff.h)
-
-if(LIBTIFF_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBTIFF_LIBRARY})
-	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBTIFF_INCLUDE_DIR})
+if(LIBTIFF_FOUND)
+	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBTIFF_LIBRARIES})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBTIFF_INCLUDE_DIRS})
+	list(APPEND GSKIT_EXTERNAL_REQUIRES libtiff-4)
 	add_definitions(-DHAVE_LIBTIFF)
 endif()
 
-find_library(LIBZ_LIBRARY NAMES z)
-find_path(LIBZ_INCLUDE_DIR NAMES zlib.h)
+pkg_check_modules(LIBPNG libpng)
 
-if(LIBZ_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBZ_LIBRARY})
-	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBZ_INCLUDE_DIR})
-	add_definitions(-DHAVE_ZLIB)
-endif()
-
-find_library(LIBPNG_LIBRARY NAMES png)
-find_path(LIBPNG_INCLUDE_DIR NAMES png.h)
-
-if(LIBPNG_LIBRARY)
-	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBPNG_LIBRARY})
-	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBPNG_INCLUDE_DIR})
+if(LIBPNG_FOUND)
+	list(APPEND GSKIT_EXTERNAL_LIBS ${LIBPNG_LIBRARIES})
+	list(APPEND GSKIT_EXTERNAL_INCLUDES ${LIBPNG_INCLUDE_DIRS})
+	list(APPEND GSKIT_EXTERNAL_REQUIRES libpng)
 	add_definitions(-DHAVE_LIBPNG)
 endif()
 
@@ -306,15 +324,12 @@ add_library(gskit_toolkit STATIC
 
 target_include_directories(gskit_toolkit PUBLIC ee/toolkit/include)
 
-set(PCKEY_NAME gsKit)
+set(PCKEY_NAME ${PROJECT_NAME})
 set(PCKEY_DESCRIPTION "gsKit graphics library for Sony Playstation 2")
 set(PCKEY_VERSION ${CUR_VERSION})
-set(PCKEY_REQUIRES)
-set(PCKEY_LIBS "-L${INSTALL_LIB_DIR} -lgskit -ldmakit -lgskit_toolkit")
-foreach(_ITEM ${GSKIT_EXTERNAL_LIBS})
-	set(PCKEY_LIBS "${PCKEY_LIBS} ${_ITEM}")
-endforeach()
-set(PCKEY_CFLAGS "-I${INSTALL_INC_DIR}")
+set(PCKEY_REQUIRES "${GSKIT_EXTERNAL_REQUIRES}")
+set(PCKEY_LIBS "-lgskit -ldmakit -lgskit_toolkit")
+set(PCKEY_CFLAGS "")
 set(GSKIT_PC ${CMAKE_CURRENT_BINARY_DIR}/gsKit.pc)
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/gsKit.pc.cmakein
 	${GSKIT_PC} @ONLY)

@@ -1,13 +1,19 @@
-prefix=@CMAKE_INSTALL_PREFIX@
-exec_prefix=@CMAKE_INSTALL_PREFIX@
-libdir=@INSTALL_LIB_DIR@
-sharedlibdir=@INSTALL_LIB_DIR@
-includedir=@INSTALL_INC_DIR@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+sharedlibdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+
+exinfo_git_tag=@CUR_GIT_TAG@
+exinfo_git_commit_hash=@CUR_GIT_COMMIT_HASH@
+exinfo_git_commit_timestamp=@CUR_GIT_COMMIT_TIMESTAMP@
+exinfo_git_refs=@CUR_GIT_REFS@
+exinfo_git_remote_url=@CUR_GIT_REMOTE_URL@
 
 Name: @PCKEY_NAME@
 Description: @PCKEY_DESCRIPTION@
 Version: @PCKEY_VERSION@
 
 Requires: @PCKEY_REQUIRES@
-Libs: @PCKEY_LIBS@
-Cflags: @PCKEY_CFLAGS@
+Libs: -L${libdir} @PCKEY_LIBS@
+Cflags: -I${includedir} @PCKEY_CFLAGS@
