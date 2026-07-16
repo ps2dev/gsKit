@@ -21,14 +21,9 @@
 #include <kernel.h>
 #include <osd_config.h>
 #include <rom0_info.h>
+#include <syscallnr.h>
 
 #define posixIODriver { open, close, (int (*)(int, void *, int))read, O_RDONLY }
-
-#if F__gsInit_internal
-u8 __modelSupportsGetGsDxDyOffset;
-#else
-extern u8 __modelSupportsGetGsDxDyOffset;
-#endif
 
 #if F_gsKit_check_rom
 short int gsKit_check_rom(void)
@@ -44,7 +39,6 @@ short int gsKit_check_rom(void)
 
 		//ROMVER string format: VVVVRTYYYYMMDD
 		default_signal = (romname[4] == 'E') ? GS_MODE_PAL : GS_MODE_NTSC;
-		__modelSupportsGetGsDxDyOffset = (20010608 < atoi(&romname[6]));
 	}
 
 	return default_signal;
@@ -220,8 +214,7 @@ static void gsKit_set_buffer_attributes(GSGLOBAL *gsGlobal)
 	// For other video modes, other than NTSC and PAL: if this model supports the GetGsDxDy syscall, get the board-specific offsets.
 	if(gsGlobal->Mode != GS_MODE_NTSC && gsGlobal->Mode != GS_MODE_PAL)
 	{
-		gsKit_check_rom();
-		if(__modelSupportsGetGsDxDyOffset)
+		if(GetSyscallHandler(__NR__GetGsDxDyOffset))
 		{
 			_GetGsDxDyOffset(gsGlobal->Mode, &gs_DX, &gs_DY, &gs_DW, &gs_DH);
 			gsGlobal->StartX += gs_DX;
