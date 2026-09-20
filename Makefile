@@ -9,7 +9,7 @@
 .PHONY: all install
 
 all:
-	cmake -S . -B build -Wno-dev "-DCMAKE_TOOLCHAIN_FILE=${PS2SDK}/ps2dev.cmake" "-DCMAKE_INSTALL_PREFIX=${PS2SDK}/ports" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo "-DCMAKE_PREFIX_PATH=${PS2SDK}/ports"
+	cmake -S . -B build -Wno-dev "-DCMAKE_C_COMPILER=mips64r5900el-ps2-elf-gcc" "-DCMAKE_CXX_COMPILER=mips64r5900el-ps2-elf-g++" "-DCMAKE_TOOLCHAIN_FILE=${PS2DEV}/share/ps2dev.cmake" "-DCMAKE_INSTALL_PREFIX=${PS2SDK}/ports" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo "-DCMAKE_PREFIX_PATH=${PS2SDK}/ports"
 	cmake --build build
 
 install: all
