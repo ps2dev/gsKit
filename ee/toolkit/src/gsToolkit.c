@@ -376,6 +376,20 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		return -1;
 	}
 
+	if (Bitmap.InfoHeader.BitCount == 4 || Bitmap.InfoHeader.BitCount == 8)
+{
+    u32 MaxColors = 1u << Bitmap.InfoHeader.BitCount;
+
+    if (Bitmap.InfoHeader.ColorUsed == 0)
+        Bitmap.InfoHeader.ColorUsed = MaxColors;
+    else if (Bitmap.InfoHeader.ColorUsed > MaxColors)
+    {
+        printf("BMP: Invalid color table size: %u\n", Bitmap.InfoHeader.ColorUsed);
+        fclose(File);
+        return -1;
+    }
+}
+
 	Texture->Width = Bitmap.InfoHeader.Width;
 	Texture->Height = Bitmap.InfoHeader.Height;
 	Texture->Filter = GS_FILTER_NEAREST;
