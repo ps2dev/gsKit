@@ -543,6 +543,8 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 	u64 Tex0;
 
 	u64 Prim;
+	
+	GSTEXTURE nearestTexture;
 
 	int extracount;
 
@@ -603,6 +605,16 @@ void gsKit_prim_sprite_striped_texture_3d(GSGLOBAL *gsGlobal, const GSTEXTURE *T
 	}
 
 	stripcount = ((ix2 - ix1) / 64);
+
+	if (stripcount <= 0)
+{
+    nearestTexture = *Texture;
+    nearestTexture.Filter = GS_FILTER_NEAREST;
+    gsKit_prim_sprite_texture_3d(gsGlobal, &nearestTexture,
+                                x1, y1, iz1, u1, v1,
+                                x2, y2, iz2, u2, v2, color);
+    return;
+}
 
 	if(!(stripcount + extracount))
 	{
