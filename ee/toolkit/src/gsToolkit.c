@@ -488,8 +488,27 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 	Texture->Mem = memalign(128,TextureSize);
 
 	if(Bitmap.InfoHeader.BitCount == 24)
-	{
-		image = memalign(128, FTexSize);
+{
+    u64 RowStride64;
+    u32 RowStride;
+    u8 *SourceRow;
+
+    RowStride64 = (((u64)Texture->Width * 24 + 31) & ~31ULL) >> 3;
+    if (Texture->Width == 0 || Texture->Height == 0 ||
+        RowStride64 == 0 || RowStride64 > FTexSize ||
+        Texture->Height > FTexSize / RowStride64)
+    {
+        printf("BMP: Invalid 24-bit image data size\n");
+        if (Texture->Mem) {
+            free(Texture->Mem);
+            Texture->Mem = NULL;
+        }
+        fclose(File);
+        return -1;
+    }
+    RowStride = (u32)RowStride64;
+
+    image = memalign(128, FTexSize);
 		if (image == NULL) {
 			printf("BMP: Failed to allocate memory\n");
 			if (Texture->Mem) {
@@ -507,11 +526,13 @@ int gsKit_texture_bmp(GSGLOBAL *gsGlobal, GSTEXTURE *Texture, char *Path)
 		fread(image, FTexSize, 1, File);
 		p = (void *)((u32)Texture->Mem);
 		for (y = Texture->Height - 1, cy = 0; y >= 0; y--, cy++) {
-			for (x = 0; x < Texture->Width; x++) {
-				p[(y * Texture->Width + x) * 3 + 2] = image[(cy * Texture->Width + x) * 3 + 0];
-				p[(y * Texture->Width + x) * 3 + 1] = image[(cy * Texture->Width + x) * 3 + 1];
-				p[(y * Texture->Width + x) * 3 + 0] = image[(cy * Texture->Width + x) * 3 + 2];
-			}
+    SourceRow = image + (u32)cy * RowStride;
+
+    for (x = 0; x < Texture->Width; x++) {
+        p[(y * Texture->Width + x) * 3 + 2] = SourceRow[x * 3 + 0];
+        p[(y * Texture->Width + x) * 3 + 1] = SourceRow[x * 3 + 1];
+        p[(y * Texture->Width + x) * 3 + 0] = SourceRow[x * 3 + 2];
+    }
 		}
 		free(image);
 		image = NULL;
