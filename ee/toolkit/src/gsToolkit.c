@@ -988,7 +988,7 @@ GSFONT *gsKit_init_font(u8 type, char *path)
 
 	GSFONT *gsFont = calloc(1,sizeof(GSFONT));
 	gsFont->Texture = calloc(1,sizeof(GSTEXTURE));
-	gsFont->Path = calloc(1,strlen(path));
+	gsFont->Path = calloc(1, strlen(path) + 1);
 	gsFont->Additional=calloc(1,sizeof(short)*256);
 
     gsFont->Type = type;
@@ -996,7 +996,7 @@ GSFONT *gsKit_init_font(u8 type, char *path)
 
     if(gsFont->Type == GSKIT_FTYPE_BMP_DAT || gsFont->Type == GSKIT_FTYPE_PNG_DAT)
 	{
-        gsFont->Path_DAT = calloc(1,strlen(path));
+        gsFont->Path_DAT = calloc(1, strlen(path) + 1);
         strcpy(gsFont->Path_DAT, path);
 
         if(gsFont->Type == GSKIT_FTYPE_BMP_DAT) tmp = strstr(gsFont->Path_DAT, ".bmp");
