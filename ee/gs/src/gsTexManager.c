@@ -168,6 +168,8 @@ _blockAlloc(unsigned int size)
 	}
 
 	while (block == NULL) {
+		unsigned int used = 0;
+
 		// Free blocks starting with the least used textures
 		for (block = __head; block != NULL; block = block->pNext) {
 			if ((block->tex != NULL) && (_blockGetWeight(block) <= weight)) {
@@ -179,6 +181,15 @@ _blockAlloc(unsigned int size)
 					break;
 				}
 			}
+			else if (block->tex != NULL) {
+				// Still in use, can be freed with a higher weight
+				used++;
+			}
+		}
+
+		if ((block == NULL) && (used == 0)) {
+			// Nothing left to free, the texture does not fit in VRAM
+			break;
 		}
 		weight++;
 	}
@@ -248,6 +259,12 @@ gsKit_TexManager_bind(GSGLOBAL * gsGlobal, GSTEXTURE * tex)
 	// Allocate new block if not already loaded
 	if (block == NULL) {
 		block = _blockAlloc(tsize + csize);
+		if (block == NULL) {
+			printf("gsKit: TexManager: texture does not fit in VRAM\n");
+			tex->Vram = 0;
+			tex->VramClut = 0;
+			return 0;
+		}
 		block->tex = tex;
 		block->iUseCount = 0;
 		block->iUseCountPrev = 1;
